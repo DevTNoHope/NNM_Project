@@ -1,0 +1,48 @@
+/* ═══════════════════════════════════════
+   LAST UPDATES — 3 items horizontal
+═══════════════════════════════════════ */
+
+.updates-section {
+  width: 100%;
+  padding: var(--space-12) 0 var(--space-16);
+}
+
+.updates-section__title {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  margin-bottom: var(--space-6);
+}
+
+.updates-section__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
+}
+
+.update-item {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+.update-item__image {
+  width: 88px;
+  height: 60px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--color-bg-secondary);
+}
+.update-item__image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.update-item__date  { font-size: var(--text-xs); color: var(--color-text-muted); margin-bottom: var(--space-1); }
+.update-item__title { font-size: var(--text-sm); font-weight: 600; line-height: 1.4; }
+
+/* ── Tablet ── */
+@media (max-width: 1199px) {
+  .updates-section__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Mobile ── */
+@media (max-width: 767px) {
+  .updates-section__grid { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,48 @@
+/* ═══════════════════════════════════════
+   ELIGIBLE PROJECTS — sidebar + grid
+═══════════════════════════════════════ */
+
+.eligible-section {
+  width: 100%;
+  padding: var(--space-section-pad-y, var(--space-16)) 0;
+  background: var(--color-bg-secondary);
+}
+
+.eligible-section__inner {
+  display: grid;
+  grid-template-columns: 220px 1fr;   /* fixed sidebar, fluid content */
+  gap: var(--space-10);
+  align-items: start;
+}
+
+.eligible-section__eye {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-primary);
+  margin-bottom: var(--space-3);
+}
+.eligible-section__title {
+  font-size: clamp(1.75rem, 3vw, var(--text-4xl));
+  font-weight: 800;
+  margin-bottom: var(--space-3);
+  line-height: 1.15;
+}
+.eligible-section__desc {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-6);
+  line-height: 1.6;
+  font-size: var(--text-sm);
+}
+
+/* ── Tablet: shrink sidebar ── */
+@media (max-width: 1199px) {
+  .eligible-section__inner { grid-template-columns: 180px 1fr; gap: var(--space-8); }
+}
+
+/* ── Mobile: stack ── */
+@media (max-width: 767px) {
+  .eligible-section__inner { grid-template-columns: 1fr; }
+}

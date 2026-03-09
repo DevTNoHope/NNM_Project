@@ -1,0 +1,39 @@
+/* ═══════════════════════════════════════
+   RECENT POSTS — 3 columns
+═══════════════════════════════════════ */
+
+.recent-posts {
+  width: 100%;
+  padding: var(--space-16) 0;
+}
+
+.recent-posts__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-8);
+}
+.recent-posts__title { font-size: var(--text-3xl); font-weight: 800; }
+.recent-posts__link  {
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+.recent-posts__link:hover { text-decoration: underline; }
+
+.recent-posts__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+}
+
+/* ── Tablet ── */
+@media (max-width: 1199px) {
+  .recent-posts__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Mobile ── */
+@media (max-width: 767px) {
+  .recent-posts__grid { grid-template-columns: 1fr; }
+}

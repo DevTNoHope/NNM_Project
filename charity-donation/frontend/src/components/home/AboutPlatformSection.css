@@ -1,0 +1,69 @@
+/* ═══════════════════════════════════════
+   WHAT IS HOPEFUND — text left, card right
+═══════════════════════════════════════ */
+
+.about-plat {
+  width: 100%;
+  padding: var(--space-16) 0;
+  background: var(--color-bg-secondary);
+}
+
+.about-plat__inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-12);
+  align-items: center;
+}
+
+.about-plat__title {
+  font-size: clamp(1.75rem, 3vw, var(--text-4xl));
+  font-weight: 800;
+  margin-bottom: var(--space-4);
+}
+.about-plat__desc {
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+  margin-bottom: var(--space-6);
+  line-height: 1.75;
+}
+
+/* Gradient card (same style as Cause) */
+.about-plat-card {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  border-radius: var(--radius-2xl);
+  padding: var(--space-8);
+  color: white;
+}
+.about-plat-card__header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: var(--text-base);
+  margin-bottom: var(--space-4);
+}
+.about-plat-card__sub {
+  opacity: 0.85;
+  margin-bottom: var(--space-6);
+  line-height: 1.6;
+  font-size: var(--text-sm);
+}
+.about-plat-card__imgs { display: flex; gap: var(--space-3); }
+.about-plat-img {
+  width: 76px; height: 76px;
+  background: rgba(255,255,255,0.15);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+}
+
+/* ── Tablet ── */
+@media (max-width: 1199px) {
+  .about-plat__inner { gap: var(--space-8); }
+}
+
+/* ── Mobile ── */
+@media (max-width: 767px) {
+  .about-plat__inner { grid-template-columns: 1fr; }
+}
