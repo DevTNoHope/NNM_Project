@@ -1,0 +1,17 @@
+/* ═══════════════════════════════════════
+   PROJECT GRID — 3 → 2 → 1
+═══════════════════════════════════════ */
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
+}
+
+@media (max-width: 1199px) {
+  .project-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 767px) {
+  .project-grid { grid-template-columns: 1fr; }
+}
