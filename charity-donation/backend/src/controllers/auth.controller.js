@@ -3,8 +3,8 @@ const { ok } = require("../utils/response");
 
 async function login(req, res, next) {
   try {
-    const { email, password } = req.body;
-    const data = await authService.loginWithEmailPassword(email, password);
+    const { googleToken } = req.body;
+    const data = await authService.loginWithGoogle(googleToken);
     return ok(res, data, "Login success");
   } catch (err) {
     next(err);

@@ -3,17 +3,23 @@ const ApiError = require("../utils/apiError");
 const usersModel = require("../models/users.model");
 const { signAccessToken, signRefreshToken, verifyRefreshToken } = require("../utils/jwt");
 
-async function loginWithEmailPassword(email, password) {
-  if (!email || !password) throw new ApiError(400, "email & password are required");
+async function loginWithGoogle(googleToken) {
+  if (!googleToken) throw new ApiError(400, "googleToken is required");
 
-  const user = await usersModel.findByEmail(email);
-  if (!user) throw new ApiError(401, "Invalid credentials");
+  // TODO: Verify Google Token using google-auth-library
+  // const client = new OAuth2Client(CLIENT_ID);
+  // const ticket = await client.verifyIdToken({ idToken: googleToken });
+  // const { email, sub: google_sub } = ticket.getPayload();
 
-  // Nếu bạn không dùng password trong DB (vì google-only), đoạn này sẽ đổi sau
-  if (!user.password_hash) throw new ApiError(401, "Password login is disabled (google-only)");
+  // Mock data cho cơ bản
+  const email = "mocked.email@gmail.com";
+  // const googleSub = "mock-google-sub";
 
-  const ok = await bcrypt.compare(password, user.password_hash);
-  if (!ok) throw new ApiError(401, "Invalid credentials");
+  let user = await usersModel.findByEmail(email);
+  if (!user) {
+    // Nếu chưa có user thì cần tạo, phần này cần bổ sung hàm create vào usersModel
+    throw new ApiError(404, "User not found. Need registration logic.");
+  }
 
   const payload = { id: user.id, role: user.role, email: user.email };
   return {
@@ -44,4 +50,4 @@ async function getMe(userId) {
   return { id: user.id, email: user.email, role: user.role, linkedWallet: user.linked_wallet };
 }
 
-module.exports = { loginWithEmailPassword, refresh, getMe };
+module.exports = { loginWithGoogle, refresh, getMe };
