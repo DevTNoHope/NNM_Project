@@ -9,7 +9,7 @@ function authJwt(req, _res, next) {
     if (!token) return next(new ApiError(401, "Missing access token"));
 
     const payload = verifyAccessToken(token);
-    // payload gợi ý: { id, role, email }
+
     req.user = payload;
 
     next();

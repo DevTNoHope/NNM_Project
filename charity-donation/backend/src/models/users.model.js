@@ -1,27 +1,33 @@
 const { query } = require("../utils/dbQuery");
 
-async function findById(id) {
+const findByWallet = async (walletAddress) => {
   const sql = `
-    SELECT id, email, google_sub, role, linked_wallet, created_at, updated_at
+    SELECT *
     FROM users
-    WHERE id = ?
+    WHERE linked_wallet = ?
     LIMIT 1
   `;
-  const rows = await query(sql, [id]);
-  return rows[0] || null;
-}
 
-async function findByEmail(email) {
-  // Nếu bạn dùng google-only, sau này sẽ findByGoogleSub
+  const rows = await query(sql, [walletAddress]);
+  return rows[0] || null;
+};
+
+const createWalletUser = async (walletAddress) => {
   const sql = `
-    SELECT id, email, google_sub, role, linked_wallet, created_at, updated_at,
-           NULL as password_hash
-    FROM users
-    WHERE email = ?
-    LIMIT 1
+    INSERT INTO users (linked_wallet, role)
+    VALUES (?, 'USER')
   `;
-  const rows = await query(sql, [email]);
-  return rows[0] || null;
-}
 
-module.exports = { findById, findByEmail };
+  const result = await query(sql, [walletAddress]);
+
+  return {
+    id: result.insertId,
+    linked_wallet: walletAddress,
+    role: "USER",
+  };
+};
+
+module.exports = {
+  findByWallet,
+  createWalletUser,
+};

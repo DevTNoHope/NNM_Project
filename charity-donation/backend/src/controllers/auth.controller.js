@@ -1,33 +1,46 @@
 const authService = require("../services/auth.service");
-const { ok } = require("../utils/response");
+const response = require("../utils/response");
 
-async function login(req, res, next) {
+const loginWithWallet = async (req, res, next) => {
   try {
-    const { googleToken } = req.body;
-    const data = await authService.loginWithGoogle(googleToken);
-    return ok(res, data, "Login success");
-  } catch (err) {
-    next(err);
-  }
-}
+    const { address, message, signature } = req.body;
 
-async function refresh(req, res, next) {
+    const result = await authService.loginWithWallet({
+      address,
+      message,
+      signature,
+    });
+
+    res.cookie("refreshToken", result.refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return response.ok(res, {
+      user: result.user,
+      accessToken: result.accessToken,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const refreshToken = async (req, res, next) => {
   try {
-    const { refreshToken } = req.body;
-    const data = await authService.refresh(refreshToken);
-    return ok(res, data, "Token refreshed");
-  } catch (err) {
-    next(err);
-  }
-}
+    const token = req.cookies.refreshToken;
+    const accessToken = await authService.refreshAccessToken(token);
 
-async function me(req, res, next) {
-  try {
-    const data = await authService.getMe(req.user.id);
-    return ok(res, data);
-  } catch (err) {
-    next(err);
+    return response.ok(res, {
+      accessToken,
+    });
+  } catch (error) {
+    next(error);
   }
-}
+};
 
-module.exports = { login, refresh, me };
+module.exports = {
+  loginWithWallet,
+  refreshToken,
+};
