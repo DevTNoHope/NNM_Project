@@ -68,7 +68,7 @@ const Navbar = () => {
               {theme === 'light' ? '🌙' : '☀️'}
             </button>
             <Button as={Link} to="/projects" variant="primary" size="sm">+ Create</Button>
-            <Button as={Link} to="/" variant="outline" size="sm">Sign In</Button>
+            <Button as={Link} to="/signin" variant="outline" size="sm">Sign In</Button>
           </div>
 
           {/* Hamburger */}
@@ -108,7 +108,7 @@ const Navbar = () => {
               {theme === 'light' ? 'Dark' : 'Light'} Mode
             </button>
             <Button as={Link} to="/projects" variant="primary" size="md" onClick={() => setMobileOpen(false)}>+ Create</Button>
-            <Button as={Link} to="/" variant="outline" size="md" onClick={() => setMobileOpen(false)}>Sign In</Button>
+            <Button as={Link} to="/signin" variant="outline" size="md" onClick={() => setMobileOpen(false)}>Sign In</Button>
           </div>
         </div>
       )}
