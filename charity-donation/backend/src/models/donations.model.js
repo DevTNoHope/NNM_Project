@@ -20,4 +20,16 @@ async function create({ projectId, userId, donorWallet, amount, txHash, chainId,
   return result.insertId;
 }
 
-module.exports = { create };
+async function getTotalDonations() {
+  const sql = `
+    SELECT COUNT(*) as total_count, COALESCE(SUM(amount), 0) as total_amount
+    FROM donations
+  `;
+  const rows = await query(sql);
+  return {
+    totalCount: rows[0].total_count,
+    totalAmount: rows[0].total_amount
+  };
+}
+
+module.exports = { create, getTotalDonations };

@@ -29,4 +29,23 @@ async function create({ name }) {
   return result.insertId;
 }
 
-module.exports = { findAll, findById, create };
+async function update(id, name) {
+  const sql = `
+    UPDATE categories
+    SET name = ?
+    WHERE id = ?
+  `;
+  const result = await query(sql, [name, id]);
+  return result.affectedRows;
+}
+
+async function remove(id) {
+  const sql = `
+    DELETE FROM categories
+    WHERE id = ?
+  `;
+  const result = await query(sql, [id]);
+  return result.affectedRows;
+}
+
+module.exports = { findAll, findById, create, update, remove };

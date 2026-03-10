@@ -24,4 +24,10 @@ async function findByEmail(email) {
   return rows[0] || null;
 }
 
-module.exports = { findById, findByEmail };
+async function countAll() {
+  const sql = `SELECT COUNT(*) as total FROM users`;
+  const rows = await query(sql);
+  return rows[0].total;
+}
+
+module.exports = { findById, findByEmail, countAll };
