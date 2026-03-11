@@ -1,0 +1,268 @@
+/* SignInPage.css */
+
+.signin-page {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+    background-color: var(--bg-default);
+}
+
+/* Left Panel - Branding Visuals */
+.signin-left-panel {
+    flex: 1;
+    background: linear-gradient(135deg, rgba(88, 51, 239, 0.95), rgba(46, 172, 230, 0.95));
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.signin-brand-content {
+    padding: 40px;
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.signin-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    margin-bottom: auto;
+}
+
+.signin-logo-icon {
+    font-size: 24px;
+}
+
+.signin-logo-text {
+    font-size: 24px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+}
+
+.signin-visual-container {
+    margin-top: auto;
+    margin-bottom: 20%;
+    position: relative;
+}
+
+.signin-welcome-text {
+    color: #ffffff;
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    max-width: 500px;
+}
+
+.signin-welcome-subtext {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 1.25rem;
+    max-width: 450px;
+}
+
+/* Abstract Shape based on Giveth's smiley/curve design */
+.signin-abstract-shape {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-30%, -120%);
+    width: 300px;
+    height: 200px;
+    opacity: 0.15;
+    pointer-events: none;
+}
+
+.shape-circle-small {
+    width: 40px;
+    height: 40px;
+    background-color: #FACC15;
+    border-radius: 50%;
+    position: absolute;
+    top: 0;
+    left: -20px;
+}
+
+.shape-curve {
+    width: 250px;
+    height: 125px;
+    border: 40px solid #FACC15;
+    border-top: 0;
+    border-radius: 0 0 125px 125px;
+    position: absolute;
+    top: 40px;
+    left: 0;
+}
+
+/* Background patterns to mimic Giveth's repeated text/shapes */
+.signin-left-panel::after {
+    content: "HOPE HOPE HOPE HOPE HOPE";
+    position: absolute;
+    font-size: 8rem;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.03);
+    bottom: -20px;
+    left: -20px;
+    line-height: 0.8;
+    width: 150%;
+    display: flex;
+    flex-wrap: wrap;
+    z-index: 1;
+}
+
+/* Right Panel - Login Options */
+.signin-right-panel {
+    flex: 1;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background-color: var(--bg-default);
+}
+
+.signin-close-btn {
+    position: absolute;
+    top: 40px;
+    right: 40px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.signin-close-btn:hover {
+    background-color: var(--bg-card-hover);
+    color: var(--text-primary);
+}
+
+.signin-form-container {
+    margin: auto;
+    width: 100%;
+    max-width: 420px;
+    padding: 40px;
+}
+
+.signin-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.signin-header h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.signin-header p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.signin-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 24px 0;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.signin-divider::before,
+.signin-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.signin-divider span {
+    padding: 0 16px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .signin-welcome-text {
+        font-size: 2.75rem;
+    }
+}
+
+@media (max-width: 900px) {
+    .signin-page {
+        flex-direction: column;
+    }
+
+    .signin-left-panel {
+        flex: none;
+        min-height: 250px;
+    }
+
+    .signin-brand-content {
+        padding: 32px;
+        align-items: center;
+        text-align: center;
+    }
+
+    .signin-logo {
+        margin-bottom: 32px;
+    }
+
+    .signin-visual-container {
+        margin-bottom: 0;
+    }
+
+    .signin-welcome-text {
+        font-size: 2rem;
+        max-width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .signin-welcome-subtext {
+        font-size: 1rem;
+    }
+
+    .signin-abstract-shape,
+    .signin-left-panel::after {
+        display: none;
+    }
+
+    .signin-right-panel {
+        max-width: 100%;
+        flex: 1;
+    }
+
+    .signin-close-btn {
+        top: 24px;
+        right: 24px;
+    }
+
+    .signin-form-container {
+        padding: 32px 24px;
+    }
+
+    .signin-google-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+    .signin-google-button {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    }
+}

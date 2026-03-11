@@ -270,3 +270,13 @@ Admin:
 Founder:
 
 User:
+
+-- 3/11 (Hari)
+Chỉnh db
+USE charity_db;
+ALTER TABLE users
+MODIFY google_sub VARCHAR(255) NULL;
+
+USE charity_db;
+ALTER TABLE users
+MODIFY email VARCHAR(255) NULL;
