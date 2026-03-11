@@ -7,8 +7,13 @@ const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 
-app.use(cors());
 app.use(express.json());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
 
 // Health check
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
