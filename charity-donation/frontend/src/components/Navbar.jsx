@@ -1,5 +1,5 @@
-import { useAuth } from '../context/AuthContext';
-import { useState, useEffect, useContext, useMemo, useRef } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useState, useEffect, useContext, useMemo } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { NAV_LINKS } from "../utils/constants";
 import { ThemeContext } from "../App";
@@ -35,21 +35,12 @@ const getStoredUser = () => {
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
-  const { theme, toggleTheme } = useContext(ThemeContext);
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/');
-  };
   const [currentUser, setCurrentUser] = useState(getStoredUser());
 
   const { theme, toggleTheme } = useContext(ThemeContext);
+  const { user, logout } = useAuth();
   const { disconnectAsync } = useDisconnect();
-  const accountMenuRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -58,59 +49,35 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    if (user) {
+      setCurrentUser(user);
+      return;
+    }
+
+    setCurrentUser(getStoredUser());
+  }, [user]);
 
   useEffect(() => {
-    document.body.style.overflow = mobileOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
-  }, [mobileOpen]);
+    const syncUser = () => setCurrentUser(getStoredUser());
 
-  useEffect(() => {
-    const syncUser = () => {
-      setCurrentUser(getStoredUser());
-    };
-
-    syncUser();
     window.addEventListener("storage", syncUser);
+    window.addEventListener("auth-changed", syncUser);
 
     return () => {
       window.removeEventListener("storage", syncUser);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        accountMenuRef.current &&
-        !accountMenuRef.current.contains(event.target)
-      ) {
-        setAccountMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("auth-changed", syncUser);
     };
   }, []);
 
   const accountLabel = useMemo(() => {
     if (!currentUser) return "";
 
-    if (currentUser.email) {
-      return shortenEmail(currentUser.email);
-    }
-
-    if (currentUser.linked_wallet) {
+    if (currentUser.email) return shortenEmail(currentUser.email);
+    if (currentUser.linked_wallet)
       return shortenAddress(currentUser.linked_wallet);
-    }
+    if (currentUser.walletAddress)
+      return shortenAddress(currentUser.walletAddress);
+    if (currentUser.address) return shortenAddress(currentUser.address);
 
     return "My Account";
   }, [currentUser]);
@@ -119,20 +86,18 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
+      if (logout) await logout();
+
       localStorage.removeItem("accessToken");
       localStorage.removeItem("user");
-      window.dispatchEvent(new Event("storage"));
+      window.dispatchEvent(new Event("auth-changed"));
 
       setCurrentUser(null);
-      setAccountMenuOpen(false);
 
       try {
         await disconnectAsync();
-      } catch {
-        // ignore wallet disconnect errors for non-wallet login
-      }
+      } catch {}
 
-      setMobileOpen(false);
       navigate("/");
     } catch (error) {
       console.error("Logout failed:", error);
@@ -140,8 +105,6 @@ const Navbar = () => {
   };
 
   const handleGoProfile = () => {
-    setAccountMenuOpen(false);
-    setMobileOpen(false);
     navigate("/profile");
   };
 
@@ -149,11 +112,7 @@ const Navbar = () => {
     <header className={`navbar ${scrolled ? "navbar--scrolled" : ""}`}>
       <div className="container">
         <nav className="navbar__inner">
-          <Link
-            to="/"
-            className="navbar__logo"
-            onClick={() => setMobileOpen(false)}
-          >
+          <Link to="/" className="navbar__logo">
             <span className="navbar__logo-icon">🌿</span>
             <span className="navbar__logo-text">HopeFund</span>
           </Link>
@@ -193,7 +152,6 @@ const Navbar = () => {
             <button
               className="navbar__theme"
               onClick={toggleTheme}
-              aria-label="Toggle theme"
               title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
             >
               {theme === "light" ? "🌙" : "☀️"}
@@ -205,12 +163,9 @@ const Navbar = () => {
 
             {isLoggedIn ? (
               <div className="navbar__account-menu">
-                <button
-                  type="button"
-                  className="navbar__account"
-                  title={accountLabel}
-                >
+                <button type="button" className="navbar__account">
                   <span className="navbar__account-label">{accountLabel}</span>
+                  <span className="navbar__account-caret">▾</span>
                 </button>
 
                 <div className="navbar__dropdown">
@@ -224,7 +179,7 @@ const Navbar = () => {
 
                   <button
                     type="button"
-                    className="navbar__dropdown-item"
+                    className="navbar__dropdown-item navbar__logout-btn"
                     onClick={handleLogout}
                   >
                     Logout
@@ -243,81 +198,10 @@ const Navbar = () => {
             onClick={() => setMobileOpen((o) => !o)}
             aria-label="Toggle menu"
           >
-            <span className={`ham ${mobileOpen ? "ham--open" : ""}`}>
-              <span />
-              <span />
-              <span />
-            </span>
+            ☰
           </button>
         </nav>
       </div>
-
-      {mobileOpen && (
-        <div className="navbar__mobile">
-          <ul className="navbar__mobile-links">
-            {NAV_LINKS.map((l) => (
-              <li key={l.path}>
-                <NavLink
-                  to={l.path}
-                  className={({ isActive }) =>
-                    `navbar__mobile-link ${
-                      isActive ? "navbar__mobile-link--active" : ""
-                    }`
-                  }
-                  onClick={() => setMobileOpen(false)}
-                >
-                  {l.label}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-
-          <div className="navbar__mobile-actions">
-            <button
-              className="navbar__theme navbar__theme--mobile"
-              onClick={toggleTheme}
-            >
-              {theme === "light" ? "🌙" : "☀️"}&nbsp;
-              {theme === "light" ? "Dark" : "Light"} Mode
-            </button>
-
-            <Button
-              as={Link}
-              to="/projects"
-              variant="primary"
-              size="md"
-              onClick={() => setMobileOpen(false)}
-            >
-              + Create
-            </Button>
-
-            {isLoggedIn ? (
-              <>
-                <button
-                  type="button"
-                  className="navbar__account navbar__account--mobile"
-                  onClick={handleGoProfile}
-                >
-                  {accountLabel}
-                </button>
-                <Button variant="outline" size="md" onClick={handleLogout}>
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <Button
-                as={Link}
-                to="/signin"
-                variant="outline"
-                size="md"
-                onClick={() => setMobileOpen(false)}
-              >
-                Sign In
-              </Button>
-            )}
-          </div>
-        </div>
-      )}
     </header>
   );
 };

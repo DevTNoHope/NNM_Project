@@ -6,7 +6,7 @@ const getCookieOptions = () => ({
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: "lax",
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  maxAge: 7 * 24 * 60 * 60 * 1000,
 });
 
 const loginWithWallet = async (req, res, next) => {
@@ -19,30 +19,16 @@ const loginWithWallet = async (req, res, next) => {
       signature,
     });
 
-    res.cookie("refreshToken", result.refreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie("refreshToken", result.refreshToken, getCookieOptions());
 
-    return response.ok(res, {
-      user: result.user,
-      accessToken: result.accessToken,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const refreshToken = async (req, res, next) => {
-  try {
-    const token = req.cookies.refreshToken;
-    const accessToken = await authService.refreshAccessToken(token);
-
-    return response.ok(res, {
-      accessToken,
-    });
+    return response.ok(
+      res,
+      {
+        user: result.user,
+        accessToken: result.accessToken,
+      },
+      "Login success",
+    );
   } catch (error) {
     next(error);
   }
@@ -50,10 +36,17 @@ const refreshToken = async (req, res, next) => {
 
 async function login(req, res, next) {
   try {
-    const { googleToken } = req.body;
-    const { user, accessToken, refreshToken } = await authService.loginWithGoogle(googleToken);
+    const { email, googleSub, name } = req.body;
+
+    const { user, accessToken, refreshToken } =
+      await authService.loginWithGoogle({
+        email,
+        googleSub,
+        name,
+      });
 
     res.cookie("refreshToken", refreshToken, getCookieOptions());
+
     return response.ok(res, { user, accessToken }, "Login success");
   } catch (err) {
     next(err);
@@ -67,11 +60,18 @@ async function refresh(req, res, next) {
       throw new ApiError(401, "No refresh token provided");
     }
 
-    // authService.refresh logic
     const data = await authService.refresh(refreshToken);
+
     res.cookie("refreshToken", data.refreshToken, getCookieOptions());
 
-    return response.ok(res, { accessToken: data.accessToken }, "Token refreshed");
+    return response.ok(
+      res,
+      {
+        user: data.user,
+        accessToken: data.accessToken,
+      },
+      "Token refreshed",
+    );
   } catch (err) {
     next(err);
   }
@@ -97,7 +97,6 @@ async function me(req, res, next) {
 
 module.exports = {
   loginWithWallet,
-  refreshToken,
   login,
   refresh,
   logout,
