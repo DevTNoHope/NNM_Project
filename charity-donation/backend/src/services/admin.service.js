@@ -7,7 +7,7 @@ const ApiError = require("../utils/apiError");
 async function getDashboardStats() {
   const totalUsers = await usersModel.countAll();
   const totalProjects = await projectsModel.countAll();
-  const pendingProjects = await projectsModel.countByStatus("DRAFT"); // Assuming DRAFT is pending approval
+  const pendingProjects = await projectsModel.countByStatus("PENDING"); // Cập nhật từ DRAFT sang PENDING
   
   const donationStats = await donationsModel.getTotalDonations();
 
@@ -26,9 +26,9 @@ async function getDashboardStats() {
   };
 }
 
-async function getPendingProjects() {
-  // Fetch projects with DRAFT status (or whatever status represents pending review)
-  return projectsModel.findByStatus("DRAFT");
+async function getAllAdminProjects() {
+  // Fetch all projects regardless of status
+  return projectsModel.findAll();
 }
 
 async function reviewProject(projectId, adminId, decision, note) {
@@ -55,8 +55,18 @@ async function reviewProject(projectId, adminId, decision, note) {
   return { projectId, newStatus: decision };
 }
 
+async function getAllUsersWithStats() {
+  return usersModel.findAllWithStats();
+}
+
+async function getUserDonationHistory(userId) {
+  return usersModel.getUserDonationHistory(userId);
+}
+
 module.exports = {
   getDashboardStats,
-  getPendingProjects,
-  reviewProject
+  getAllAdminProjects,
+  reviewProject,
+  getAllUsersWithStats,
+  getUserDonationHistory
 };

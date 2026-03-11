@@ -2,10 +2,12 @@ const { query } = require("../utils/dbQuery");
 
 async function findAll() {
   const sql = `
-    SELECT id, founder_id, category_id, title, description, goal_amount, status,
-           cover_image_url, vault_address, created_at, updated_at
-    FROM projects
-    ORDER BY created_at DESC
+    SELECT p.id, p.founder_id, p.category_id, c.name as category_name, p.title, p.description, p.goal_amount, p.status,
+           p.cover_image_url, p.vault_address, p.created_at, p.updated_at,
+           (SELECT COALESCE(SUM(amount), 0) FROM donations WHERE project_id = p.id AND status = 'CONFIRMED') as total_donated
+    FROM projects p
+    LEFT JOIN categories c ON p.category_id = c.id
+    ORDER BY p.created_at DESC
   `;
   return query(sql);
 }
@@ -25,7 +27,7 @@ async function findById(id) {
 async function create({ founderId, categoryId, title, description, goalAmount, coverImageUrl }) {
   const sql = `
     INSERT INTO projects (founder_id, category_id, title, description, goal_amount, status, cover_image_url)
-    VALUES (?, ?, ?, ?, ?, 'DRAFT', ?)
+    VALUES (?, ?, ?, ?, ?, 'PENDING', ?)
   `;
   const result = await query(sql, [founderId, categoryId, title, description, goalAmount, coverImageUrl]);
   return result.insertId;
