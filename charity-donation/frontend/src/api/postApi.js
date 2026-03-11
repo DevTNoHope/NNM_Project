@@ -1,10 +1,9 @@
-import { mockGet } from './http';
-import { MOCK_POSTS } from '../utils/mockData';
+import http from './http';
 
-export const getPosts = () => mockGet(MOCK_POSTS);
+export const getPosts = () => http.get('/posts');
 
 export const getPostBySlug = (slug) =>
-  mockGet(MOCK_POSTS.find(p => p.slug === slug) || null);
+  http.get(`/posts/${slug}`);
 
 export const getFeaturedPost = () =>
-  mockGet(MOCK_POSTS.find(p => p.featured) || MOCK_POSTS[0]);
+  http.get('/posts/featured');

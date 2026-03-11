@@ -1,19 +1,39 @@
-import { useState, useEffect, useContext } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { useState, useEffect, useContext, useRef } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { NAV_LINKS } from '../utils/constants';
 import { ThemeContext } from '../App';
+import { useAuth } from '../context/AuthContext';
 import Button from './common/Button';
 import './Navbar.css';
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const { theme, toggleTheme } = useContext(ThemeContext);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -68,7 +88,39 @@ const Navbar = () => {
               {theme === 'light' ? '🌙' : '☀️'}
             </button>
             <Button as={Link} to="/projects" variant="primary" size="sm">+ Create</Button>
-            <Button as={Link} to="/signin" variant="outline" size="sm">Sign In</Button>
+            {user ? (
+              <div className="navbar__user-menu" ref={dropdownRef}>
+                <button
+                  className="navbar__avatar-btn"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  aria-expanded={dropdownOpen}
+                >
+                  <div className="navbar__avatar">
+                    {user.avatar ? (
+                      <img src={user.avatar} alt={user.email} />
+                    ) : (
+                      <span>{(user.name || user.email || 'U').charAt(0).toUpperCase()}</span>
+                    )}
+                  </div>
+                </button>
+                {dropdownOpen && (
+                  <div className="navbar__dropdown">
+                    <div className="navbar__dropdown-header">
+                      <p className="navbar__dropdown-name">{user.name || user.email.split('@')[0]}</p>
+                      <p className="navbar__dropdown-email">{user.email}</p>
+                    </div>
+                    <ul className="navbar__dropdown-list">
+                      <li><Link to="/profile" onClick={() => setDropdownOpen(false)}>My Profile</Link></li>
+                      <li><Link to="/my-donations" onClick={() => setDropdownOpen(false)}>My Donations</Link></li>
+                      <li className="navbar__dropdown-divider"></li>
+                      <li><button onClick={handleLogout} className="navbar__logout-btn">Logout</button></li>
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Button as={Link} to="/signin" variant="outline" size="sm">Sign In</Button>
+            )}
           </div>
 
           {/* Hamburger */}
@@ -108,7 +160,28 @@ const Navbar = () => {
               {theme === 'light' ? 'Dark' : 'Light'} Mode
             </button>
             <Button as={Link} to="/projects" variant="primary" size="md" onClick={() => setMobileOpen(false)}>+ Create</Button>
-            <Button as={Link} to="/signin" variant="outline" size="md" onClick={() => setMobileOpen(false)}>Sign In</Button>
+            {user ? (
+              <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ padding: '12px', background: 'var(--color-surface-hover)', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div className="navbar__avatar">
+                    {user.avatar ? (
+                      <img src={user.avatar} alt={user.email} />
+                    ) : (
+                      <span>{(user.name || user.email || 'U').charAt(0).toUpperCase()}</span>
+                    )}
+                  </div>
+                  <div style={{ overflow: 'hidden' }}>
+                    <p style={{ margin: 0, fontWeight: 600, fontSize: '14px', color: 'var(--color-text)' }}>{user.name || user.email.split('@')[0]}</p>
+                    <p style={{ margin: 0, fontSize: '12px', color: 'var(--color-text-secondary)', textOverflow: 'ellipsis', overflow: 'hidden' }}>{user.email}</p>
+                  </div>
+                </div>
+                <Link to="/profile" className="navbar__mobile-dropdown-link" onClick={() => setMobileOpen(false)}>My Profile</Link>
+                <Link to="/my-donations" className="navbar__mobile-dropdown-link" onClick={() => setMobileOpen(false)}>My Donations</Link>
+                <button className="navbar__mobile-dropdown-link navbar__mobile-logout" onClick={() => { handleLogout(); setMobileOpen(false); }}>Logout</button>
+              </div>
+            ) : (
+              <Button as={Link} to="/signin" variant="outline" size="md" onClick={() => setMobileOpen(false)}>Sign In</Button>
+            )}
           </div>
         </div>
       )}
