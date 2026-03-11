@@ -15,8 +15,8 @@ USE charity_db;
 CREATE TABLE users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
-    email VARCHAR(255) UNIQUE NOT NULL,
-    google_sub VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) NULL,
+    google_sub VARCHAR(255) NULL,
 
     role ENUM('USER','FOUNDER','ADMIN') DEFAULT 'USER',
 
