@@ -1,4 +1,6 @@
 const { getAddress, verifyMessage } = require("viem");
+const { OAuth2Client } = require("google-auth-library");
+
 const usersModel = require("../models/users.model");
 const ApiError = require("../utils/apiError");
 const {
@@ -6,11 +8,28 @@ const {
   signRefreshToken,
   verifyRefreshToken,
 } = require("../utils/jwt");
-
-const { OAuth2Client } = require("google-auth-library");
 const env = require("../config/env");
 
-const googleClient = new OAuth2Client(env.google?.clientId || process.env.GOOGLE_CLIENT_ID);
+const googleClient = new OAuth2Client(
+  env.google?.clientId || process.env.GOOGLE_CLIENT_ID,
+);
+
+const buildTokenPayload = (user) => ({
+  id: user.id,
+  sub: user.id,
+  role: user.role,
+  email: user.email || null,
+  wallet: user.linked_wallet || null,
+});
+
+const sanitizeUser = (user) => ({
+  id: user.id,
+  email: user.email,
+  name: user.name,
+  role: user.role,
+  linked_wallet: user.linked_wallet || null,
+  google_sub: user.google_sub || null,
+});
 
 const loginWithWallet = async ({ address, message, signature }) => {
   let wallet;
@@ -48,133 +67,79 @@ const loginWithWallet = async ({ address, message, signature }) => {
   let user = await usersModel.findByWallet(wallet);
 
   if (!user) {
-    await usersModel.createWalletUser(wallet);
-    user = await usersModel.findByWallet(wallet);
+    user = await usersModel.createWalletUser(wallet);
+  } else {
+    user = await usersModel.findById(user.id);
   }
 
-  const payload = {
-    sub: user.id,
-    role: user.role,
-    wallet: user.linked_wallet,
-  };
-
-  const accessToken = signAccessToken(payload);
-  const refreshToken = signRefreshToken(payload);
+  const tokenPayload = buildTokenPayload(user);
 
   return {
-    user,
-    accessToken,
-    refreshToken,
+    user: sanitizeUser(user),
+    accessToken: signAccessToken(tokenPayload),
+    refreshToken: signRefreshToken(tokenPayload),
   };
 };
 
-const refreshAccessToken = async (refreshToken) => {
-  if (!refreshToken) {
-    throw new ApiError(401, "Missing refresh token");
-  }
+async function loginWithGoogle({ email, googleSub, name }) {
+  if (!email) throw new ApiError(400, "Email is required");
+  if (!googleSub) throw new ApiError(400, "googleSub is required");
 
-  let payload;
-
-  try {
-    payload = verifyRefreshToken(refreshToken);
-  } catch {
-    throw new ApiError(401, "Invalid refresh token");
-  }
-
-  return signAccessToken({
-    sub: payload.sub,
-    role: payload.role,
-    wallet: payload.wallet,
-  });
-};
-
-async function loginWithGoogle(googleToken) {
-  if (!googleToken) {
-    throw new ApiError(400, "googleToken is required");
-  }
-
-  const clientId = env.google?.clientId || process.env.GOOGLE_CLIENT_ID;
-  if (!clientId) {
-    throw new ApiError(500, "GOOGLE_CLIENT_ID is not configured");
-  }
-
-  const ticket = await googleClient.verifyIdToken({
-    idToken: googleToken,
-    audience: clientId,
-  });
-
-  const payload = ticket.getPayload();
-  if (!payload) {
-    throw new ApiError(401, "Invalid Google token");
-  }
-
-  const email = String(payload.email || "").toLowerCase().trim();
-  const googleSub = payload.sub;
-  const emailVerified = payload.email_verified;
-
-  if (!email) {
-    throw new ApiError(400, "Google account email not found");
-  }
-
-  if (!googleSub) {
-    throw new ApiError(400, "Google account subject not found");
-  }
-
-  if (!emailVerified) {
-    throw new ApiError(401, "Google email is not verified");
-  }
+  const normalizedEmail = String(email).toLowerCase().trim();
 
   let user = await usersModel.findByGoogleSub(googleSub);
 
   if (!user) {
-    user = await usersModel.findByEmail(email);
+    user = await usersModel.findByEmail(normalizedEmail);
   }
 
   if (!user) {
     user = await usersModel.createGoogleUser({
-      email,
+      email: normalizedEmail,
       googleSub,
+      name,
       role: "USER",
     });
   } else if (!user.google_sub) {
     user = await usersModel.attachGoogleSub(user.id, googleSub);
   }
 
-  const jwtPayload = {
-    id: user.id,
-    role: user.role,
-    email: user.email,
-  };
+  user = await usersModel.findById(user.id);
+
+  const tokenPayload = buildTokenPayload(user);
 
   return {
-    user: {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      google_sub: user.google_sub,
-    },
-    accessToken: signAccessToken(jwtPayload),
-    refreshToken: signRefreshToken(jwtPayload),
+    user: sanitizeUser(user),
+    accessToken: signAccessToken(tokenPayload),
+    refreshToken: signRefreshToken(tokenPayload),
   };
 }
 
 async function refresh(refreshToken) {
-  if (!refreshToken) throw new ApiError(400, "refreshToken is required");
+  if (!refreshToken) {
+    throw new ApiError(401, "No refresh token provided");
+  }
 
-  const payload = verifyRefreshToken(refreshToken);
-  const user = await usersModel.findById(payload.id);
+  let payload;
+  try {
+    payload = verifyRefreshToken(refreshToken);
+  } catch {
+    throw new ApiError(401, "Invalid refresh token");
+  }
 
-  if (!user) throw new ApiError(401, "Invalid refresh token");
+  const userId = payload.id || payload.sub;
+  const user = await usersModel.findById(userId);
 
-  const newPayload = {
-    id: user.id,
-    role: user.role,
-    email: user.email,
-  };
+  if (!user) {
+    throw new ApiError(401, "Invalid refresh token");
+  }
+
+  const tokenPayload = buildTokenPayload(user);
 
   return {
-    accessToken: signAccessToken(newPayload),
-    refreshToken: signRefreshToken(newPayload),
+    user: sanitizeUser(user),
+    accessToken: signAccessToken(tokenPayload),
+    refreshToken: signRefreshToken(tokenPayload),
   };
 }
 
@@ -193,7 +158,6 @@ async function getMe(userId) {
 
 module.exports = {
   loginWithWallet,
-  refreshAccessToken,
   loginWithGoogle,
   refresh,
   getMe,

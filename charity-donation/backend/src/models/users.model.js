@@ -90,12 +90,14 @@ async function findByGoogleSub(googleSub) {
   return rows[0] || null;
 }
 
-async function createGoogleUser({ email, googleSub, role = "USER" }) {
+async function createGoogleUser({ email, googleSub, name, role = "USER" }) {
   const insertSql = `
-    INSERT INTO users (email, google_sub, role)
-    VALUES (?, ?, ?)
+    INSERT INTO users (email, google_sub, name, role)
+    VALUES (?, ?, ?, ?)
   `;
-  const result = await query(insertSql, [email, googleSub, role]);
+
+  const result = await query(insertSql, [email, googleSub, name, role]);
+
   return findById(result.insertId);
 }
 
