@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import HomePage from '../pages/Home/HomePage';
 import ProjectsPage from '../pages/Projects/ProjectsPage';
@@ -11,8 +11,25 @@ import NotFoundPage from '../pages/NotFound/NotFoundPage';
 import SignInPage from '../pages/SignIn/SignInPage';
 import ProtectedRoute from './ProtectedRoute';
 
+// Admin Imports
+import AdminLayout from '../layouts/AdminLayout/AdminLayout';
+import AdminDashboard from '../pages/Admin/Dashboard/AdminDashboard';
+import PendingProjects from '../pages/Admin/Projects/PendingProjects';
+import AdminCategories from '../pages/Admin/Categories/AdminCategories';
+import AdminUsers from '../pages/Admin/Users/AdminUsers';
+
 const AppRoutes = () => (
   <Routes>
+    {/* Admin Routes */}
+    <Route path="/admin" element={<AdminLayout />}>
+      <Route index element={<AdminDashboard />} />
+      <Route path="dashboard" element={<Navigate to="/admin" replace />} />
+      <Route path="projects/pending" element={<PendingProjects />} />
+      <Route path="categories" element={<AdminCategories />} />
+      <Route path="users" element={<AdminUsers />} />
+    </Route>
+
+    {/* Public Routes */}
     <Route path="/signin" element={<SignInPage />} />
     <Route element={<MainLayout />}>
       <Route path="/" element={<HomePage />} />
