@@ -2,11 +2,12 @@ import { createContext, useState, useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes";
 import { getStoredTheme, applyTheme } from "./utils/theme";
+import { AuthProvider } from "./context/AuthContext";
 import "./styles/global.css";
 
 export const ThemeContext = createContext({
   theme: "light",
-  toggleTheme: () => {},
+  toggleTheme: () => { },
 });
 
 function App() {
@@ -22,9 +23,11 @@ function App() {
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </AuthProvider>
     </ThemeContext.Provider>
   );
 }

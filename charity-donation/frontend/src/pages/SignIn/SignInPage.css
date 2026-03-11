@@ -253,4 +253,16 @@
     .signin-form-container {
         padding: 32px 24px;
     }
+
+    .signin-google-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+    .signin-google-button {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    }
 }

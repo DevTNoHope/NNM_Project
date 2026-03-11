@@ -1,3 +1,4 @@
+import { useAuth } from '../context/AuthContext';
 import { useState, useEffect, useContext, useMemo, useRef } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { NAV_LINKS } from "../utils/constants";
@@ -34,11 +35,20 @@ const getStoredUser = () => {
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const { theme, toggleTheme } = useContext(ThemeContext);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
   const [currentUser, setCurrentUser] = useState(getStoredUser());
 
   const { theme, toggleTheme } = useContext(ThemeContext);
   const { disconnectAsync } = useDisconnect();
-  const navigate = useNavigate();
   const accountMenuRef = useRef(null);
 
   useEffect(() => {
@@ -48,10 +58,18 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = mobileOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
     };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
   }, [mobileOpen]);
 
   useEffect(() => {

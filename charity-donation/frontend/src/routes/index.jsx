@@ -9,6 +9,7 @@ import CommunityPage from '../pages/Community/CommunityPage';
 import BlogPage from '../pages/Blog/BlogPage';
 import NotFoundPage from '../pages/NotFound/NotFoundPage';
 import SignInPage from '../pages/SignIn/SignInPage';
+import ProtectedRoute from './ProtectedRoute';
 
 const AppRoutes = () => (
   <Routes>
@@ -22,6 +23,9 @@ const AppRoutes = () => (
       <Route path="/community" element={<CommunityPage />} />
       <Route path="/blog" element={<BlogPage />} />
       <Route path="/blog/:slug" element={<BlogPage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/profile" element={<div style={{ padding: '100px', textAlign: 'center' }}><h2>User Profile</h2><p>This is a protected route!</p></div>} />
+      </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Route>
   </Routes>

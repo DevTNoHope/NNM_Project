@@ -1,12 +1,12 @@
-import { mockGet, mockPost } from './http';
-import { MOCK_PROJECTS } from '../utils/mockData';
+import http from './http';
 
-export const getProjects = () => mockGet(MOCK_PROJECTS);
+export const getProjects = () => http.get('/projects');
 
 export const getProjectBySlug = (slug) =>
-  mockGet(MOCK_PROJECTS.find(p => p.slug === slug) || null);
+  http.get(`/projects/${slug}`);
 
 export const getFeaturedProjects = () =>
-  mockGet(MOCK_PROJECTS.filter(p => p.featured).slice(0, 3));
+  http.get('/projects/featured');
 
-export const submitDonation = (payload) => mockPost(payload);
+export const submitDonation = (payload) =>
+  http.post('/donations', payload);
