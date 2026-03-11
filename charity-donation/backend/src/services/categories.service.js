@@ -24,8 +24,31 @@ async function createCategory(payload) {
   return { id: newId };
 }
 
+async function updateCategory(id, payload) {
+  const { name } = payload;
+  if (!name || typeof name !== "string") {
+    throw new ApiError(400, "Name is required");
+  }
+
+  // Check if category exists
+  await getCategoryById(id);
+
+  await categoriesModel.update(id, name);
+  return { id, name };
+}
+
+async function deleteCategory(id) {
+  // Check if category exists
+  await getCategoryById(id);
+
+  await categoriesModel.remove(id);
+  return { id };
+}
+
 module.exports = {
   getCategories,
   getCategoryById,
-  createCategory
+  createCategory,
+  updateCategory,
+  deleteCategory
 };
