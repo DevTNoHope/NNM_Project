@@ -1,22 +1,23 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import MainLayout from '../layouts/MainLayout';
-import HomePage from '../pages/Home/HomePage';
-import ProjectsPage from '../pages/Projects/ProjectsPage';
-import ProjectDetailPage from '../pages/ProjectDetail/ProjectDetailPage';
-import AboutPage from '../pages/About/AboutPage';
-import FAQPage from '../pages/FAQ/FAQPage';
-import CommunityPage from '../pages/Community/CommunityPage';
-import BlogPage from '../pages/Blog/BlogPage';
-import NotFoundPage from '../pages/NotFound/NotFoundPage';
-import SignInPage from '../pages/SignIn/SignInPage';
-import ProtectedRoute from './ProtectedRoute';
+import { Routes, Route, Navigate } from "react-router-dom";
+import MainLayout from "../layouts/MainLayout";
+import HomePage from "../pages/Home/HomePage";
+import ProjectsPage from "../pages/Projects/ProjectsPage";
+import ProjectDetailPage from "../pages/ProjectDetail/ProjectDetailPage";
+import AboutPage from "../pages/About/AboutPage";
+import FAQPage from "../pages/FAQ/FAQPage";
+import CommunityPage from "../pages/Community/CommunityPage";
+import BlogPage from "../pages/Blog/BlogPage";
+import NotFoundPage from "../pages/NotFound/NotFoundPage";
+import SignInPage from "../pages/SignIn/SignInPage";
+import ProtectedRoute from "./ProtectedRoute";
+import ProfilePage from "../pages/Profile/ProfilePage";
 
 // Admin Imports
-import AdminLayout from '../layouts/AdminLayout/AdminLayout';
-import AdminDashboard from '../pages/Admin/Dashboard/AdminDashboard';
-import PendingProjects from '../pages/Admin/Projects/PendingProjects';
-import AdminCategories from '../pages/Admin/Categories/AdminCategories';
-import AdminUsers from '../pages/Admin/Users/AdminUsers';
+import AdminLayout from "../layouts/AdminLayout/AdminLayout";
+import AdminDashboard from "../pages/Admin/Dashboard/AdminDashboard";
+import PendingProjects from "../pages/Admin/Projects/PendingProjects";
+import AdminCategories from "../pages/Admin/Categories/AdminCategories";
+import AdminUsers from "../pages/Admin/Users/AdminUsers";
 
 const AppRoutes = () => (
   <Routes>
@@ -41,7 +42,11 @@ const AppRoutes = () => (
       <Route path="/blog" element={<BlogPage />} />
       <Route path="/blog/:slug" element={<BlogPage />} />
       <Route element={<ProtectedRoute />}>
-        <Route path="/profile" element={<div style={{ padding: '100px', textAlign: 'center' }}><h2>User Profile</h2><p>This is a protected route!</p></div>} />
+        {/* profile của mình */}
+        <Route path="/profile" element={<ProfilePage isMe />} />
+
+        {/* profile public */}
+        <Route path="/users/:userId" element={<ProfilePage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Route>
