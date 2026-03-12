@@ -22,22 +22,22 @@ const ProjectsPage = () => {
     sort: 'newest'
   });
 
-  useEffect(() => {
-    const loadProjects = async () => {
-      try {
-        setLoading(true);
-        const r = await getProjects();
-        setAll(r?.data?.data || []);
-      } catch (error) {
-        console.error('Load projects failed:', error);
-        setAll([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+useEffect(() => {
+  const loadProjects = async () => {
+    try {
+      setLoading(true);
+      const r = await getProjects();
+      setAll(r?.data?.data || []);
+    } catch (error) {
+      console.error('Load projects failed:', error);
+      setAll([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    loadProjects();
-  }, []);
+  loadProjects();
+}, []);
 
   const filtered = useMemo(() => filterProjects(all, filters), [all, filters]);
   const paginated = filtered.slice(0, page * PAGE_SIZE);

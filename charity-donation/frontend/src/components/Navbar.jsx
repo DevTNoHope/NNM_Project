@@ -3,7 +3,7 @@ import { useState, useEffect, useContext, useMemo } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { NAV_LINKS } from "../utils/constants";
 import { ThemeContext } from "../App";
-import { useDisconnect } from "wagmi";
+// import { useDisconnect } from "wagmi";
 import Button from "./common/Button";
 import "./Navbar.css";
 
@@ -39,7 +39,7 @@ const Navbar = () => {
 
   const { theme, toggleTheme } = useContext(ThemeContext);
   const { user, logout } = useAuth();
-  const { disconnectAsync } = useDisconnect();
+  // const { disconnectAsync } = useDisconnect();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -94,9 +94,9 @@ const Navbar = () => {
 
       setCurrentUser(null);
 
-      try {
-        await disconnectAsync();
-      } catch {}
+      // try {
+      //   await disconnectAsync();
+      // } catch {}
 
       navigate("/");
     } catch (error) {
