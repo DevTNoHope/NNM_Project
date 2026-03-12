@@ -271,7 +271,7 @@ Founder:
 
 User:
 
--- 3/11 (Hari)
+-- 11/3 (Hari)
 Chỉnh db
 USE charity_db;
 ALTER TABLE users
@@ -280,3 +280,11 @@ MODIFY google_sub VARCHAR(255) NULL;
 USE charity_db;
 ALTER TABLE users
 MODIFY email VARCHAR(255) NULL;
+
+-- 12/3(Hai)
+USE charity_db;
+ALTER TABLE users
+ADD COLUMN is_verified TINYINT(1) DEFAULT 0;
+
+ALTER TABLE users
+ADD CONSTRAINT unique_wallet UNIQUE (linked_wallet);

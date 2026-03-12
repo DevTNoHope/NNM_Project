@@ -18,8 +18,8 @@ export const SORT_OPTIONS = [
   { value: 'goal_low', label: 'Goal: Low to High' },
 ];
 
-export const QUICK_AMOUNTS = [25, 50, 100, 250];
+export const QUICK_AMOUNTS = [10000, 20000, 50000, 100000];
 
-export const PAYMENT_METHODS = ['Card', 'Crypto', 'Bank Transfer'];
+export const PAYMENT_METHODS = ['VNPay', 'Crypto'];
 
 export const THEME_KEY = 'hopefund_theme';
