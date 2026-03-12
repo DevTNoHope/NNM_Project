@@ -1,12 +1,16 @@
 import http from './http';
 
-export const getProjects = () => http.get('/projects');
+export const getProjects = () => http.get('/api/projects');
 
-export const getProjectBySlug = (slug) =>
-  http.get(`/projects/${slug}`);
+export const getProjectBySlug = (slug) => http.get(`/api/projects/${slug}`);
 
-export const getFeaturedProjects = () =>
-  http.get('/projects/featured');
+export const getFeaturedProjects = () => http.get('/api/projects');
 
-export const submitDonation = (payload) =>
-  http.post('/donations', payload);
+export const submitDonation = (projectId, payload) =>
+  http.post(`/api/donations/projects/${projectId}/donate`, payload);
+
+export const getDonationStatus = (donationId) =>
+  http.get(`/api/donations/${donationId}/status`);
+
+export const processVnpayReturn = (searchParams) =>
+  http.get(`/api/donations/vnpay-return${searchParams}`);

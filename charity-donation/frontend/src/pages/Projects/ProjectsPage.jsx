@@ -16,17 +16,27 @@ const ProjectsPage = () => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({
-    search: "",
-    status: "All",
-    category: "All",
-    sort: "newest",
+    search: '',
+    status: 'All',
+    category: 'All',
+    sort: 'newest'
   });
 
   useEffect(() => {
-    getProjects().then((r) => {
-      setAll(r.data);
-      setLoading(false);
-    });
+    const loadProjects = async () => {
+      try {
+        setLoading(true);
+        const r = await getProjects();
+        setAll(r?.data?.data || r?.data || []);
+      } catch (error) {
+        console.error('Load projects failed:', error);
+        setAll([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProjects();
   }, []);
 
   const filtered = useMemo(() => filterProjects(all, filters), [all, filters]);
@@ -65,6 +75,7 @@ const ProjectsPage = () => {
               onChange={handleFilters}
               resultCount={filtered.length}
             />
+
             {filtered.length === 0 ? (
               <EmptyState
                 title="No projects found"
@@ -92,4 +103,5 @@ const ProjectsPage = () => {
     </div>
   );
 };
+
 export default ProjectsPage;

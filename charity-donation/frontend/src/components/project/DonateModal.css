@@ -77,3 +77,40 @@
 .donate-success h2 { font-size: var(--text-2xl); }
 .donate-success p { color: var(--color-text-secondary); }
 .donate-success__sub { font-size: var(--text-sm); color: var(--color-text-muted); }
+
+.donate-qr {
+  text-align: center;
+  padding: 8px 0 4px;
+}
+
+.donate-qr__canvas {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.donate-qr__link {
+  display: inline-block;
+  margin-top: 8px;
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.donate-qr__hint {
+  margin-top: 16px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.payment-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 6px;
+}
+
+.payment-icon img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
