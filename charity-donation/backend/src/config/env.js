@@ -18,9 +18,16 @@ const env = {
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "7d"
   },
 
-    google: {
+  google: {
     clientId: process.env.GOOGLE_CLIENT_ID
-  }
+  },
+
+vnpay: {
+  tmnCode: process.env.VNPAY_TMN_CODE,
+  hashSecret: process.env.VNPAY_HASH_SECRET,
+  url: process.env.VNPAY_URL,
+  returnUrl: process.env.VNPAY_RETURN_URL
+}
 
 };
 

@@ -1,9 +1,16 @@
 import ProjectCard from '../ProjectCard';
 import './ProjectGrid.css';
 
-const ProjectGrid = ({ projects }) => (
-  <div className="project-grid">
-    {projects.map(p => <ProjectCard key={p.id} project={p} />)}
-  </div>
-);
+const ProjectGrid = ({ projects }) => {
+  const safeProjects = Array.isArray(projects) ? projects : [];
+
+  return (
+    <div className="project-grid">
+      {safeProjects.map((project) => (
+        <ProjectCard key={project?.id || project?.slug} project={project} />
+      ))}
+    </div>
+  );
+};
+
 export default ProjectGrid;

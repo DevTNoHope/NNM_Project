@@ -44,5 +44,54 @@
 .project-detail__related { padding: var(--space-10) 0 var(--space-16); }
 .project-detail__related-title { font-size: var(--text-2xl); font-weight: 800; margin-bottom: var(--space-6); }
 
+.payment-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 20px auto 0;
+  padding: 16px 20px;
+  width: min(1100px, calc(100% - 32px));
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.payment-banner--success {
+  background: #ecfdf3;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+}
+
+.payment-banner--failed {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.payment-banner__content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.payment-banner__icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.payment-banner__content p {
+  margin: 4px 0 0;
+}
+
+.payment-banner__close {
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  color: inherit;
+}
+
+
 @media (max-width: 1024px) { .project-detail__layout { grid-template-columns: 1fr; } .donate-card { position: static; } }
 @media (max-width: 768px) { .project-detail__banner { height: 220px; } .project-detail__title { font-size: var(--text-3xl); } }

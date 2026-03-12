@@ -118,9 +118,7 @@ CREATE TABLE donations (
 
     amount DECIMAL(18,2) NOT NULL,
 
-    tx_hash VARCHAR(255) UNIQUE,
-
-    chain_id BIGINT,
+    donation_type ENUM('CRYPTO', 'BANKING') NOT NULL DEFAULT 'CRYPTO',
 
     token_address VARCHAR(255),
 
@@ -129,6 +127,9 @@ CREATE TABLE donations (
         'CONFIRMED',
         'FAILED'
     ) DEFAULT 'PENDING',
+
+    vnp_txn_ref VARCHAR(255) NULL,
+    vnp_transaction_no VARCHAR(255) NULL,
 
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     confirmed_at DATETIME NULL,
@@ -141,6 +142,7 @@ CREATE TABLE donations (
 
 CREATE INDEX idx_donations_project ON donations(project_id);
 CREATE INDEX idx_donations_user ON donations(user_id);
+CREATE INDEX idx_donations_vnp_txn_ref ON donations(vnp_txn_ref);
 
 -- ======================================================
 -- WITHDRAW REQUESTS
