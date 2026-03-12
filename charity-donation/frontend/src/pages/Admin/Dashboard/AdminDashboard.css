@@ -1,0 +1,103 @@
+.dashboard-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.widget-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.widget-pill {
+  display: flex;
+  align-items: center;
+  padding: 1.25rem 2rem;
+  border-radius: 50px; /* Pill shape */
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.widget-pill:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 25px rgba(0,0,0,0.15);
+}
+
+/* Gradient Backgrounds */
+.grad-blue { background: linear-gradient(135deg, #3bb4f2, #20a8d8); }
+.grad-pink { background: linear-gradient(135deg, #ff4757, #ff6b81); }
+.grad-purple { background: linear-gradient(135deg, #a55eea, #8854d0); }
+.grad-navy { background: linear-gradient(135deg, #4b6584, #394b6d); }
+
+/* Decoration overlay for 3D pill effect */
+.widget-pill::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 50%;
+  background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.1));
+  pointer-events: none;
+}
+
+.widget-icon {
+  font-size: 2.5rem;
+  margin-right: 1.5rem;
+  opacity: 0.9;
+}
+
+.widget-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.widget-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-top: 0.25rem;
+}
+
+.widget-subtitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.9;
+}
+
+.chart-actions {
+  display: flex;
+  border: 1px solid #c8ced3;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+.chart-actions button {
+  border: none;
+  border-radius: 0;
+  border-right: 1px solid #c8ced3;
+}
+.chart-actions button:last-child {
+  border-right: none;
+}
+
+.chart-legend {
+  font-size: 0.875rem;
+  color: #8a93a2;
+  margin-bottom: 1rem;
+}
+
+/* Adjust grid for responsiveness */
+@media (max-width: 992px) {
+  .widget-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 576px) {
+  .widget-row {
+    grid-template-columns: 1fr;
+  }
+}

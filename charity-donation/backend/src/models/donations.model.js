@@ -80,11 +80,25 @@ async function markFailedByVnpTxnRef(txnRef) {
   await query(sql, [txnRef]);
 }
 
+async function getTotalDonations() {
+  const sql = `
+    SELECT COUNT(*) as total_count, COALESCE(SUM(amount), 0) as total_amount
+    FROM donations
+  `;
+  const rows = await query(sql);
+  return {
+    totalCount: rows[0].total_count,
+    totalAmount: rows[0].total_amount
+  };
+}
+
 module.exports = {
   create,
   updateVnpTxnRef,
   findByVnpTxnRef,
   findById,
   markConfirmedByVnpTxnRef,
-  markFailedByVnpTxnRef
+  markFailedByVnpTxnRef,
+  getTotalDonations
 };
+
