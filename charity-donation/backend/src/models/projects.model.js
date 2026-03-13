@@ -14,10 +14,22 @@ async function findAll() {
 
 async function findById(id) {
   const sql = `
-    SELECT id, founder_id, category_id, title, description, goal_amount, status,
-           cover_image_url, vault_address, created_at, updated_at
-    FROM projects
-    WHERE id = ?
+    SELECT 
+      p.id,
+      p.founder_id,
+      p.category_id,
+      c.name AS category_name,
+      p.title,
+      p.description,
+      p.goal_amount,
+      p.status,
+      p.cover_image_url,
+      p.vault_address,
+      p.created_at,
+      p.updated_at
+    FROM projects p
+    LEFT JOIN categories c ON p.category_id = c.id
+    WHERE p.id = ?
     LIMIT 1
   `;
   const rows = await query(sql, [id]);
@@ -27,7 +39,7 @@ async function findById(id) {
 async function create({ founderId, categoryId, title, description, goalAmount, coverImageUrl }) {
   const sql = `
     INSERT INTO projects (founder_id, category_id, title, description, goal_amount, status, cover_image_url)
-    VALUES (?, ?, ?, ?, ?, 'PENDING', ?)
+    VALUES (?, ?, ?, ?, ?, 'DRAFT', ?)
   `;
   const result = await query(sql, [founderId, categoryId, title, description, goalAmount, coverImageUrl]);
   return result.insertId;
@@ -47,7 +59,7 @@ async function findByStatus(status) {
 async function updateStatus(id, newStatus) {
   const sql = `
     UPDATE projects
-    SET status = ?
+    SET status = ?, updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
   `;
   const result = await query(sql, [newStatus, id]);
@@ -66,4 +78,110 @@ async function countByStatus(status) {
   return rows[0].total;
 }
 
-module.exports = { findAll, findById, create, findByStatus, updateStatus, countAll, countByStatus };
+async function findPublished() {
+  const sql = `
+    SELECT 
+      p.id,
+      p.founder_id,
+      p.category_id,
+      c.name AS category_name,
+      p.title,
+      p.description,
+      p.goal_amount,
+      p.status,
+      p.cover_image_url,
+      p.vault_address,
+      p.created_at,
+      p.updated_at,
+      (
+        SELECT COALESCE(SUM(amount), 0)
+        FROM donations
+        WHERE project_id = p.id AND status = 'CONFIRMED'
+      ) AS total_donated
+    FROM projects p
+    LEFT JOIN categories c ON p.category_id = c.id
+    WHERE p.status = 'PUBLISHED'
+    ORDER BY p.created_at DESC
+  `;
+  return query(sql);
+}
+
+async function findOwnedByUser(userId) {
+  const sql = `
+    SELECT 
+      p.id,
+      p.founder_id,
+      p.category_id,
+      c.name AS category_name,
+      p.title,
+      p.description,
+      p.goal_amount,
+      p.status,
+      p.cover_image_url,
+      p.vault_address,
+      p.created_at,
+      p.updated_at
+    FROM projects p
+    LEFT JOIN categories c ON p.category_id = c.id
+    WHERE p.founder_id = ?
+    ORDER BY p.created_at DESC
+  `;
+  return query(sql, [userId]);
+}
+
+async function findFounderProjects(userId) {
+  const sql = `
+    SELECT 
+      p.id,
+      p.founder_id,
+      p.category_id,
+      c.name AS category_name,
+      p.title,
+      p.description,
+      p.goal_amount,
+      p.status,
+      p.cover_image_url,
+      p.vault_address,
+      p.created_at,
+      p.updated_at
+    FROM projects p
+    LEFT JOIN categories c ON p.category_id = c.id
+    WHERE p.founder_id = ?
+      AND p.status IN ('APPROVED', 'PUBLISHED')
+    ORDER BY p.created_at DESC
+  `;
+  return query(sql, [userId]);
+}
+
+async function updateById(
+  id,
+  { categoryId, title, description, goalAmount, coverImageUrl }
+) {
+  const sql = `
+    UPDATE projects
+    SET
+      category_id = ?,
+      title = ?,
+      description = ?,
+      goal_amount = ?,
+      cover_image_url = ?,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `;
+  const result = await query(sql, [
+    categoryId,
+    title,
+    description,
+    goalAmount,
+    coverImageUrl,
+    id,
+  ]);
+  return result.affectedRows;
+}
+
+async function deleteById(id) {
+  const sql = `DELETE FROM projects WHERE id = ?`;
+  const result = await query(sql, [id]);
+  return result.affectedRows;
+}
+module.exports = { findAll, findById, create, findByStatus, updateStatus, countAll, countByStatus, findPublished, findOwnedByUser, findFounderProjects, updateById, deleteById };

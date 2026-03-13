@@ -3,18 +3,19 @@ const router = express.Router();
 
 const projectsController = require("../controllers/projects.controller");
 const authJwt = require("../middleware/authJwt");
-const requireRole = require("../middleware/requireRole");
 
-// Public
+// Public list
 router.get("/", projectsController.getProjects);
-router.get("/:id", projectsController.getProjectById);
 
-// Founder/Admin tạo project (tuỳ bạn)
-router.post(
-  "/",
-  authJwt,
-  requireRole("FOUNDER", "ADMIN"),
-  projectsController.createProject
-);
+// User draft management
+router.post("/", authJwt, projectsController.createProject);
+router.get("/me", authJwt, projectsController.getMyProjects);
+router.get("/founder/me", authJwt, projectsController.getFounderProjects);
+router.put("/:id", authJwt, projectsController.updateMyProject);
+router.delete("/:id", authJwt, projectsController.deleteMyProject);
+router.post("/:id/submit", authJwt, projectsController.submitProject);
+
+// Public detail
+router.get("/:id", projectsController.getProjectById);
 
 module.exports = router;

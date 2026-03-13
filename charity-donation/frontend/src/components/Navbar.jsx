@@ -153,7 +153,7 @@ const Navbar = () => {
               {theme === "light" ? "🌙" : "☀️"}
             </button>
 
-            <Button as={Link} to="/projects" variant="primary" size="sm">
+            <Button as={Link} to="/my-projects/create" variant="primary" size="sm">
               + Create
             </Button>
 
@@ -170,6 +170,13 @@ const Navbar = () => {
                     onClick={() => navigate("/profile")}
                   >
                     Profile
+                  </button>
+
+                  <button
+                    className="navbar__dropdown-item"
+                    onClick={() => navigate("/my-projects")}
+                  >
+                    My Projects
                   </button>
 
                   <button
