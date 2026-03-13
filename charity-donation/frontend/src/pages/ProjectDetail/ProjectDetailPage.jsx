@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { getProjectBySlug, getProjects } from '../../api/projectApi';
+import { getProjects, getProjectById } from '../../api/projectApi';
 import { calcProgress, formatCurrency } from '../../utils/formatCurrency';
 import DonateModal from '../../components/project/DonateModal';
 import ProjectGrid from '../../components/project/ProjectGrid';
@@ -47,7 +47,7 @@ const ProjectDetailPage = () => {
         setLoading(true);
 
         const [p, all] = await Promise.all([
-          getProjectBySlug(slug),
+          getProjectById(slug),
           getProjects()
         ]);
 
