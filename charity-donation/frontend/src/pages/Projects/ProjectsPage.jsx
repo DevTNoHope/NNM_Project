@@ -36,8 +36,8 @@ const ProjectsPage = () => {
       }
     };
 
-    loadProjects();
-  }, []);
+  loadProjects();
+}, []);
 
   const filtered = useMemo(() => filterProjects(all, filters), [all, filters]);
   const paginated = filtered.slice(0, page * PAGE_SIZE);
