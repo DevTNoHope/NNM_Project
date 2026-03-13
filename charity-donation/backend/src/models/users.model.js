@@ -7,7 +7,6 @@ const findByWallet = async (walletAddress) => {
     WHERE linked_wallet = ?
     LIMIT 1
   `;
-
   const rows = await query(sql, [walletAddress]);
   return rows[0] || null;
 };
@@ -17,7 +16,6 @@ const createWalletUser = async (walletAddress) => {
     INSERT INTO users (linked_wallet, role)
     VALUES (?, 'USER')
   `;
-
   const result = await query(sql, [walletAddress]);
 
   return {
@@ -29,7 +27,16 @@ const createWalletUser = async (walletAddress) => {
 
 async function findById(id) {
   const sql = `
-    SELECT id, email, google_sub, role, linked_wallet, created_at, updated_at
+    SELECT 
+      id,
+      email,
+      name,
+      google_sub,
+      role,
+      linked_wallet,
+      is_verified,
+      created_at,
+      updated_at
     FROM users
     WHERE id = ?
     LIMIT 1
@@ -47,36 +54,6 @@ async function findByEmail(email) {
   `;
   const rows = await query(sql, [email]);
   return rows[0] || null;
-}
-
-async function countAll() {
-  const sql = `SELECT COUNT(*) as total FROM users`;
-  const rows = await query(sql);
-  return rows[0].total;
-}
-
-async function findAllWithStats() {
-  const sql = `
-    SELECT u.id, u.email, u.google_sub, u.role, u.linked_wallet, u.created_at, u.updated_at,
-           COUNT(DISTINCT d.project_id) as total_projects_donated,
-           COALESCE(SUM(d.amount), 0) as total_amount_donated
-    FROM users u
-    LEFT JOIN donations d ON u.id = d.user_id AND d.status = 'CONFIRMED'
-    GROUP BY u.id, u.email, u.google_sub, u.role, u.linked_wallet, u.created_at, u.updated_at
-    ORDER BY u.created_at DESC
-  `;
-  return query(sql);
-}
-
-async function getUserDonationHistory(userId) {
-  const sql = `
-    SELECT d.id, d.project_id, p.title as project_title, d.amount, d.tx_hash, d.status, d.created_at
-    FROM donations d
-    LEFT JOIN projects p ON d.project_id = p.id
-    WHERE d.user_id = ?
-    ORDER BY d.created_at DESC
-  `;
-  return query(sql, [userId]);
 }
 
 async function findByGoogleSub(googleSub) {
@@ -97,7 +74,6 @@ async function createGoogleUser({ email, googleSub, name, role = "USER" }) {
   `;
 
   const result = await query(insertSql, [email, googleSub, name, role]);
-
   return findById(result.insertId);
 }
 
@@ -111,6 +87,107 @@ async function attachGoogleSub(userId, googleSub) {
   return findById(userId);
 }
 
+async function getPublicProfileById(userId) {
+  const sql = `
+    SELECT
+      id,
+      name,
+      linked_wallet,
+      is_verified,
+      created_at
+    FROM users
+    WHERE id = ?
+    LIMIT 1
+  `;
+  const rows = await query(sql, [userId]);
+  return rows[0] || null;
+}
+
+async function updateMyProfile(userId, payload) {
+  const sql = `
+    UPDATE users
+    SET
+      name = ?,
+      email = ?,
+      linked_wallet = ?,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `;
+  return await query(sql, [
+    payload.name,
+    payload.email,
+    payload.linked_wallet,
+    userId,
+  ]);
+}
+
+async function markVerified(userId) {
+  const sql = `
+    UPDATE users
+    SET
+      is_verified = 1,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `;
+  return await query(sql, [userId]);
+}
+
+async function getProjectsByUserId(userId) {
+  const sql = `
+    SELECT
+      p.id,
+      p.founder_id,
+      p.category_id,
+      p.title,
+      p.description,
+      p.goal_amount,
+      p.status,
+      p.cover_image_url,
+      p.vault_address,
+      p.created_at,
+      p.updated_at
+    FROM projects p
+    WHERE p.founder_id = ?
+    ORDER BY p.created_at DESC
+  `;
+  return await query(sql, [userId]);
+}
+
+async function getDonationsByUserId(userId) {
+  const sql = `
+    SELECT
+      d.id,
+      d.project_id,
+      p.title AS project_title,
+      d.user_id,
+      d.donor_wallet,
+      d.amount,
+      d.donation_type,
+      d.tx_hash,
+      d.status,
+      d.created_at,
+      d.confirmed_at
+    FROM donations d
+    LEFT JOIN projects p ON p.id = d.project_id
+    WHERE d.user_id = ?
+    ORDER BY d.created_at DESC
+  `;
+  return await query(sql, [userId]);
+}
+
+async function getTotalReceivedByUserId(userId) {
+  const sql = `
+    SELECT COALESCE(SUM(d.amount), 0) AS total_received
+    FROM donations d
+    JOIN projects p ON p.id = d.project_id
+    WHERE p.founder_id = ?
+      AND d.status = 'CONFIRMED'
+  `;
+
+  const rows = await query(sql, [userId]);
+  return rows[0]?.total_received || 0;
+}
+
 module.exports = {
   findByWallet,
   createWalletUser,
@@ -119,7 +196,10 @@ module.exports = {
   findByGoogleSub,
   createGoogleUser,
   attachGoogleSub,
-  countAll, 
-  findAllWithStats, 
-  getUserDonationHistory
+  getPublicProfileById,
+  updateMyProfile,
+  markVerified,
+  getProjectsByUserId,
+  getDonationsByUserId,
+  getTotalReceivedByUserId,
 };

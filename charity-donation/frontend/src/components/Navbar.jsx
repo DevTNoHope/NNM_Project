@@ -104,10 +104,6 @@ const Navbar = () => {
     }
   };
 
-  const handleGoProfile = () => {
-    navigate("/profile");
-  };
-
   return (
     <header className={`navbar ${scrolled ? "navbar--scrolled" : ""}`}>
       <div className="container">
@@ -170,9 +166,8 @@ const Navbar = () => {
 
                 <div className="navbar__dropdown">
                   <button
-                    type="button"
                     className="navbar__dropdown-item"
-                    onClick={handleGoProfile}
+                    onClick={() => navigate("/profile")}
                   >
                     Profile
                   </button>

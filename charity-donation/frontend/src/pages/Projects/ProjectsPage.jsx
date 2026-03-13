@@ -1,13 +1,13 @@
-import { useState, useEffect, useMemo } from 'react';
-import { getProjects } from '../../api/projectApi';
-import { filterProjects } from '../../utils/filterProjects';
-import SearchBar from '../../components/common/SearchBar';
-import ProjectFilters from '../../components/project/ProjectFilters';
-import ProjectGrid from '../../components/project/ProjectGrid';
-import EmptyState from '../../components/common/EmptyState';
-import Spinner from '../../components/common/Spinner';
-import Button from '../../components/common/Button';
-import './ProjectsPage.css';
+import { useState, useEffect, useMemo } from "react";
+import { getProjects } from "../../api/projectApi";
+import { filterProjects } from "../../utils/filterProjects";
+import SearchBar from "../../components/common/SearchBar";
+import ProjectFilters from "../../components/project/ProjectFilters";
+import ProjectGrid from "../../components/project/ProjectGrid";
+import EmptyState from "../../components/common/EmptyState";
+import Spinner from "../../components/common/Spinner";
+import Button from "../../components/common/Button";
+import "./ProjectsPage.css";
 
 const PAGE_SIZE = 6;
 
@@ -22,19 +22,19 @@ const ProjectsPage = () => {
     sort: 'newest'
   });
 
-useEffect(() => {
-  const loadProjects = async () => {
-    try {
-      setLoading(true);
-      const r = await getProjects();
-      setAll(r?.data?.data || []);
-    } catch (error) {
-      console.error('Load projects failed:', error);
-      setAll([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        setLoading(true);
+        const r = await getProjects();
+        setAll(r?.data?.data || r?.data || []);
+      } catch (error) {
+        console.error('Load projects failed:', error);
+        setAll([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
   loadProjects();
 }, []);
