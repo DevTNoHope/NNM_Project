@@ -11,9 +11,9 @@ import NotFoundPage from "../pages/NotFound/NotFoundPage";
 import SignInPage from "../pages/SignIn/SignInPage";
 import ProtectedRoute from "./ProtectedRoute";
 import ProfilePage from "../pages/Profile/ProfilePage";
-import FounderProjectsPage from "../pages/Founder/Projects/FounderProjectsPage";
 import UserProjectsPage from "../pages/UserProjects/UserProjectsPage";
 import UserProjectFormPage from "../pages/UserProjects/UserProjectFormPage";
+import FounderProjectDashboard from "../pages/Founder/Projects/FounderProjectDashboard";
 
 // Admin Imports
 import AdminLayout from "../layouts/AdminLayout/AdminLayout";
@@ -55,8 +55,8 @@ const AppRoutes = () => (
         
         {/* Founder */}
         <Route
-          path="/founder/projects"
-          element={<FounderProjectsPage />}
+          path="/founder/projects/:id"
+          element={<FounderProjectDashboard />}
         />
       </Route>
       <Route path="*" element={<NotFoundPage />} />

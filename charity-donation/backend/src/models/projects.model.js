@@ -120,7 +120,17 @@ async function findOwnedByUser(userId) {
       p.cover_image_url,
       p.vault_address,
       p.created_at,
-      p.updated_at
+      p.updated_at,
+      (
+        SELECT COALESCE(SUM(amount), 0)
+        FROM donations
+        WHERE project_id = p.id AND status = 'CONFIRMED'
+      ) AS total_donated,
+      (
+        SELECT COUNT(DISTINCT user_id)
+        FROM donations
+        WHERE project_id = p.id AND status = 'CONFIRMED'
+      ) AS total_donors
     FROM projects p
     LEFT JOIN categories c ON p.category_id = c.id
     WHERE p.founder_id = ?
