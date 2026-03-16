@@ -36,14 +36,6 @@ export const deleteMyProject = (projectId) =>
 export const submitProjectForReview = (projectId) =>
   http.post(`/projects/${projectId}/submit`);
 
-/**
- * =========================
- * FOUNDER PROJECT MANAGEMENT APIs
- * Founder chỉ quản lý project đã được duyệt/publish
- * Không edit/delete trực tiếp project published
- * =========================
- */
-export const getFounderProjects = () => http.get("/projects/founder/me");
 
 /**
  * =========================
@@ -62,3 +54,13 @@ export const confirmCryptoDonation = (donationId, payload) =>
 
 export const processVnpayReturn = (searchParams) =>
   http.get(`/donations/vnpay-return${searchParams}`);
+
+
+export const getProjectDonations = (projectId) =>
+  http.get(`/projects/${projectId}/donations`);
+
+export const getProjectUpdates = (projectId) =>
+  http.get(`/projects/${projectId}/updates`);
+
+export const createProjectUpdate = (projectId, payload) =>
+  http.post(`/projects/${projectId}/updates`, payload);

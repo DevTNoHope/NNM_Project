@@ -1,0 +1,54 @@
+.stat-card .progress-bar-container {
+  height: 0.75rem;
+  background: var(--color-bg-secondary, #f3f4f6);
+  border-radius: 1rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.stat-card .progress-bar {
+  height: 100%;
+  background: var(--color-primary, #10b981);
+  transition: width 0.5s ease;
+}
+
+.stat-flex {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text, #111827);
+}
+
+.stat-extra {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border, #f3f4f6);
+}
+
+.status-badge {
+  display: inline-flex;
+  background: #dbeafe;
+  color: #1d4ed8;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.info-text {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+}

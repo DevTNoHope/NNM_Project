@@ -108,9 +108,20 @@ async function getDonationStatus(req, res, next) {
   }
 }
 
+async function getByProjectId(req, res, next) {
+  try {
+    const { id } = req.params;
+    const data = await donationsService.getDonationsByProjectId(id);
+    return response.ok(res, data, "Donations fetched successfully");
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   donateToProject,
   vnpayReturn,
   getDonationStatus,
   confirmCryptoDonation,
+  getByProjectId
 };

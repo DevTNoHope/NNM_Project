@@ -63,6 +63,28 @@ async function findByTxHash(txHash) {
   return rows[0] || null;
 }
 
+async function findByProjectId(projectId) {
+  const sql = `
+    SELECT
+      d.id,
+      d.project_id,
+      d.user_id,
+      u.name AS donor_name,
+      d.donor_wallet,
+      d.amount,
+      d.donation_type,
+      d.tx_hash,
+      d.status,
+      d.created_at,
+      d.confirmed_at
+    FROM donations d
+    LEFT JOIN users u ON u.id = d.user_id
+    WHERE d.project_id = ?
+    ORDER BY d.created_at DESC
+  `;
+  return query(sql, [projectId]);
+}
+
 async function markConfirmedByVnpTxnRef(txnRef, transactionNo = null) {
   const sql = `
     UPDATE donations
@@ -202,6 +224,7 @@ module.exports = {
   findByVnpTxnRef,
   findById,
   findByTxHash,
+  findByProjectId,
   markConfirmedByVnpTxnRef,
   markFailedByVnpTxnRef,
   getTotalDonations,

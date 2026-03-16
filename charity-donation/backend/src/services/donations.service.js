@@ -410,9 +410,22 @@ async function getDonationStatus(donationId, userId) {
   };
 }
 
+async function getDonationsByProjectId(projectId) {
+  if (!Number.isFinite(Number(projectId))) {
+    throw new ApiError(400, "Invalid project id");
+  }
+
+  // Possibly verify project exists first?
+  const project = await projectsModel.findById(Number(projectId));
+  if (!project) throw new ApiError(404, "Project not found");
+
+  return donationsModel.findByProjectId(Number(projectId));
+}
+
 module.exports = {
   createDonation,
   confirmCryptoDonation,
   handleVnpayReturn,
   getDonationStatus,
+  getDonationsByProjectId
 };
