@@ -92,6 +92,7 @@ async function getPublicProfileById(userId) {
     SELECT
       id,
       name,
+      email,
       linked_wallet,
       is_verified,
       created_at
@@ -132,62 +133,6 @@ async function markVerified(userId) {
   return await query(sql, [userId]);
 }
 
-async function getProjectsByUserId(userId) {
-  const sql = `
-    SELECT
-      p.id,
-      p.founder_id,
-      p.category_id,
-      p.title,
-      p.description,
-      p.goal_amount,
-      p.status,
-      p.cover_image_url,
-      p.vault_address,
-      p.created_at,
-      p.updated_at
-    FROM projects p
-    WHERE p.founder_id = ?
-    ORDER BY p.created_at DESC
-  `;
-  return await query(sql, [userId]);
-}
-
-async function getDonationsByUserId(userId) {
-  const sql = `
-    SELECT
-      d.id,
-      d.project_id,
-      p.title AS project_title,
-      d.user_id,
-      d.donor_wallet,
-      d.amount,
-      d.donation_type,
-      d.tx_hash,
-      d.status,
-      d.created_at,
-      d.confirmed_at
-    FROM donations d
-    LEFT JOIN projects p ON p.id = d.project_id
-    WHERE d.user_id = ?
-    ORDER BY d.created_at DESC
-  `;
-  return await query(sql, [userId]);
-}
-
-async function getTotalReceivedByUserId(userId) {
-  const sql = `
-    SELECT COALESCE(SUM(d.amount), 0) AS total_received
-    FROM donations d
-    JOIN projects p ON p.id = d.project_id
-    WHERE p.founder_id = ?
-      AND d.status = 'CONFIRMED'
-  `;
-
-  const rows = await query(sql, [userId]);
-  return rows[0]?.total_received || 0;
-}
-
 module.exports = {
   findByWallet,
   createWalletUser,
@@ -199,7 +144,4 @@ module.exports = {
   getPublicProfileById,
   updateMyProfile,
   markVerified,
-  getProjectsByUserId,
-  getDonationsByUserId,
-  getTotalReceivedByUserId,
 };

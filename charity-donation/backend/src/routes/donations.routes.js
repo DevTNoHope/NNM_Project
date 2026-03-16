@@ -4,7 +4,16 @@ const router = express.Router();
 const donationsController = require("../controllers/donations.controller");
 const authJwt = require("../middleware/authJwt");
 
-router.post("/projects/:projectId/donate", authJwt, donationsController.donateToProject);
+router.post(
+  "/projects/:projectId/donate",
+  authJwt,
+  donationsController.donateToProject,
+);
+router.post(
+  "/:id/confirm-crypto",
+  authJwt,
+  donationsController.confirmCryptoDonation,
+);
 router.get("/vnpay-return", donationsController.vnpayReturn);
 router.get("/:id/status", authJwt, donationsController.getDonationStatus);
 

@@ -1,92 +1,170 @@
-import { useEffect, useState } from 'react';
-import { QUICK_AMOUNTS, PAYMENT_METHODS } from '../../utils/constants';
-import { validateDonateForm } from '../../utils/validators';
-import { submitDonation } from '../../api/projectApi';
-import Button from '../common/Button';
-import './DonateModal.css';
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { parseUnits } from "viem";
+import Button from "../common/Button";
+import { submitDonation, confirmCryptoDonation } from "../../api/projectApi";
+import { approveUsdtMock, donateToVault } from "../../hook/contract/donate";
+import "./DonateModal.css";
+
+const QUICK_AMOUNTS_USD = [5, 10, 20, 50, 100];
+const PAYMENT_METHODS = ["VNPay", "Crypto"];
+
+function getStoredUser() {
+  try {
+    return JSON.parse(localStorage.getItem("user") || "null");
+  } catch {
+    return null;
+  }
+}
 
 const DonateModal = ({ project, onClose }) => {
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false);
-  const [apiError, setApiError] = useState('');
+  const [apiError, setApiError] = useState("");
+  const [stepText, setStepText] = useState("");
+  const [bankingPreview, setBankingPreview] = useState(null);
   const [form, setForm] = useState({
-    amount: '',
-    name: '',
-    email: '',
-    message: '',
-    payment: 'VNPay'
+    amount: "",
+    payment: "VNPay",
   });
-  const [errors, setErrors] = useState({});
+
+  const storedUser = getStoredUser();
+  const linkedWallet = storedUser?.linked_wallet || "";
+  const hasLinkedWallet = Boolean(linkedWallet);
+  const isCrypto = form.payment === "Crypto";
 
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     };
   }, []);
 
-  const set = (key, val) => setForm((f) => ({ ...f, [key]: val }));
-
-  const mapPaymentToDonationType = (payment) => {
-    if (payment === 'Crypto') return 'CRYPTO';
-    return 'BANKING';
+  const setField = (key, value) => {
+    setApiError("");
+    if (key === "amount" || key === "payment") {
+      setBankingPreview(null);
+    }
+    setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const resetErrors = () => {
-    setApiError('');
-    setErrors({});
+  const submitLabel = useMemo(() => {
+    if (loading) return stepText || "Processing...";
+    if (isCrypto) {
+      return form.amount
+        ? `Donate $${Number(form.amount).toLocaleString()}`
+        : "Donate with Crypto";
+    }
+    return form.amount
+      ? `Pay $${Number(form.amount).toLocaleString()}`
+      : "Pay with VNPay";
+  }, [loading, stepText, isCrypto, form.amount]);
+
+  const handleGoToProfile = () => {
+    onClose?.();
+    navigate("/profile");
+  };
+
+  const validate = () => {
+    if (!project?.id) return "Project ID is missing";
+    if (!form.amount || Number(form.amount) <= 0) {
+      return "Amount must be greater than 0";
+    }
+    if (isCrypto && !hasLinkedWallet) {
+      return "Please link your wallet in Profile before donating with crypto";
+    }
+    return "";
   };
 
   const handleSubmit = async () => {
-    const errs = validateDonateForm(form);
-    if (Object.keys(errs).length) {
-      setErrors(errs);
+    const error = validate();
+    if (error) {
+      setApiError(error);
       return;
     }
 
-    if (!project?.id) {
-      setApiError('Project ID is missing');
-      return;
-    }
-
-    resetErrors();
     setLoading(true);
+    setApiError("");
+    setStepText("");
 
     try {
-      const donationType = mapPaymentToDonationType(form.payment);
+      const donationType = isCrypto ? "CRYPTO" : "BANKING";
 
-      const payload = {
+      setStepText("Creating donation...");
+      const createRes = await submitDonation(project.id, {
         amount: Number(form.amount),
-        donationType
-      };
+        donationType,
+        donorWallet: isCrypto ? linkedWallet : undefined,
+      });
 
-      const response = await submitDonation(project.id, payload);
-      const responseData = response?.data?.data;
+      const created = createRes?.data?.data;
 
-      if (!response?.data?.success || !responseData) {
-        throw new Error(response?.data?.message || 'Donation failed');
+      if (!createRes?.data?.success || !created) {
+        throw new Error(createRes?.data?.message || "Donation failed");
       }
 
-      if (donationType === 'BANKING') {
-        const vnpay = responseData.vnpay;
-
-        if (vnpay?.paymentUrl) {
-          window.location.href = vnpay.paymentUrl;
-          return;
+      if (!isCrypto) {
+        if (created?.banking) {
+          setBankingPreview(created.banking);
         }
 
-        throw new Error('VNPay paymentUrl not found');
+        const paymentUrl = created?.vnpay?.paymentUrl;
+        if (!paymentUrl) {
+          throw new Error("VNPay paymentUrl not found");
+        }
+
+        window.location.href = paymentUrl;
+        return;
       }
 
-      alert('Crypto donation created successfully');
-      onClose();
-    } catch (error) {
+      const crypto = created?.crypto;
+      if (!crypto?.vaultAddress || !crypto?.tokenAddress) {
+        throw new Error("Crypto payment info is missing");
+      }
+
+      const amountWei = parseUnits(String(form.amount), 18);
+
+      setStepText("Approving USDT...");
+      await approveUsdtMock({
+        tokenAddress: crypto.tokenAddress,
+        spender: crypto.vaultAddress,
+        amount: amountWei,
+        account: linkedWallet,
+      });
+
+      setStepText("Sending donation transaction...");
+      const txHash = await donateToVault({
+        vaultAddress: crypto.vaultAddress,
+        amount: amountWei,
+        account: linkedWallet,
+      });
+
+      setStepText("Confirming donation...");
+      const confirmRes = await confirmCryptoDonation(created.id, {
+        txHash,
+        donorWallet: linkedWallet,
+      });
+
+      if (!confirmRes?.data?.success) {
+        throw new Error(confirmRes?.data?.message || "Confirm donation failed");
+      }
+
+      onClose?.();
+      navigate(`/projects/${project.id}?payment=success&source=crypto`, {
+        replace: true,
+      });
+      return;
+    } catch (err) {
       setApiError(
-        error?.response?.data?.message ||
-          error?.message ||
-          'Unable to create donation'
+        err?.response?.data?.message ||
+          err?.shortMessage ||
+          err?.message ||
+          "Unable to process donation",
       );
     } finally {
       setLoading(false);
+      setStepText("");
     }
   };
 
@@ -102,79 +180,36 @@ const DonateModal = ({ project, onClose }) => {
 
         <div className="modal__header">
           <h2 className="modal__title">Donate to Project</h2>
-          <p className="modal__subtitle">{project.title}</p>
+          <p className="modal__subtitle">{project?.title}</p>
         </div>
 
         <div className="modal__body">
           <div className="donate-field">
             <label className="donate-label">Quick Amount</label>
             <div className="quick-amounts">
-              {QUICK_AMOUNTS.map((a) => (
+              {QUICK_AMOUNTS_USD.map((a) => (
                 <button
                   type="button"
                   key={a}
-                  className={`quick-btn ${Number(form.amount) === a ? 'quick-btn--active' : ''}`}
-                  onClick={() => set('amount', a)}
+                  className={`quick-btn ${Number(form.amount) === a ? "quick-btn--active" : ""}`}
+                  onClick={() => setField("amount", a)}
                 >
-                  {a.toLocaleString('vi-VN')} VND
+                  ${a}
                 </button>
               ))}
             </div>
           </div>
 
           <div className="donate-field">
-            <label className="donate-label">Amount (VND)</label>
+            <label className="donate-label">Amount (USD)</label>
             <input
-              className={`donate-input ${errors.amount ? 'donate-input--error' : ''}`}
+              className="donate-input"
               type="number"
+              min="1"
+              step="0.01"
               placeholder="Enter amount"
               value={form.amount}
-              onChange={(e) => {
-                set('amount', e.target.value);
-                setErrors((er) => ({ ...er, amount: '' }));
-              }}
-            />
-            {errors.amount && <span className="donate-error">{errors.amount}</span>}
-          </div>
-
-          <div className="donate-field">
-            <label className="donate-label">Your Name</label>
-            <input
-              className={`donate-input ${errors.name ? 'donate-input--error' : ''}`}
-              type="text"
-              placeholder="Full name"
-              value={form.name}
-              onChange={(e) => {
-                set('name', e.target.value);
-                setErrors((er) => ({ ...er, name: '' }));
-              }}
-            />
-            {errors.name && <span className="donate-error">{errors.name}</span>}
-          </div>
-
-          <div className="donate-field">
-            <label className="donate-label">Email</label>
-            <input
-              className={`donate-input ${errors.email ? 'donate-input--error' : ''}`}
-              type="email"
-              placeholder="you@email.com"
-              value={form.email}
-              onChange={(e) => {
-                set('email', e.target.value);
-                setErrors((er) => ({ ...er, email: '' }));
-              }}
-            />
-            {errors.email && <span className="donate-error">{errors.email}</span>}
-          </div>
-
-          <div className="donate-field">
-            <label className="donate-label">Message (Optional)</label>
-            <textarea
-              className="donate-input donate-input--textarea"
-              placeholder="Leave a note of support..."
-              value={form.message}
-              onChange={(e) => set('message', e.target.value)}
-              rows={3}
+              onChange={(e) => setField("amount", e.target.value)}
             />
           </div>
 
@@ -185,11 +220,11 @@ const DonateModal = ({ project, onClose }) => {
                 <button
                   type="button"
                   key={m}
-                  className={`payment-btn ${form.payment === m ? 'payment-btn--active' : ''}`}
-                  onClick={() => set('payment', m)}
+                  className={`payment-btn ${form.payment === m ? "payment-btn--active" : ""}`}
+                  onClick={() => setField("payment", m)}
                 >
                   <span className="payment-icon">
-                    {m === 'VNPay' ? '💳' : '₿'}
+                    {m === "VNPay" ? "💳" : "₿"}
                   </span>
                   {m}
                 </button>
@@ -197,15 +232,51 @@ const DonateModal = ({ project, onClose }) => {
             </div>
           </div>
 
+          {!isCrypto && Number(form.amount) > 0 && (
+            <div className="donate-note">
+              VNPay will charge the VND equivalent at the current exchange rate.
+            </div>
+          )}
+
+          {isCrypto && (
+            <div className="donate-field">
+              <label className="donate-label">Linked Wallet</label>
+              {hasLinkedWallet ? (
+                <div className="donate-wallet-box">{linkedWallet}</div>
+              ) : (
+                <div className="donate-wallet-warning">
+                  <span>You have not linked a wallet yet.</span>
+                  <button
+                    type="button"
+                    className="donate-link-btn"
+                    onClick={handleGoToProfile}
+                  >
+                    Go to Profile
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           {apiError && <span className="donate-error">{apiError}</span>}
         </div>
 
         <div className="modal__footer">
-          <Button variant="ghost" size="md" onClick={onClose}>
+          <Button
+            variant="ghost"
+            size="md"
+            onClick={onClose}
+            disabled={loading}
+          >
             Cancel
           </Button>
-          <Button variant="accent" size="md" onClick={handleSubmit} disabled={loading}>
-            {loading ? 'Redirecting...' : `Donate${form.amount ? ` ${Number(form.amount).toLocaleString('vi-VN')} VND` : ''}`}
+          <Button
+            variant="accent"
+            size="md"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {submitLabel}
           </Button>
         </div>
       </div>

@@ -19,7 +19,7 @@ async function donateToProject(req, res, next) {
       donationType,
       donorWallet,
       tokenAddress,
-      ipAddr
+      ipAddr,
     });
 
     return response.created(res, result, "Donation created successfully");
@@ -33,13 +33,12 @@ async function vnpayReturn(req, res, next) {
     const result = await donationsService.handleVnpayReturn(req.query);
 
     const payment =
-      result.responseCode === "00" &&
-      result.transactionStatus === "00"
+      result.responseCode === "00" && result.transactionStatus === "00"
         ? "success"
         : "failed";
 
     return res.redirect(
-      `http://localhost:5173/projects/${result.projectId}?payment=${payment}`
+      `${process.env.CLIENT_URL}/payment-result?projectId=${result.projectId}&payment=${payment}`,
     );
   } catch (error) {
     next(error);
@@ -50,7 +49,57 @@ async function getDonationStatus(req, res, next) {
   try {
     const result = await donationsService.getDonationStatus(
       req.params.id,
-      req.user.id
+      req.user.id,
+    );
+
+    return response.ok(res, result, "Donation status fetched successfully");
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function confirmCryptoDonation(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { txHash, donorWallet } = req.body;
+
+    const result = await donationsService.confirmCryptoDonation(
+      Number(id),
+      Number(req.user.id),
+      {
+        txHash,
+        donorWallet,
+      },
+    );
+
+    return response.ok(res, result, "Crypto donation confirmed successfully");
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function vnpayReturn(req, res, next) {
+  try {
+    const result = await donationsService.handleVnpayReturn(req.query);
+
+    const payment =
+      result.responseCode === "00" && result.transactionStatus === "00"
+        ? "success"
+        : "failed";
+
+    return res.redirect(
+      `${process.env.CLIENT_URL}/projects/${result.projectId}?payment=${payment}`,
+    );
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function getDonationStatus(req, res, next) {
+  try {
+    const result = await donationsService.getDonationStatus(
+      req.params.id,
+      req.user.id,
     );
 
     return response.ok(res, result, "Donation status fetched successfully");
@@ -62,5 +111,6 @@ async function getDonationStatus(req, res, next) {
 module.exports = {
   donateToProject,
   vnpayReturn,
-  getDonationStatus
+  getDonationStatus,
+  confirmCryptoDonation,
 };

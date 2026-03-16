@@ -46,18 +46,17 @@ const AppRoutes = () => (
       <Route path="/blog/:slug" element={<BlogPage />} />
       <Route element={<ProtectedRoute />}>
         {/* profile của mình */}
-        <Route path="/profile" element={<ProfilePage isMe />} />
+        <Route path="/profile" element={<ProfilePage isMe={true} />} />
+        {/* profile của người khác */}
+        <Route path="/profile/:userId" element={<ProfilePage isMe={false} />} />
 
         {/* User Projects (Drafts) */}
         <Route path="/my-projects" element={<UserProjectsPage />} />
         <Route path="/my-projects/create" element={<UserProjectFormPage />} />
         <Route path="/my-projects/:id/edit" element={<UserProjectFormPage />} />
-        
+
         {/* Founder */}
-        <Route
-          path="/founder/projects"
-          element={<FounderProjectsPage />}
-        />
+        <Route path="/founder/projects" element={<FounderProjectsPage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Route>

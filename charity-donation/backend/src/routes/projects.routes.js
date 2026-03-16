@@ -17,5 +17,6 @@ router.post("/:id/submit", authJwt, projectsController.submitProject);
 
 // Public detail
 router.get("/:id", projectsController.getProjectById);
+router.get("/:id/donations", projectsController.getDonationsByProjectId);
 
 module.exports = router;
