@@ -19,7 +19,8 @@ router.post("/:id/submit", authJwt, projectsController.submitProject);
 
 // Project specific
 router.get("/:id", projectsController.getProjectById);
-router.get("/:id/donations", donationsController.getByProjectId);
+router.get("/:id/donations", projectsController.getDonationsByProjectId);
+//router.get("/:id/donations", donationsController.getByProjectId);
 router.get("/:id/updates", projectUpdatesController.getByProjectId);
 
 // Founder updates management

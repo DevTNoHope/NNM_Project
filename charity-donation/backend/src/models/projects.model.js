@@ -14,9 +14,10 @@ async function findAll() {
 
 async function findById(id) {
   const sql = `
-    SELECT 
+   SELECT 
       p.id,
       p.founder_id,
+      u.name AS founder_name,
       p.category_id,
       c.name AS category_name,
       p.title,
@@ -29,19 +30,34 @@ async function findById(id) {
       p.updated_at
     FROM projects p
     LEFT JOIN categories c ON p.category_id = c.id
+    LEFT JOIN users u ON u.id = p.founder_id
     WHERE p.id = ?
-    LIMIT 1
+    LIMIT 1;
   `;
   const rows = await query(sql, [id]);
   return rows[0] || null;
 }
 
-async function create({ founderId, categoryId, title, description, goalAmount, coverImageUrl }) {
+async function create({
+  founderId,
+  categoryId,
+  title,
+  description,
+  goalAmount,
+  coverImageUrl,
+}) {
   const sql = `
     INSERT INTO projects (founder_id, category_id, title, description, goal_amount, status, cover_image_url)
     VALUES (?, ?, ?, ?, ?, 'DRAFT', ?)
   `;
-  const result = await query(sql, [founderId, categoryId, title, description, goalAmount, coverImageUrl]);
+  const result = await query(sql, [
+    founderId,
+    categoryId,
+    title,
+    description,
+    goalAmount,
+    coverImageUrl,
+  ]);
   return result.insertId;
 }
 
@@ -165,7 +181,7 @@ async function findFounderProjects(userId) {
 
 async function updateById(
   id,
-  { categoryId, title, description, goalAmount, coverImageUrl }
+  { categoryId, title, description, goalAmount, coverImageUrl },
 ) {
   const sql = `
     UPDATE projects
@@ -194,4 +210,41 @@ async function deleteById(id) {
   const result = await query(sql, [id]);
   return result.affectedRows;
 }
-module.exports = { findAll, findById, create, findByStatus, updateStatus, countAll, countByStatus, findPublished, findOwnedByUser, findFounderProjects, updateById, deleteById };
+
+async function getProjectsByUserId(userId) {
+  const sql = `
+    SELECT
+      p.id,
+      p.founder_id,
+      p.category_id,
+      p.title,
+      p.description,
+      p.goal_amount,
+      p.status,
+      p.cover_image_url,
+      p.vault_address,
+      p.created_at,
+      p.updated_at
+    FROM projects p
+    WHERE p.founder_id = ?
+      AND p.status = 'PUBLISHED'
+    ORDER BY p.created_at DESC
+  `;
+  return await query(sql, [userId]);
+}
+
+module.exports = {
+  findAll,
+  findById,
+  create,
+  findByStatus,
+  updateStatus,
+  countAll,
+  countByStatus,
+  findPublished,
+  findOwnedByUser,
+  findFounderProjects,
+  updateById,
+  deleteById,
+  getProjectsByUserId,
+};

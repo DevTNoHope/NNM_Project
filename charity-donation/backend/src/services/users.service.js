@@ -1,4 +1,6 @@
 const usersModel = require("../models/users.model");
+const donationsModel = require("../models/donations.model");
+const projectsModel = require("../models/projects.model");
 const ApiError = require("../utils/apiError");
 const { saveOtp, getOtp, deleteOtp } = require("../utils/otpStore");
 const { sendMail } = require("../utils/mailer");
@@ -14,9 +16,9 @@ const usersService = {
       throw new ApiError(404, "User not found");
     }
 
-    const donations = await usersModel.getDonationsByUserId(userId);
-    const projects = await usersModel.getProjectsByUserId(userId);
-    const totalReceived = await usersModel.getTotalReceivedByUserId(userId);
+    const donations = await donationsModel.getDonationsByUserId(userId);
+    const projects = await projectsModel.getProjectsByUserId(userId);
+    const totalReceived = await donationsModel.getTotalReceivedByUserId(userId);
 
     const totalDonatedAmount = donations.reduce((sum, donation) => {
       return sum + Number(donation.amount || 0);
@@ -67,8 +69,8 @@ const usersService = {
       throw new ApiError(404, "User not found");
     }
 
-    const projects = await usersModel.getProjectsByUserId(userId);
-    const totalReceived = await usersModel.getTotalReceivedByUserId(userId);
+    const projects = await projectsModel.getProjectsByUserId(userId);
+    const totalReceived = await donationsModel.getTotalReceivedByUserId(userId);
 
     return {
       user: {
@@ -88,7 +90,7 @@ const usersService = {
       throw new ApiError(404, "User not found");
     }
 
-    const donations = await usersModel.getDonationsByUserId(userId);
+    const donations = await donationsModel.getDonationsByUserId(userId);
 
     const totalAmount = donations.reduce((sum, donation) => {
       return sum + Number(donation.amount || 0);
