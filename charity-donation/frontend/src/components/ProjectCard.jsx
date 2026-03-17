@@ -4,7 +4,7 @@ import Tag from './common/Tag';
 import './ProjectCard.css';
 
 const ProjectCard = ({ project }) => {
-  const raised = Number(project?.raised ?? project?.raised_amount ?? 0);
+  const raised = Number(project?.raised ?? project?.raised_amount ?? project?.total_raised ?? 0);
   const goal = Number(project?.goal ?? project?.goal_amount ?? 0);
   const progress = calcProgress(raised, goal);
 

@@ -150,8 +150,13 @@ async function getDonationStatus(donationId, userId) {
   };
 }
 
+async function getTopDonations(limit) {
+  return donationsModel.findTopDonations(limit);
+}
+
 module.exports = {
   createDonation,
   handleVnpayReturn,
-  getDonationStatus
+  getDonationStatus,
+  getTopDonations
 };
