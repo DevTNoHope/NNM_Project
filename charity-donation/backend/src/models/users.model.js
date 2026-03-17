@@ -132,6 +132,17 @@ async function markVerified(userId) {
   return await query(sql, [userId]);
 }
 
+async function updateRole(userId, newRole) {
+  const sql = `
+    UPDATE users
+    SET
+      role = ?,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `;
+  return await query(sql, [newRole, userId]);
+}
+
 async function getProjectsByUserId(userId) {
   const sql = `
     SELECT
@@ -163,7 +174,6 @@ async function getDonationsByUserId(userId) {
       d.donor_wallet,
       d.amount,
       d.donation_type,
-      d.tx_hash,
       d.status,
       d.created_at,
       d.confirmed_at
@@ -187,7 +197,34 @@ async function getTotalReceivedByUserId(userId) {
   const rows = await query(sql, [userId]);
   return rows[0]?.total_received || 0;
 }
+async function countAll() {
+  const rows = await query(`
+    SELECT COUNT(*) AS total
+    FROM users
+  `);
 
+  return rows[0].total;
+}
+async function findAllWithStats() {
+  const rows = await query(`
+    SELECT 
+      u.id,
+      u.email,
+      u.role,
+      u.created_at,
+
+      COUNT(d.id) AS total_donations,
+      IFNULL(SUM(d.amount),0) AS total_amount
+
+    FROM users u
+    LEFT JOIN donations d ON d.user_id = u.id
+
+    GROUP BY u.id
+    ORDER BY u.created_at DESC
+  `);
+
+  return rows;
+}
 module.exports = {
   findByWallet,
   createWalletUser,
@@ -199,7 +236,10 @@ module.exports = {
   getPublicProfileById,
   updateMyProfile,
   markVerified,
+  updateRole,
   getProjectsByUserId,
   getDonationsByUserId,
   getTotalReceivedByUserId,
+  countAll,
+  findAllWithStats,
 };

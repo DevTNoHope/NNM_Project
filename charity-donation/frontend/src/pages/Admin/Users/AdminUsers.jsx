@@ -134,7 +134,7 @@ const AdminUsers = () => {
                       <th>Donate ID</th>
                       <th>Project Title</th>
                       <th>Amount (VND)</th>
-                      <th>Tx Hash</th>
+                      <th>Donation Type</th>
                       <th>Date</th>
                     </tr>
                   </thead>
@@ -145,9 +145,9 @@ const AdminUsers = () => {
                         <td><strong>{h.project_title}</strong></td>
                         <td><strong style={{ color: '#20a8d8' }}>{parseInt(h.amount).toLocaleString()}</strong></td>
                         <td>
-                          {h.tx_hash ? (
-                             <span style={{ fontFamily: 'monospace', fontSize: '12px' }} title={h.tx_hash}>
-                               {h.tx_hash.substring(0, 8)}...
+                          {h.donation_type ? (
+                             <span className="badge" style={{ backgroundColor: '#e4e7ea', color: '#5c6873' }}>
+                               {h.donation_type}
                              </span>
                           ) : 'N/A'}
                         </td>

@@ -67,10 +67,6 @@ const AdminLayout = () => {
 
       <div className="admin-main">
         <header className="admin-header">
-          <div className="header-search">
-            <input type="text" placeholder="Search..." />
-            <button>🔍</button>
-          </div>
           <ul className="header-user">
             <li className="notification-icon">
               🔔<span className="badge-dot"></span>

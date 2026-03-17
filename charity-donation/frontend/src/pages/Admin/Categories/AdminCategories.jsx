@@ -6,10 +6,16 @@ const AdminCategories = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Modal State
+  // Modal State cho tạo/chỉnh sửa Category
   const [modalOpen, setModalOpen] = useState(false);
   const [editingCat, setEditingCat] = useState(null); // Tồn tại = EDIT, Null = CREATE
   const [catName, setCatName] = useState("");
+
+  // Modal State cho danh sách Projects thuộc Category
+  const [projectsModalOpen, setProjectsModalOpen] = useState(false);
+  const [selectedCatForProjects, setSelectedCatForProjects] = useState(null);
+  const [categoryProjects, setCategoryProjects] = useState([]);
+  const [projectsLoading, setProjectsLoading] = useState(false);
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -55,6 +61,24 @@ const AdminCategories = () => {
     } catch (error) {
        console.error(error);
        alert("Network error on delete.");
+    }
+  };
+
+  const openProjectsModal = async (cat) => {
+    setSelectedCatForProjects(cat);
+    setProjectsModalOpen(true);
+    setProjectsLoading(true);
+    setCategoryProjects([]);
+    try {
+      const res = await fetch(`${API_URL}/categories/${cat.id}/projects`);
+      const data = await res.json();
+      if (data.success) {
+        setCategoryProjects(data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching category projects:", error);
+    } finally {
+      setProjectsLoading(false);
     }
   };
 
@@ -116,6 +140,7 @@ const AdminCategories = () => {
                   <tr>
                     <th>ID</th>
                     <th>Category Name</th>
+                    <th>Total Donated (VND)</th>
                     <th>Created At</th>
                     <th>Action</th>
                   </tr>
@@ -125,8 +150,16 @@ const AdminCategories = () => {
                     <tr key={c.id}>
                       <td>{c.id}</td>
                       <td><strong>{c.name}</strong></td>
+                      <td><strong style={{ color: '#4dbd74' }}>{parseInt(c.total_amount || 0).toLocaleString()}</strong></td>
                       <td>{new Date(c.created_at).toLocaleDateString()}</td>
                       <td>
+                        <button 
+                          className="btn-core btn-info btn-sm" 
+                          style={{ marginRight: '5px', color: 'white' }}
+                          onClick={() => openProjectsModal(c)}
+                        >
+                          View Projects
+                        </button>
                         <button 
                           className="btn-core btn-warning btn-sm" 
                           style={{ marginRight: '5px' }}
@@ -174,6 +207,57 @@ const AdminCategories = () => {
               >
                 {editingCat ? "Update" : "Create"}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal for Category Projects */}
+      {projectsModalOpen && selectedCatForProjects && (
+        <div className="admin-modal-overlay">
+          <div className="admin-modal" style={{ maxWidth: '800px', width: '90%' }}>
+            <div className="admin-modal-header">
+              <h5>Projects in Category: {selectedCatForProjects.name}</h5>
+              <button className="close-btn" onClick={() => setProjectsModalOpen(false)}>&times;</button>
+            </div>
+            <div className="admin-modal-body" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+              {projectsLoading ? (
+                <p>Loading projects...</p>
+              ) : categoryProjects.length === 0 ? (
+                <p>No projects found in this category.</p>
+              ) : (
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Project ID</th>
+                      <th>Title</th>
+                      <th>Status</th>
+                      <th>Goal (VND)</th>
+                      <th>Raised (VND)</th>
+                      <th>Created At</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {categoryProjects.map(p => (
+                      <tr key={p.id}>
+                        <td>{p.id}</td>
+                        <td><strong>{p.title}</strong></td>
+                        <td>
+                          <span className={`badge ${p.status === 'APPROVED' ? 'btn-success' : p.status === 'REJECTED' ? 'btn-danger' : 'btn-warning'}`}>
+                            {p.status}
+                          </span>
+                        </td>
+                        <td>{parseInt(p.goal_amount).toLocaleString()}</td>
+                        <td><strong style={{ color: '#20a8d8' }}>{parseInt(p.total_donated || 0).toLocaleString()}</strong></td>
+                        <td>{new Date(p.created_at).toLocaleDateString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+            <div className="admin-modal-footer">
+              <button className="btn-core" style={{ backgroundColor: '#c8ced3', color: '#23282c' }} onClick={() => setProjectsModalOpen(false)}>Close</button>
             </div>
           </div>
         </div>

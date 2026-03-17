@@ -166,30 +166,7 @@
   z-index: 5;
 }
 
-.header-search {
-  display: flex;
-  align-items: center;
-  background: #f4f7fa;
-  border-radius: 20px;
-  padding: 0.4rem 1rem;
-  width: 300px;
-}
 
-.header-search input {
-  border: none;
-  background: transparent;
-  outline: none;
-  flex: 1;
-  font-family: inherit;
-  color: #394b6d;
-}
-
-.header-search button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  opacity: 0.5;
-}
 
 .hope-theme .header-user {
   list-style: none;
@@ -408,4 +385,15 @@
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #394b6d;
+  margin: 0;
 }
