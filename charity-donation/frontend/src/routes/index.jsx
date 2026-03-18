@@ -21,16 +21,19 @@ import AdminDashboard from "../pages/Admin/Dashboard/AdminDashboard";
 import PendingProjects from "../pages/Admin/Projects/PendingProjects";
 import AdminCategories from "../pages/Admin/Categories/AdminCategories";
 import AdminUsers from "../pages/Admin/Users/AdminUsers";
+import AdminRoute from "./AdminRoute";
 
 const AppRoutes = () => (
   <Routes>
     {/* Admin Routes */}
-    <Route path="/admin" element={<AdminLayout />}>
-      <Route index element={<AdminDashboard />} />
-      <Route path="dashboard" element={<Navigate to="/admin" replace />} />
-      <Route path="projects/pending" element={<PendingProjects />} />
-      <Route path="categories" element={<AdminCategories />} />
-      <Route path="users" element={<AdminUsers />} />
+    <Route path="/admin" element={<AdminRoute />}>
+      <Route element={<AdminLayout />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="dashboard" element={<Navigate to="/admin" replace />} />
+        <Route path="projects/pending" element={<PendingProjects />} />
+        <Route path="categories" element={<AdminCategories />} />
+        <Route path="users" element={<AdminUsers />} />
+      </Route>
     </Route>
 
     {/* Public Routes */}

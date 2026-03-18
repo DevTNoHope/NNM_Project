@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import "./ProjectDetailModal.css";
+// Remove custom css as we rely on global modern modal styles in AdminLayout.css
+// import "./ProjectDetailModal.css"; 
 
 const ProjectDetailModal = ({ project, onClose, onApprove, onReject }) => {
   const [note, setNote] = useState("");
@@ -8,10 +9,10 @@ const ProjectDetailModal = ({ project, onClose, onApprove, onReject }) => {
 
   const getStatusBadge = (status) => {
     switch(status) {
-      case 'APPROVED': return <span className="badge btn-success">APPROVED</span>;
-      case 'REJECTED': return <span className="badge btn-danger">REJECTED</span>;
-      case 'PENDING': return <span className="badge btn-warning">PENDING</span>;
-      default: return <span className="badge">{status}</span>;
+      case 'APPROVED': return <span className="badge-soft-success">APPROVED</span>;
+      case 'REJECTED': return <span className="badge-soft-danger">REJECTED</span>;
+      case 'PENDING': return <span className="badge-soft-warning">PENDING</span>;
+      default: return <span className="badge-soft-secondary">{status}</span>;
     }
   };
 
@@ -21,88 +22,104 @@ const ProjectDetailModal = ({ project, onClose, onApprove, onReject }) => {
 
   return (
     <div className="admin-modal-overlay">
-      <div className="admin-modal project-detail-modal">
-        <div className="admin-modal-header">
-          <h5>Project Details: {project.title}</h5>
-          <button className="close-btn" onClick={onClose}>&times;</button>
+      <div className="admin-modal-modern" style={{ width: '800px', maxWidth: '95%' }}>
+        <div className="modal-header-modern">
+           <div>
+              <h5>Project Details: {project.title}</h5>
+              <p>Review project information before making a decision.</p>
+           </div>
+           <button className="modal-close-icon" onClick={onClose}>&times;</button>
         </div>
         
-        <div className="admin-modal-body">
-          <div className="pdm-top-section">
-            <div className="pdm-image-wrapper">
+        <div className="modal-body-modern" style={{ padding: '2rem' }}>
+          <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.5rem' }}>
+            {/* Image Section */}
+            <div style={{ width: '300px', flexShrink: 0 }}>
               {project.cover_image_url ? (
-                <img src={project.cover_image_url} alt={project.title} className="pdm-image" />
+                <img 
+                   src={project.cover_image_url} 
+                   alt={project.title} 
+                   style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '12px', border: '1px solid #E5E7EB' }} 
+                />
               ) : (
-                <div className="pdm-no-image">No Cover Image</div>
+                <div style={{ width: '100%', height: '200px', background: '#F3F4F6', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9CA3AF', border: '1px dashed #D1D5DB' }}>
+                   No Cover Image
+                </div>
               )}
             </div>
             
-            <div className="pdm-info-grid">
-              <div className="pdm-info-item">
-                <label>Status:</label>
-                <div>{getStatusBadge(project.status)}</div>
-              </div>
-              <div className="pdm-info-item">
-                <label>Category:</label>
-                <div><strong>{project.category_name || "Unknown"}</strong></div>
-              </div>
-              <div className="pdm-info-item">
-                <label>Founder ID:</label>
-                <div>{project.founder_id}</div>
-              </div>
-              <div className="pdm-info-item">
-                <label>Goal Amount:</label>
-                <div style={{ color: '#20a8d8', fontWeight: 'bold' }}>{goal.toLocaleString()} VND</div>
-              </div>
-              <div className="pdm-info-item">
-                <label>Created At:</label>
-                <div>{new Date(project.created_at).toLocaleString()}</div>
-              </div>
-              <div className="pdm-info-item">
-                <label>Updated At:</label>
-                <div>{new Date(project.updated_at).toLocaleString()}</div>
-              </div>
+            {/* Info Section */}
+            <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', alignContent: 'start' }}>
+               <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#6B7280', marginBottom: '4px' }}>Status:</div>
+                  <div>{getStatusBadge(project.status)}</div>
+               </div>
+               <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#6B7280', marginBottom: '4px' }}>Category:</div>
+                  <div style={{ fontWeight: 600, color: '#111827' }}>{project.category_name || "Education"}</div>
+               </div>
+               <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#6B7280', marginBottom: '4px' }}>Founder ID:</div>
+                  <div style={{ fontWeight: 600, color: '#111827' }}>{project.founder_id}</div>
+               </div>
+               <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#6B7280', marginBottom: '4px' }}>Goal Amount:</div>
+                  <div style={{ fontWeight: 700, color: '#20a8d8' }}>${goal.toLocaleString()}</div>
+               </div>
+               <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#6B7280', marginBottom: '4px' }}>Created At:</div>
+                  <div style={{ fontSize: '0.85rem', color: '#4B5563' }}>{new Date(project.created_at).toLocaleString()}</div>
+               </div>
+               <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#6B7280', marginBottom: '4px' }}>Updated At:</div>
+                  <div style={{ fontSize: '0.85rem', color: '#4B5563' }}>{new Date(project.updated_at).toLocaleString()}</div>
+               </div>
             </div>
           </div>
 
-          <div className="pdm-progress">
-            <div className="pdm-progress-labels">
-              <span>Raised: {donated.toLocaleString()} VND</span>
-              <span>{percent}%</span>
+          <div style={{ marginBottom: '1.5rem', background: '#F9FAFB', padding: '1rem', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.85rem', fontWeight: 600 }}>
+              <span style={{ color: '#4B5563' }}>Raised: ${donated.toLocaleString()}</span>
+              <span style={{ color: '#111827' }}>{percent}%</span>
             </div>
-            <div className="pdm-progress-bar-bg">
+            <div style={{ width: '100%', height: '8px', background: '#E5E7EB', borderRadius: '4px', overflow: 'hidden' }}>
               <div 
-                className="pdm-progress-bar-fill" 
-                style={{ width: `${percent}%`, backgroundColor: percent >= 100 ? '#4dbd74' : '#20a8d8' }}
+                style={{ height: '100%', width: `${percent}%`, backgroundColor: percent >= 100 ? '#10B981' : '#20a8d8', transition: 'width 0.3s' }}
               ></div>
             </div>
           </div>
 
-          <div className="pdm-description">
-            <label>Description:</label>
-            <p>{project.description || "No description provided."}</p>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#374151', marginBottom: '8px' }}>Description:</div>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: '#4B5563', lineHeight: 1.6, background: '#F9FAFB', padding: '1rem', borderRadius: '8px', border: '1px solid #F3F4F6' }}>
+               {project.description || "No description provided."}
+            </p>
           </div>
 
           {project.status === 'PENDING' && (
-            <div className="pdm-action-section">
-              <label>Decision Note (Optional for Approve, Required for Reject):</label>
+            <div>
+              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#374151', marginBottom: '8px' }}>
+                 Decision Note (Optional for Approve, Required for Reject):
+              </div>
               <textarea 
                 rows="3" 
                 value={note} 
                 onChange={(e) => setNote(e.target.value)} 
                 placeholder="Reason for your decision..."
+                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #D1D5DB', fontFamily: 'inherit', fontSize: '0.9rem', resize: 'vertical' }}
               ></textarea>
             </div>
           )}
         </div>
 
-        <div className="admin-modal-footer">
-          <button className="btn-core" style={{ backgroundColor: '#c8ced3', color: '#23282c' }} onClick={onClose}>Close</button>
+        <div className="modal-footer-modern">
+          <button className="btn-core" style={{ background: 'transparent', color: '#6B7280', border: '1px solid #D1D5DB' }} onClick={onClose}>Close</button>
           
           {project.status === 'PENDING' && (
             <>
               <button 
                 className="btn-core btn-danger"
+                style={{ background: '#FEE2E2', color: '#DC2626' }}
                 onClick={() => onReject(project.id, note)}
               >
                 Reject
