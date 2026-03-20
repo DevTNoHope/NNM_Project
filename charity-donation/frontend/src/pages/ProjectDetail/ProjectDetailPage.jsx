@@ -36,9 +36,6 @@ const ProjectDetailPage = () => {
   const [sortOrder, setSortOrder] = useState("desc");
 
   const hasCelebratedRef = useRef(false);
-  const params = new URLSearchParams(location.search);
-  const payment = params.get("payment");
-  const source = params.get("source");
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);

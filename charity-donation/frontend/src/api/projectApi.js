@@ -36,7 +36,6 @@ export const deleteMyProject = (projectId) =>
 export const submitProjectForReview = (projectId) =>
   http.post(`/projects/${projectId}/submit`);
 
-
 /**
  * =========================
  * DONATION APIs
@@ -54,7 +53,6 @@ export const confirmCryptoDonation = (donationId, payload) =>
 
 export const processVnpayReturn = (searchParams) =>
   http.get(`/donations/vnpay-return${searchParams}`);
-
 
 export const getProjectDonations = (projectId) =>
   http.get(`/projects/${projectId}/donations`);

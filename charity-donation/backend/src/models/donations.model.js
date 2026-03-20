@@ -211,7 +211,7 @@ async function getDonationsByProjectId(projectId) {
       WHERE status = 'CONFIRMED'
       GROUP BY project_id
     ) stats ON stats.project_id = d.project_id
-    WHERE d.project_id = 11
+    WHERE d.project_id = ?
       AND d.status = 'CONFIRMED'
     ORDER BY d.created_at DESC;
   `;

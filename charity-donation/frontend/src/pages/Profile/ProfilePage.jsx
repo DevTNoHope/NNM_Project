@@ -422,7 +422,7 @@ export default function ProfilePage({ isMe = false }) {
                     </span>
                     <span>
                       <Link
-                        to={`/projects/${item.project_id}`}
+                        to={`/projects/${item.project_slug || item.project_id}`}
                         className="donation-project-link"
                       >
                         {item.project_title}
