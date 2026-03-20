@@ -1,10 +1,10 @@
 import http from './http';
 
-export const getProjects = () => http.get('/api/projects');
+export const getProjects = () => http.get('/projects');
 
-export const getProjectBySlug = (slug) => http.get(`/api/projects/${slug}`);
+export const getProjectBySlug = (slug) => http.get(`/projects/${slug}`);
 
-export const getFeaturedProjects = () => http.get('/api/projects');
+export const getFeaturedProjects = () => http.get('/projects');
 
 export const submitDonation = (projectId, payload) =>
   http.post(`/api/donations/projects/${projectId}/donate`, payload);

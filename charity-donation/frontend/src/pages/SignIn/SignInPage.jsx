@@ -54,7 +54,7 @@ const SignInPage = () => {
       console.log('CLIENT ID:', import.meta.env.VITE_GOOGLE_CLIENT_ID);
       console.log('GOOGLE CREDENTIAL RESPONSE:', response);
 
-      const res = await http.post('/api/auth/login', {
+      const res = await http.post('/auth/login', {
         googleToken: response.credential,
       });
 
