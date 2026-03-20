@@ -1,0 +1,48 @@
+.updates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.update-item {
+  padding-left: 1.25rem;
+  border-left: 2px solid var(--color-border, #e5e7eb);
+  position: relative;
+}
+
+.update-item::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary, #10b981);
+}
+
+.update-date {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin-bottom: 0.5rem;
+}
+
+.update-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text, #111827);
+  margin-bottom: 0.5rem;
+}
+
+.update-content {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #4b5563);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.update-img {
+  margin-top: 1rem;
+  max-width: 100%;
+  border-radius: 0.5rem;
+}

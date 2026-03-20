@@ -21,11 +21,25 @@ async function getById(req, res, next) {
 
 async function create(req, res, next) {
   try {
-    const data = await projectUpdatesService.createProjectUpdate(req.body);
+    const payload = {
+      ...req.body,
+      projectId: req.params.id,
+      authorId: req.user ? req.user.id : req.body.authorId
+    };
+    const data = await projectUpdatesService.createProjectUpdate(payload);
     return ok(res, data, "Project update created successfully");
   } catch (err) {
     next(err);
   }
 }
 
-module.exports = { getAll, getById, create };
+async function getByProjectId(req, res, next) {
+  try {
+    const data = await projectUpdatesService.getProjectUpdatesByProjectId(req.params.id);
+    return ok(res, data, "Success");
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { getAll, getById, getByProjectId, create };

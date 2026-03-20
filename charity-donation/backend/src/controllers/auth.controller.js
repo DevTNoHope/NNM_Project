@@ -46,9 +46,7 @@ async function login(req, res, next) {
       });
 
     res.cookie("refreshToken", refreshToken, getCookieOptions());
-        console.log(accessToken);
     return response.ok(res, { user, accessToken }, "Login success");
-
   } catch (err) {
     next(err);
   }
