@@ -52,6 +52,11 @@ async function reviewProject(projectId, adminId, decision, note) {
   // Update the project status
   await projectsModel.updateStatus(projectId, decision);
 
+  // If approved, upgrade the user role from USER to FOUNDER
+  if (decision === "APPROVED") {
+    await usersModel.updateRole(project.founder_id, "FOUNDER");
+  }
+
   return { projectId, newStatus: decision };
 }
 
@@ -60,7 +65,7 @@ async function getAllUsersWithStats() {
 }
 
 async function getUserDonationHistory(userId) {
-  return usersModel.getUserDonationHistory(userId);
+  return usersModel.getDonationsByUserId(userId);
 }
 
 module.exports = {

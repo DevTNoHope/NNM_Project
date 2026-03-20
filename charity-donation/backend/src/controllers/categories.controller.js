@@ -46,4 +46,13 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { getAll, getById, create, update, remove };
+async function getCategoryProjects(req, res, next) {
+  try {
+    const data = await categoriesService.getCategoryProjects(req.params.id);
+    return ok(res, data, "Success");
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { getAll, getById, create, update, remove, getCategoryProjects };

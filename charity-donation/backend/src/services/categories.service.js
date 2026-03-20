@@ -45,10 +45,20 @@ async function deleteCategory(id) {
   return { id };
 }
 
+async function getCategoryProjects(id) {
+  if (!Number.isFinite(Number(id))) throw new ApiError(400, "Invalid category id");
+
+  // Check if category exists
+  await getCategoryById(id);
+
+  return categoriesModel.findProjectsByCategoryId(id);
+}
+
 module.exports = {
   getCategories,
   getCategoryById,
   createCategory,
   updateCategory,
-  deleteCategory
+  deleteCategory,
+  getCategoryProjects
 };
