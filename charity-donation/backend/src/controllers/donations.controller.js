@@ -28,36 +28,6 @@ async function donateToProject(req, res, next) {
   }
 }
 
-async function vnpayReturn(req, res, next) {
-  try {
-    const result = await donationsService.handleVnpayReturn(req.query);
-
-    const payment =
-      result.responseCode === "00" && result.transactionStatus === "00"
-        ? "success"
-        : "failed";
-
-    return res.redirect(
-      `${process.env.CLIENT_URL}/payment-result?projectId=${result.projectId}&payment=${payment}`,
-    );
-  } catch (error) {
-    next(error);
-  }
-}
-
-async function getDonationStatus(req, res, next) {
-  try {
-    const result = await donationsService.getDonationStatus(
-      req.params.id,
-      req.user.id,
-    );
-
-    return response.ok(res, result, "Donation status fetched successfully");
-  } catch (error) {
-    next(error);
-  }
-}
-
 async function confirmCryptoDonation(req, res, next) {
   try {
     const { id } = req.params;
@@ -87,8 +57,9 @@ async function vnpayReturn(req, res, next) {
         ? "success"
         : "failed";
 
+    const clientUrl = (process.env.CLIENT_URL || "http://localhost:5173").replace(/\/+$/, "");
     return res.redirect(
-      `${process.env.CLIENT_URL}/projects/${result.projectId}?payment=${payment}`,
+      `${clientUrl}/projects/${result.projectId}?payment=${payment}`,
     );
   } catch (error) {
     next(error);
