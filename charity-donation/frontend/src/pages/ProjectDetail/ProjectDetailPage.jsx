@@ -77,7 +77,7 @@ const ProjectDetailPage = () => {
       try {
         setLoading(true);
 
-        const [projectRes, allProjectsRes, donationsRes, updatesRes] = await Promise.all([
+        const [projectRes, allProjectsRes, updatesRes, donationsRes] = await Promise.all([
           getProjectById(slug),
           getProjects(),
           getProjectUpdates(slug).catch(() => ({ data: { data: [] } })),
