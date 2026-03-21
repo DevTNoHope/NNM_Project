@@ -26,6 +26,13 @@ const ProjectCard = ({ project }) => {
 
   const founder = project?.organization || project?.founder_name || "Unknown";
 
+  const rawExcerpt =
+    project?.excerpt ||
+    project?.description ||
+    'Support this project and help make a real impact.';
+  const excerpt = rawExcerpt.replace(/<[^>]*>?/gm, '');
+
+  const daysLeft = Number(project?.daysLeft ?? 30);
   const donors = Number(project?.donors ?? project?.total_donors ?? 0);
   const verified = Boolean(project?.verified ?? false);
 
