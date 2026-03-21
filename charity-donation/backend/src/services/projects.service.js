@@ -1,5 +1,6 @@
 const ApiError = require("../utils/apiError");
 const projectsModel = require("../models/projects.model");
+const donationsModel = require("../models/donations.model");
 
 const EDITABLE_STATUSES = ["DRAFT", "REJECTED"];
 
@@ -74,13 +75,16 @@ async function updateMyProject(userId, projectId, payload) {
   }
 
   if (project.founder_id !== userId) {
-    throw new ApiError(403, "You do not have permission to update this project");
+    throw new ApiError(
+      403,
+      "You do not have permission to update this project",
+    );
   }
 
   if (!EDITABLE_STATUSES.includes(project.status)) {
     throw new ApiError(
       400,
-      "Only projects in DRAFT or REJECTED status can be updated directly"
+      "Only projects in DRAFT or REJECTED status can be updated directly",
     );
   }
 
@@ -106,13 +110,16 @@ async function deleteMyProject(userId, projectId) {
   }
 
   if (project.founder_id !== userId) {
-    throw new ApiError(403, "You do not have permission to delete this project");
+    throw new ApiError(
+      403,
+      "You do not have permission to delete this project",
+    );
   }
 
   if (!EDITABLE_STATUSES.includes(project.status)) {
     throw new ApiError(
       400,
-      "Only projects in DRAFT or REJECTED status can be deleted"
+      "Only projects in DRAFT or REJECTED status can be deleted",
     );
   }
 
@@ -131,13 +138,16 @@ async function submitProject(userId, projectId) {
   }
 
   if (project.founder_id !== userId) {
-    throw new ApiError(403, "You do not have permission to submit this project");
+    throw new ApiError(
+      403,
+      "You do not have permission to submit this project",
+    );
   }
 
   if (!EDITABLE_STATUSES.includes(project.status)) {
     throw new ApiError(
       400,
-      "Only projects in DRAFT or REJECTED status can be submitted"
+      "Only projects in DRAFT or REJECTED status can be submitted",
     );
   }
 
@@ -152,6 +162,10 @@ async function getFounderProjects(userId) {
   return projectsModel.findFounderProjects(userId);
 }
 
+async function getDonationsByProjectId(projectId) {
+  return donationsModel.getDonationsByProjectId(projectId);
+}
+
 module.exports = {
   getProjects,
   getProjectById,
@@ -161,4 +175,5 @@ module.exports = {
   deleteMyProject,
   submitProject,
   getFounderProjects,
+  getDonationsByProjectId,
 };

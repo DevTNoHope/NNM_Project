@@ -1,23 +1,29 @@
-import { useState, useEffect } from "react";
-import "./PendingProjects.css";
-// Tạm thời gọi trực tiếp endpoint ở localhost:5000 do chưa setup Axios base
-const API_URL = "http://localhost:5000/api"; 
+import { useState, useEffect, useRef } from "react";
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-dt/css/dataTables.dataTables.css";
+import ProjectDetailModal from "../../../components/ProjectDetailModal/ProjectDetailModal";
+import http from "../../../api/http";
 
 const PendingProjects = () => {
+  const tableRef = useRef(null);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState('ALL');
   
   // Modal State
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
-  const [actionType, setActionType] = useState(""); // 'APPROVE' or 'REJECT'
-  const [note, setNote] = useState("");
+
+  const filteredProjects = filterStatus === 'ALL' 
+    ? projects 
+    : projects.filter(p => p.status === filterStatus);
 
   const fetchProjects = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/admin/projects`);
-      const data = await res.json();
+      const res = await http.get("/admin/projects");
+      const data = res.data;
       if (data.success) {
         setProjects(data.data);
       }
@@ -32,32 +38,42 @@ const PendingProjects = () => {
     fetchProjects();
   }, []);
 
-  const openActionModal = (project, action) => {
+  useEffect(() => {
+    let table;
+    if (!loading && filteredProjects.length > 0) {
+      if ($.fn.dataTable.isDataTable(tableRef.current)) {
+        $(tableRef.current).DataTable().destroy();
+      }
+      table = $(tableRef.current).DataTable({
+        pageLength: 5, // Như trong hình mẫu
+        lengthMenu: [5, 10, 20, 50],
+        ordering: true,
+        searching: true,
+        responsive: true
+      });
+    }
+    return () => {
+      if (table) {
+        table.destroy();
+      }
+    };
+  }, [filteredProjects, loading]);
+
+  const openDetailModal = (project) => {
     setSelectedProject(project);
-    setActionType(action);
-    setNote("");
     setModalOpen(true);
   };
 
-  const handleConfirmAction = async () => {
-    if (!selectedProject) return;
-    
-    // Tách endpoint theo thiết kế mới
-    const endpoint = actionType === 'APPROVE' 
-      ? `${API_URL}/admin/projects/${selectedProject.id}/approve`
-      : `${API_URL}/admin/projects/${selectedProject.id}/reject`;
+  const handleAction = async (projectId, action, noteText) => {
+    const endpoint = action === 'APPROVE' 
+      ? `/admin/projects/${projectId}/approve`
+      : `/admin/projects/${projectId}/reject`;
 
     try {
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ note })
-      });
-      
-      const data = await res.json();
+      const res = await http.post(endpoint, { note: noteText });
+      const data = res.data;
       if (data.success) {
         setModalOpen(false);
-        // Tải lại danh sách sau khi thao tác
         fetchProjects();
       } else {
         alert("Error occurred: " + data.message);
@@ -68,105 +84,64 @@ const PendingProjects = () => {
     }
   };
 
-  const getStatusBadge = (status) => {
-    switch(status) {
-      case 'APPROVED': return <span className="badge btn-success" style={{padding: '5px 8px'}}>APPROVED</span>;
-      case 'REJECTED': return <span className="badge btn-danger" style={{padding: '5px 8px'}}>REJECTED</span>;
-      case 'PENDING': return <span className="badge btn-warning" style={{padding: '5px 8px'}}>PENDING</span>;
-      default: return <span className="badge">{status}</span>;
-    }
-  };
-
   return (
     <div>
       <div className="admin-card">
         <div className="admin-card-header">
           All Projects List
-          <span className="badge new">TOTAL {projects.length}</span>
+          <span className="badge-soft-primary">TOTAL {projects.length}</span>
         </div>
-        <div className="admin-card-body">
+        <div className="admin-card-body p-0">
+          <div style={{ padding: '1.5rem 1.5rem 0', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <span style={{ fontWeight: 600, fontSize: '0.9rem', color: '#4B5563' }}>Filter by Status:</span>
+            <select 
+               value={filterStatus} 
+               onChange={(e) => setFilterStatus(e.target.value)}
+               style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }}
+            >
+              <option value="ALL">All Statuses</option>
+              <option value="PENDING">Pending</option>
+              <option value="APPROVED">Approved</option>
+              <option value="REJECTED">Rejected</option>
+              <option value="PUBLISHED">Published</option>
+            </select>
+          </div>
+
           {loading ? (
-            <p>Loading data...</p>
-          ) : projects.length === 0 ? (
-            <p>No projects found.</p>
+            <p className="text-center py-4">Loading data...</p>
+          ) : filteredProjects.length === 0 ? (
+            <p className="text-center py-4">No projects found.</p>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table className="admin-table">
+            <div style={{ overflowX: 'auto', padding: '1.5rem' }}>
+              <table ref={tableRef} className="modern-table" style={{ width: '100%' }}>
                 <thead>
                   <tr>
                     <th>ID</th>
-                    <th>Cover Image</th>
-                    <th>Category</th>
                     <th>Title</th>
-                    <th>Goal (VND)</th>
-                    <th>Progress</th>
-                    <th>Created At</th>
+                    <th>Goal ($)</th>
                     <th>Status</th>
-                    <th>Action</th>
+                    <th className="text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {projects.map(p => (
+                  {filteredProjects.map(p => (
                     <tr key={p.id}>
                       <td>{p.id}</td>
+                      <td className="font-semibold text-dark">{p.title}</td>
+                      <td className="font-semibold">${parseInt(p.goal_amount).toLocaleString()}</td>
                       <td>
-                        {p.cover_image_url ? (
-                          <img src={p.cover_image_url} alt={p.title} style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #e0e6ed' }} />
-                        ) : (
-                          <div style={{ width: '60px', height: '40px', background: '#f4f7fa', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: '#8394b3', border: '1px dashed #c0ccda' }}>No Img</div>
-                        )}
+                         <span className={`badge-soft-${p.status === 'APPROVED' ? 'success' : p.status === 'REJECTED' ? 'danger' : p.status === 'PENDING' ? 'warning' : 'secondary'}`}>
+                           {p.status}
+                         </span>
                       </td>
-                      <td>
-                        <span className="badge" style={{ backgroundColor: '#fcfdfe', color: '#394b6d', border: '1px solid #e0e6ed' }}>
-                          {p.category_name || 'Other'}
-                        </span>
-                      </td>
-                      <td><strong>{p.title}</strong></td>
-                      <td>{parseInt(p.goal_amount).toLocaleString()}</td>
-                      <td>
-                        {(() => {
-                          const goal = parseInt(p.goal_amount) || 0;
-                          const donated = parseFloat(p.total_donated) || 0;
-                          const percent = goal > 0 ? Math.min(Math.round((donated / goal) * 100), 100) : 0;
-                          const remaining = Math.max(goal - donated, 0);
-                          
-                          return (
-                            <div 
-                              title={`Total Donated: ${donated.toLocaleString()} VND\nRemaining: ${remaining.toLocaleString()} VND`}
-                              style={{ width: '100px', cursor: 'pointer' }}
-                            >
-                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '2px', color: '#5c6873' }}>
-                                <span>{percent}%</span>
-                              </div>
-                              <div style={{ height: '8px', background: '#e4e7ea', borderRadius: '4px', overflow: 'hidden' }}>
-                                <div style={{ width: `${percent}%`, height: '100%', background: percent >= 100 ? '#4dbd74' : '#20a8d8', transition: 'width 0.3s ease' }}></div>
-                              </div>
-                            </div>
-                          );
-                        })()}
-                      </td>
-                      <td>{new Date(p.created_at).toLocaleDateString()}</td>
-                      <td>{getStatusBadge(p.status)}</td>
-                      <td>
-                        {p.status === 'PENDING' ? (
-                          <>
-                            <button 
-                              className="btn-core btn-success btn-sm" 
-                              style={{ marginRight: '5px' }}
-                              onClick={() => openActionModal(p, 'APPROVE')}
-                            >
-                              Approve
-                            </button>
-                            <button 
-                              className="btn-core btn-danger btn-sm"
-                              onClick={() => openActionModal(p, 'REJECT')}
-                            >
-                              Reject
-                            </button>
-                          </>
-                        ) : (
-                           <span style={{color: '#999', fontStyle: 'italic'}}>N/A</span>
-                        )}
+                      <td className="text-right">
+                        <button 
+                          className="btn-action bg-primary"
+                          style={{ borderRadius: '20px', padding: '6px 16px' }}
+                          onClick={() => openDetailModal(p)}
+                        >
+                          Details
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -178,32 +153,12 @@ const PendingProjects = () => {
       </div>
 
       {modalOpen && selectedProject && (
-        <div className="admin-modal-overlay">
-          <div className="admin-modal">
-            <div className="admin-modal-header">
-              <h5>{actionType === 'APPROVE' ? "Confirm approval" : "Rejection reason"} "{selectedProject.title}"</h5>
-              <button className="close-btn" onClick={() => setModalOpen(false)}>&times;</button>
-            </div>
-            <div className="admin-modal-body">
-              <label>Note (Optional for approval, Required for rejection):</label>
-              <textarea 
-                rows="4" 
-                value={note} 
-                onChange={(e) => setNote(e.target.value)} 
-                placeholder="Enter note or reason here..."
-              ></textarea>
-            </div>
-            <div className="admin-modal-footer">
-              <button className="btn-core" style={{ backgroundColor: '#c8ced3', color: '#23282c' }} onClick={() => setModalOpen(false)}>Cancel</button>
-              <button 
-                className={`btn-core ${actionType === 'APPROVE' ? 'btn-success' : 'btn-danger'}`}
-                onClick={handleConfirmAction}
-              >
-                {actionType === 'APPROVE' ? "Approve Project" : "Reject Project"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <ProjectDetailModal 
+          project={selectedProject} 
+          onClose={() => setModalOpen(false)}
+          onApprove={(id, noteText) => handleAction(id, 'APPROVE', noteText)}
+          onReject={(id, noteText) => handleAction(id, 'REJECT', noteText)}
+        />
       )}
     </div>
   );

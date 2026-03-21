@@ -24,7 +24,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const restoreSession = async () => {
       try {
-        // baseURL đã có /api rồi, nên KHÔNG thêm /api nữa
         const refreshRes = await http.post("/auth/refresh");
         const { accessToken, user: refreshedUser } = refreshRes.data.data;
 
