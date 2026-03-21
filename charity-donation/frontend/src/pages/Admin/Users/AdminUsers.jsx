@@ -1,7 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-dt/css/dataTables.dataTables.css";
 import http from "../../../api/http";
 
 const AdminUsers = () => {
+  const tableRef = useRef(null);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,6 +33,27 @@ const AdminUsers = () => {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    let table;
+    if (!loading && users.length > 0) {
+      if ($.fn.dataTable.isDataTable(tableRef.current)) {
+        $(tableRef.current).DataTable().destroy();
+      }
+      table = $(tableRef.current).DataTable({
+        pageLength: 10,
+        lengthMenu: [5, 10, 20, 50],
+        ordering: true,
+        searching: true,
+        responsive: true
+      });
+    }
+    return () => {
+      if (table) {
+        table.destroy();
+      }
+    };
+  }, [users, loading]);
 
   const openHistoryModal = async (user) => {
     setSelectedUser(user);
@@ -62,7 +87,7 @@ const AdminUsers = () => {
             <p className="text-center py-4">No users found.</p>
           ) : (
             <div style={{ overflowX: 'auto' }}>
-              <table className="modern-table">
+              <table ref={tableRef} className="modern-table" style={{ width: '100%' }}>
                 <thead>
                   <tr>
                     <th>ID</th>

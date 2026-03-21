@@ -1,7 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import $ from "jquery";
+import "datatables.net";
+import "datatables.net-dt/css/dataTables.dataTables.css";
 import http from "../../../api/http";
 
 const AdminCategories = () => {
+  const tableRef = useRef(null);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,6 +38,27 @@ const AdminCategories = () => {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    let table;
+    if (!loading && categories.length > 0) {
+      if ($.fn.dataTable.isDataTable(tableRef.current)) {
+        $(tableRef.current).DataTable().destroy();
+      }
+      table = $(tableRef.current).DataTable({
+        pageLength: 10,
+        lengthMenu: [5, 10, 20, 50],
+        ordering: true,
+        searching: true,
+        responsive: true
+      });
+    }
+    return () => {
+      if (table) {
+        table.destroy();
+      }
+    };
+  }, [categories, loading]);
 
   const openCreateModal = () => {
     setEditingCat(null);
@@ -126,7 +151,7 @@ const AdminCategories = () => {
             <p className="text-center py-4">No categories yet.</p>
           ) : (
             <div style={{ overflowX: 'auto' }}>
-              <table className="modern-table">
+              <table ref={tableRef} className="modern-table" style={{ width: '100%' }}>
                 <thead>
                   <tr>
                     <th>ID</th>
