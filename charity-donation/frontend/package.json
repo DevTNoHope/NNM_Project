@@ -10,11 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.1.0",
+    "@ckeditor/ckeditor5-react": "^11.0.1",
     "@rainbow-me/rainbowkit": "^2.2.10",
     "@react-oauth/google": "^0.13.4",
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/react-query": "^5.90.21",
+    "antd": "^6.3.3",
     "axios": "^1.13.6",
+    "ckeditor5": "^47.6.1",
     "dotenv": "^17.3.1",
     "qrcode.react": "^4.2.0",
     "react": "^19.2.0",

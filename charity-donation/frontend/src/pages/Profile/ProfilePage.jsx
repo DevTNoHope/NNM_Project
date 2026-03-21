@@ -203,7 +203,7 @@ export default function ProfilePage({ isMe = false }) {
       title: p.title,
       category: p.category_name || "General",
       organization: profile?.name || "HopeFund",
-      excerpt: p.description || "No description available.",
+      excerpt: (p.description || "No description available.").replace(/<[^>]*>?/gm, ''),
       raised: Number(p.total_received || 0),
       goal: Number(p.goal_amount || 0),
       donors: Number(p.total_donors || 0),

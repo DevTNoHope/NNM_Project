@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { getProjects, getProjectById } from '../../api/projectApi';
+import { getProjects, getProjectById, getProjectUpdates } from '../../api/projectApi';
 import { calcProgress, formatCurrency } from '../../utils/formatCurrency';
 import DonateModal from '../../components/project/DonateModal';
 import ProjectGrid from '../../components/project/ProjectGrid';
@@ -23,6 +23,7 @@ const ProjectDetailPage = () => {
   const [tab, setTab] = useState('Overview');
   const [showDonate, setShowDonate] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState(null);
+  const [lightboxImg, setLightboxImg] = useState(null);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -46,13 +47,19 @@ const ProjectDetailPage = () => {
       try {
         setLoading(true);
 
-        const [p, all] = await Promise.all([
+        const [p, all, updatesRes] = await Promise.all([
           getProjectById(slug),
-          getProjects()
+          getProjects(),
+          getProjectUpdates(slug).catch(() => ({ data: { data: [] } }))
         ]);
 
         const currentProject = p?.data?.data || null;
         const allProjects = all?.data?.data || [];
+        const fetchedUpdates = updatesRes?.data?.data || [];
+
+        if (currentProject) {
+          currentProject.updates = fetchedUpdates;
+        }
 
         setProject(currentProject);
         setRelated(
@@ -130,11 +137,10 @@ const ProjectDetailPage = () => {
     <div className="project-detail">
       {paymentStatus && (
         <div
-          className={`payment-banner ${
-            paymentStatus === 'success'
-              ? 'payment-banner--success'
-              : 'payment-banner--failed'
-          }`}
+          className={`payment-banner ${paymentStatus === 'success'
+            ? 'payment-banner--success'
+            : 'payment-banner--failed'
+            }`}
         >
           <div className="payment-banner__content">
             <span className="payment-banner__icon">
@@ -166,7 +172,12 @@ const ProjectDetailPage = () => {
       )}
 
       <div className="project-detail__banner">
-        <img src={mappedProject.banner} alt={mappedProject.title} />
+        <img 
+          src={mappedProject.banner} 
+          alt={mappedProject.title} 
+          className="clickable-img"
+          onClick={() => setLightboxImg(mappedProject.banner)}
+        />
         <div className="project-detail__banner-overlay" />
       </div>
 
@@ -200,12 +211,7 @@ const ProjectDetailPage = () => {
             <div className="project-detail__content">
               {tab === 'Overview' && (
                 <div className="project-detail__desc">
-                  {(mappedProject.description || '')
-                    .split('\n\n')
-                    .filter(Boolean)
-                    .map((p, i) => (
-                      <p key={i}>{p}</p>
-                    ))}
+                  <div dangerouslySetInnerHTML={{ __html: mappedProject.description || "No description provided." }} />
 
                   {mappedProject.tags.length > 0 && (
                     <div className="project-detail__tag-list">
@@ -227,13 +233,37 @@ const ProjectDetailPage = () => {
                       description="Check back soon for project updates."
                     />
                   ) : (
-                    mappedProject.updates.map((u, i) => (
-                      <div key={i} className="update-card">
-                        <div className="update-card__date">{u.date || ''}</div>
-                        <h4 className="update-card__title">{u.title}</h4>
-                        <p className="update-card__content">{u.content}</p>
-                      </div>
-                    ))
+                    mappedProject.updates.map((u, i) => {
+                      const d = new Date(u.created_at || u.date || Date.now());
+                      const day = d.getDate();
+                      const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+                      const month = monthNames[d.getMonth()];
+                      const year = d.getFullYear();
+
+                      return (
+                        <div key={i} className="update-timeline-item">
+                          <div className="update-timeline-date">
+                            <span className="utd-day">{day}</span>
+                            <span className="utd-month">{month}</span>
+                            <span className="utd-year">{year}</span>
+                            <div className="utd-line" />
+                          </div>
+                          <div className="update-timeline-content">
+                            <h4 className="utc-title">{u.title}</h4>
+                            {u.image_url && (
+                              <img
+                                src={u.image_url}
+                                alt="Update attachment"
+                                className="clickable-img"
+                                onClick={() => setLightboxImg(u.image_url)}
+                                style={{ maxWidth: '35%', borderRadius: '8px', marginBottom: '16px' }}
+                              />
+                            )}
+                            <div className="utc-body" dangerouslySetInnerHTML={{ __html: u.content }} />
+                          </div>
+                        </div>
+                      );
+                    })
                   )}
                 </div>
               )}
@@ -313,6 +343,15 @@ const ProjectDetailPage = () => {
 
       {showDonate && (
         <DonateModal project={mappedProject} onClose={() => setShowDonate(false)} />
+      )}
+
+      {lightboxImg && (
+        <div className="image-lightbox" onClick={() => setLightboxImg(null)}>
+          <button className="image-lightbox__close" onClick={(e) => { e.stopPropagation(); setLightboxImg(null); }}>
+            &times;
+          </button>
+          <img src={lightboxImg} alt="Enlarged view" className="image-lightbox__img" onClick={(e) => e.stopPropagation()} />
+        </div>
       )}
     </div>
   );

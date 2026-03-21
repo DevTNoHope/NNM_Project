@@ -25,10 +25,11 @@ const ProjectCard = ({ project }) => {
     project?.founder_name ||
     'HopeFund';
 
-  const excerpt =
+  const rawExcerpt =
     project?.excerpt ||
     project?.description ||
     'Support this project and help make a real impact.';
+  const excerpt = rawExcerpt.replace(/<[^>]*>?/gm, '');
 
   const donors = Number(project?.donors ?? 0);
   const daysLeft = Number(project?.daysLeft ?? 30);

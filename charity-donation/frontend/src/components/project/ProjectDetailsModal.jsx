@@ -75,11 +75,11 @@ export default function ProjectDetailsModal({ project, onClose }) {
             <div className="project-detail-stats">
               <div className="stat-col">
                 <span className="stat-label-mini">Goal</span>
-                <span className="stat-value-mini">{Number(project.goal_amount || 0).toLocaleString()} VNĐ</span>
+                <span className="stat-value-mini">${Number(project.goal_amount || 0).toLocaleString()}</span>
               </div>
               <div className="stat-col stat-col-middle">
                 <span className="stat-label-mini">Raised</span>
-                <span className="stat-value-mini stat-value-primary">{Number(project.total_donated || 0).toLocaleString()} VNĐ</span>
+                <span className="stat-value-mini stat-value-primary">${Number(project.total_donated || 0).toLocaleString()}</span>
               </div>
               <div className="stat-col">
                 <span className="stat-label-mini">Donors</span>
@@ -91,8 +91,7 @@ export default function ProjectDetailsModal({ project, onClose }) {
               <h3 className="section-label">
                  <span className="section-indicator"></span> Description
               </h3>
-              <div className="project-detail-desc">
-                {project.description || "No description provided."}
+              <div className="project-detail-desc" dangerouslySetInnerHTML={{ __html: project.description || "No description provided." }}>
               </div>
             </div>
           </div>
