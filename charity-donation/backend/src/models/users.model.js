@@ -212,10 +212,11 @@ async function findAllWithStats() {
       u.id,
       u.email,
       u.role,
+      u.linked_wallet,
       u.created_at,
 
-      COUNT(d.id) AS total_donations,
-      IFNULL(SUM(d.amount),0) AS total_amount
+      COUNT(DISTINCT d.project_id) AS total_projects_donated,
+      IFNULL(SUM(d.amount),0) AS total_amount_donated
 
     FROM users u
     LEFT JOIN donations d ON d.user_id = u.id

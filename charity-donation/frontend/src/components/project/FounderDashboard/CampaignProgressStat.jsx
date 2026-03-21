@@ -14,11 +14,11 @@ export default function CampaignProgressStat({ project, totalDonated, donationsC
       <div className="stat-flex">
         <div>
           <p className="stat-label">Total Raised</p>
-          <p className="stat-value">{totalDonated.toLocaleString()} VNĐ</p>
+          <p className="stat-value">${totalDonated.toLocaleString()}</p>
         </div>
         <div className="text-right">
           <p className="stat-label">Goal Amount</p>
-          <p className="stat-value">{Number(project.goal_amount).toLocaleString()} VNĐ</p>
+          <p className="stat-value">${Number(project.goal_amount).toLocaleString()}</p>
         </div>
       </div>
       <div className="stat-extra">
