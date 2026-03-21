@@ -14,6 +14,11 @@ async function getProjectUpdateById(id) {
   return update;
 }
 
+async function getProjectUpdatesByProjectId(projectId) {
+  if (!Number.isFinite(Number(projectId))) throw new ApiError(400, "Invalid project id");
+  return projectUpdatesModel.findByProjectId(projectId);
+}
+
 async function createProjectUpdate(payload) {
   const { projectId, authorId, title, content, imageUrl } = payload;
   if (!projectId || !authorId || !title || !content) {
@@ -27,5 +32,6 @@ async function createProjectUpdate(payload) {
 module.exports = {
   getProjectUpdates,
   getProjectUpdateById,
+  getProjectUpdatesByProjectId,
   createProjectUpdate
 };

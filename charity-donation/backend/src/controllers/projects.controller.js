@@ -48,7 +48,7 @@ async function updateMyProject(req, res, next) {
     const data = await projectsService.updateMyProject(
       userId,
       projectId,
-      req.body
+      req.body,
     );
     return ok(res, data);
   } catch (err) {
@@ -88,6 +88,16 @@ async function getFounderProjects(req, res, next) {
   }
 }
 
+async function getDonationsByProjectId(req, res, next) {
+  try {
+    const projectId = Number(req.params.id);
+    const data = await projectsService.getDonationsByProjectId(projectId);
+    return ok(res, data);
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   getProjects,
   getProjectById,
@@ -97,4 +107,5 @@ module.exports = {
   deleteMyProject,
   submitProject,
   getFounderProjects,
+  getDonationsByProjectId,
 };

@@ -11,9 +11,9 @@ import NotFoundPage from "../pages/NotFound/NotFoundPage";
 import SignInPage from "../pages/SignIn/SignInPage";
 import ProtectedRoute from "./ProtectedRoute";
 import ProfilePage from "../pages/Profile/ProfilePage";
-import FounderProjectsPage from "../pages/Founder/Projects/FounderProjectsPage";
 import UserProjectsPage from "../pages/UserProjects/UserProjectsPage";
 import UserProjectFormPage from "../pages/UserProjects/UserProjectFormPage";
+import FounderProjectDashboard from "../pages/Founder/Projects/FounderProjectDashboard";
 
 // Admin Imports
 import AdminLayout from "../layouts/AdminLayout/AdminLayout";
@@ -49,17 +49,19 @@ const AppRoutes = () => (
       <Route path="/blog/:slug" element={<BlogPage />} />
       <Route element={<ProtectedRoute />}>
         {/* profile của mình */}
-        <Route path="/profile" element={<ProfilePage isMe />} />
+        <Route path="/profile" element={<ProfilePage isMe={true} />} />
+        {/* profile của người khác */}
+        <Route path="/profile/:userId" element={<ProfilePage isMe={false} />} />
 
         {/* User Projects (Drafts) */}
         <Route path="/my-projects" element={<UserProjectsPage />} />
         <Route path="/my-projects/create" element={<UserProjectFormPage />} />
         <Route path="/my-projects/:id/edit" element={<UserProjectFormPage />} />
-        
+
         {/* Founder */}
         <Route
-          path="/founder/projects"
-          element={<FounderProjectsPage />}
+          path="/founder/projects/:id"
+          element={<FounderProjectDashboard />}
         />
       </Route>
       <Route path="*" element={<NotFoundPage />} />

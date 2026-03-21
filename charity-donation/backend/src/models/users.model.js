@@ -92,6 +92,7 @@ async function getPublicProfileById(userId) {
     SELECT
       id,
       name,
+      email,
       linked_wallet,
       is_verified,
       created_at
