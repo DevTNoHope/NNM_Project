@@ -158,6 +158,10 @@ const PendingProjects = () => {
           onClose={() => setModalOpen(false)}
           onApprove={(id, noteText) => handleAction(id, 'APPROVE', noteText)}
           onReject={(id, noteText) => handleAction(id, 'REJECT', noteText)}
+          onVaultCreated={() => {
+            setModalOpen(false);
+            fetchProjects();
+          }}
         />
       )}
     </div>

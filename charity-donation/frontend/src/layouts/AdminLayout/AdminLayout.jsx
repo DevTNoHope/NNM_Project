@@ -57,6 +57,11 @@ const AdminLayout = () => {
                 <span className="nav-icon">👤</span> <span className="nav-text">Users</span>
               </Link>
             </li>
+            <li className={isActive("/admin/withdrawals")}>
+              <Link to="/admin/withdrawals">
+                <span className="nav-icon">💰</span> <span className="nav-text">Withdrawals</span>
+              </Link>
+            </li>
             <li style={{ marginTop: 'auto', borderTop: '1px solid #eee', paddingTop: '0.5rem' }}>
               <Link to="/" style={{ color: '#4B5563' }}>
                 <span className="nav-icon">🏠</span> <span className="nav-text">Back to Home</span>

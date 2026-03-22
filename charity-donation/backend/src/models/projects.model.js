@@ -26,6 +26,8 @@ async function findById(id) {
       p.status,
       p.cover_image_url,
       p.vault_address,
+      p.ipfs_cid,
+      p.meta_hash,
       p.created_at,
       p.updated_at
     FROM projects p
@@ -242,6 +244,16 @@ async function getProjectsByUserId(userId) {
   return await query(sql, [userId]);
 }
 
+async function updateVaultAndPublish(id, vaultAddress, ipfsCid, metaHash) {
+  const sql = `
+    UPDATE projects
+    SET vault_address = ?, ipfs_cid = ?, meta_hash = ?, status = 'PUBLISHED', updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `;
+  const result = await query(sql, [vaultAddress, ipfsCid, metaHash, id]);
+  return result.affectedRows;
+}
+
 module.exports = {
   findAll,
   findById,
@@ -256,4 +268,5 @@ module.exports = {
   updateById,
   deleteById,
   getProjectsByUserId,
+  updateVaultAndPublish,
 };
