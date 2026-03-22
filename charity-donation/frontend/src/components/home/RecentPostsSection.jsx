@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { useRef, useEffect } from 'react';
 import ProjectCard from '../ProjectCard';
 import { formatCurrency } from '../../utils/formatCurrency';
 import './RecentPostsSection.css';
@@ -7,31 +6,6 @@ import './RecentPostsSection.css';
 const RecentPostsSection = ({ posts, topDonations }) => {
   const safePosts = Array.isArray(posts) ? posts : [];
   const safeDonations = Array.isArray(topDonations) ? topDonations : [];
-  const carouselRef = useRef(null);
-  const scrollInterval = useRef(null);
-
-  const startAutoScroll = () => {
-    stopAutoScroll();
-    scrollInterval.current = setInterval(() => {
-      if (carouselRef.current) {
-        const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
-        if (scrollLeft + clientWidth >= scrollWidth - 5) {
-          carouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
-        } else {
-          carouselRef.current.scrollBy({ left: 320, behavior: 'smooth' });
-        }
-      }
-    }, 3000);
-  };
-
-  const stopAutoScroll = () => {
-    if (scrollInterval.current) clearInterval(scrollInterval.current);
-  };
-
-  useEffect(() => {
-    startAutoScroll();
-    return () => stopAutoScroll();
-  }, [safeDonations]);
 
   return (
     <section className="recent-posts">
@@ -52,34 +26,29 @@ const RecentPostsSection = ({ posts, topDonations }) => {
         {safeDonations.length > 0 && (
           <div className="top-donations" style={{ marginTop: '60px' }}>
             <h3 className="recent-posts__title" style={{ fontSize: '1.5rem', marginBottom: '30px' }}>Top Donations</h3>
-            <div 
-              className="top-donations__carousel hide-scrollbar" 
-              ref={carouselRef}
-              onMouseEnter={stopAutoScroll}
-              onMouseLeave={startAutoScroll}
-              style={{ 
-                display: 'flex', 
-                gap: '20px', 
-                overflowX: 'auto', 
-                paddingBottom: '20px',
-                scrollBehavior: 'smooth'
-              }}
-            >
-              {safeDonations.map(d => (
-                <div key={d.id} className="donation-item" style={{ 
-                  flex: '0 0 300px',
-                  background: 'rgba(255,255,255,0.03)', 
-                  padding: '20px', 
-                  borderRadius: '12px', 
-                  border: '1px solid rgba(255,255,255,0.05)' 
-                }}>
-                  <div style={{ fontWeight: '600', color: '#4f46e5', fontSize: '1.1rem' }}>{formatCurrency(d.amount)}</div>
-                  <div style={{ fontSize: '0.9rem', color: '#9ca3af', marginBottom: '8px' }}>
-                    by {d.user_name || d.donor_wallet || 'Anonymous'}
+            <div className="top-donations__marquee">
+              <div className="top-donations__track">
+                {/* Original set */}
+                {safeDonations.map(d => (
+                  <div key={`d1-${d.id}`} className="donation-item">
+                    <div className="donation-item__amount">{formatCurrency(d.amount)}</div>
+                    <div className="donation-item__user">
+                      by {d.user_name || d.donor_wallet || 'Anonymous'}
+                    </div>
+                    <div className="donation-item__project">To: {d.project_title}</div>
                   </div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: '500' }}>To: {d.project_title}</div>
-                </div>
-              ))}
+                ))}
+                {/* Duplicated set for seamless loop */}
+                {safeDonations.map(d => (
+                  <div key={`d2-${d.id}`} className="donation-item">
+                    <div className="donation-item__amount">{formatCurrency(d.amount)}</div>
+                    <div className="donation-item__user">
+                      by {d.user_name || d.donor_wallet || 'Anonymous'}
+                    </div>
+                    <div className="donation-item__project">To: {d.project_title}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
