@@ -218,6 +218,16 @@ async function getDonationsByProjectId(projectId) {
   return await query(sql, [projectId]);
 }
 
+async function getSumByProjectAndType(projectId, type) {
+  const sql = `
+    SELECT COALESCE(SUM(amount), 0) AS total
+    FROM donations
+    WHERE project_id = ? AND donation_type = ? AND status = 'CONFIRMED'
+  `;
+  const rows = await query(sql, [projectId, type]);
+  return rows[0].total;
+}
+
 module.exports = {
   create,
   updateVnpTxnRef,
@@ -233,4 +243,5 @@ module.exports = {
   getDonationsByUserId,
   getTotalReceivedByUserId,
   getDonationsByProjectId,
+  getSumByProjectAndType,
 };

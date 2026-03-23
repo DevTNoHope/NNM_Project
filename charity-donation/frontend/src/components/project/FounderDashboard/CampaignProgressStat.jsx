@@ -1,6 +1,6 @@
 import React from "react";
 import "./CampaignProgressStat.css";
-export default function CampaignProgressStat({ project, totalDonated, donationsCount }) {
+export default function CampaignProgressStat({ project, totalDonated, donationsCount, onWithdraw }) {
   if (!project) return null;
 
   const progressPercent = Math.min(100, (totalDonated / Number(project.goal_amount)) * 100);
@@ -22,8 +22,18 @@ export default function CampaignProgressStat({ project, totalDonated, donationsC
         </div>
       </div>
       <div className="stat-extra">
-         <span className="status-badge">{project.status}</span>
-         <span className="info-text">{donationsCount} total transaction(s)</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span className="status-badge">{project.status}</span>
+          <span className="info-text">{donationsCount} total transaction(s)</span>
+        </div>
+        {project.status === 'PUBLISHED' && (
+          <button 
+            className="withdraw-btn-small" 
+            onClick={onWithdraw}
+          >
+            Withdraw
+          </button>
+        )}
       </div>
     </div>
   );

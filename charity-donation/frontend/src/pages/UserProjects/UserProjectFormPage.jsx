@@ -16,6 +16,8 @@ export default function UserProjectFormPage() {
   const [categories, setCategories] = useState([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [coverFile, setCoverFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
 
   const [formData, setFormData] = useState({
     title: "",
@@ -29,7 +31,6 @@ export default function UserProjectFormPage() {
   useEffect(() => {
     let mounted = true;
     
-    // Fetch categories and project if editing at the same time
     const loadData = async () => {
       try {
         setLoading(true);
@@ -74,25 +75,42 @@ export default function UserProjectFormPage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setError("Image must be less than 5MB");
+        return;
+      }
+      setCoverFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     setError("");
 
     try {
-      const payload = {
-        title: formData.title,
-        categoryId: formData.category_id,
-        goalAmount: Number(formData.goal_amount),
-        description: formData.description,
-        coverImageUrl: formData.image_url,
-      };
+      const data = new FormData();
+      data.append("title", formData.title);
+      data.append("categoryId", formData.category_id);
+      data.append("goalAmount", Number(formData.goal_amount));
+      data.append("description", formData.description);
+      
+      if (coverFile) {
+        data.append("coverImage", coverFile);
+      } else if (formData.image_url) {
+        // Keep existing URL if no new file
+        data.append("coverImageUrl", formData.image_url);
+      }
 
       if (isEditing) {
-        await updateMyProject(id, payload);
+        await updateMyProject(id, data);
         alert("Project updated successfully!");
       } else {
-        await createProjectDraft(payload);
+        await createProjectDraft(data);
         alert("Draft created successfully!");
       }
 
@@ -130,8 +148,10 @@ export default function UserProjectFormPage() {
         isEditing={isEditing}
         saving={saving}
         onChange={handleChange}
+        onFileChange={handleFileChange}
         onSubmit={handleSubmit}
         onCancel={() => navigate("/my-projects")}
+        imagePreview={imagePreview}
       />
     </div>
   );

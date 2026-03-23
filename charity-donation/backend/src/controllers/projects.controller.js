@@ -1,5 +1,6 @@
 const projectsService = require("../services/projects.service");
 const { ok, created } = require("../utils/response");
+const { uploadImage } = require("../utils/cloudinary");
 
 async function getProjects(req, res, next) {
   try {
@@ -24,6 +25,13 @@ async function createProject(req, res, next) {
   try {
     const userId = req.user.id;
     const payload = req.body;
+
+    // If file uploaded, upload to Cloudinary
+    if (req.file) {
+      const imageUrl = await uploadImage(req.file.buffer, "HopeFund/projects");
+      payload.coverImageUrl = imageUrl;
+    }
+
     const data = await projectsService.createProject(userId, payload);
     return created(res, data);
   } catch (err) {
@@ -45,10 +53,18 @@ async function updateMyProject(req, res, next) {
   try {
     const userId = req.user.id;
     const projectId = Number(req.params.id);
+    const payload = req.body;
+
+    // If file uploaded, upload to Cloudinary
+    if (req.file) {
+      const imageUrl = await uploadImage(req.file.buffer, "HopeFund/projects");
+      payload.coverImageUrl = imageUrl;
+    }
+
     const data = await projectsService.updateMyProject(
       userId,
       projectId,
-      req.body,
+      payload,
     );
     return ok(res, data);
   } catch (err) {

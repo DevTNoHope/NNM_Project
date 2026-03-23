@@ -21,7 +21,10 @@ async function getById(req, res, next) {
 
 async function create(req, res, next) {
   try {
-    const data = await withdrawApprovalsService.createWithdrawApproval(req.body);
+    const data = await withdrawApprovalsService.createWithdrawApproval({
+      ...req.body,
+      adminId: req.user.id // From authJwt middleware
+    });
     return ok(res, data, "Withdraw approval created successfully");
   } catch (err) {
     next(err);

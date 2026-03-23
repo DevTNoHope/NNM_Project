@@ -1,32 +1,42 @@
 const { query } = require("../utils/dbQuery");
 
-async function findAll() {
-  const sql = `
-    SELECT id, withdraw_request_id, claim_tx_hash, status, created_at, confirmed_at
-    FROM onchain_claims
-    ORDER BY created_at DESC
-  `;
-  return query(sql);
-}
+const onchainClaimsModel = {
+  create: async (data) => {
+    const { withdraw_request_id, claim_tx_hash, status } = data;
+    const sql = `
+      INSERT INTO onchain_claims (withdraw_request_id, claim_tx_hash, status)
+      VALUES (?, ?, ?)
+    `;
+    const result = await query(sql, [withdraw_request_id, claim_tx_hash, status || 'PENDING']);
+    return result.insertId;
+  },
 
-async function findById(id) {
-  const sql = `
-    SELECT id, withdraw_request_id, claim_tx_hash, status, created_at, confirmed_at
-    FROM onchain_claims
-    WHERE id = ?
-    LIMIT 1
-  `;
-  const rows = await query(sql, [id]);
-  return rows[0] || null;
-}
+  updateStatus: async (withdrawRequestId, status, txHash = null) => {
+    let sql = `UPDATE onchain_claims SET status = ?`;
+    const params = [status];
+    
+    if (status === 'CONFIRMED') {
+      sql += `, confirmed_at = CURRENT_TIMESTAMP`;
+    }
+    
+    if (txHash) {
+      sql += `, claim_tx_hash = ?`;
+      params.push(txHash);
+    }
+    
+    sql += ` WHERE withdraw_request_id = ?`;
+    params.push(withdrawRequestId);
+    
+    await query(sql, params);
+  },
 
-async function create({ withdrawRequestId, claimTxHash }) {
-  const sql = `
-    INSERT INTO onchain_claims (withdraw_request_id, claim_tx_hash)
-    VALUES (?, ?)
-  `;
-  const result = await query(sql, [withdrawRequestId, claimTxHash]);
-  return result.insertId;
-}
+  findByWithdrawRequestId: async (withdrawRequestId) => {
+    const rows = await query(
+      "SELECT * FROM onchain_claims WHERE withdraw_request_id = ?",
+      [withdrawRequestId]
+    );
+    return rows[0];
+  }
+};
 
-module.exports = { findAll, findById, create };
+module.exports = onchainClaimsModel;
