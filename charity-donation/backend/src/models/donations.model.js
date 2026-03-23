@@ -108,6 +108,25 @@ async function markFailedByVnpTxnRef(txnRef) {
   await query(sql, [txnRef]);
 }
 
+async function findTopDonations(limit = 5) {
+  const sql = `
+    SELECT
+      d.id,
+      d.amount,
+      d.donation_type,
+      d.created_at,
+      d.donor_wallet,
+      u.name AS user_name,
+      p.title AS project_title
+    FROM donations d
+    LEFT JOIN users u ON d.user_id = u.id
+    INNER JOIN projects p ON d.project_id = p.id
+    WHERE d.status = 'CONFIRMED'
+    ORDER BY d.amount DESC
+    LIMIT ?
+  `;
+  return query(sql, [limit]);
+}
 async function getTotalDonations() {
   const sql = `
     SELECT COUNT(*) as total_count, COALESCE(SUM(amount), 0) as total_amount
@@ -237,6 +256,7 @@ module.exports = {
   findByProjectId,
   markConfirmedByVnpTxnRef,
   markFailedByVnpTxnRef,
+  findTopDonations,
   getTotalDonations,
   markCryptoConfirmed,
   markCryptoFailed,

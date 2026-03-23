@@ -7,6 +7,12 @@ const projectUpdatesController = require("../controllers/project_updates.control
 const authJwt = require("../middleware/authJwt");
 const upload = require("../middleware/upload");
 
+// Public endpoints for landing page
+router.get("/newly-eligible", projectsController.getNewlyEligibleProjects);
+router.get("/recent", projectsController.getRecentProjects);
+router.get("/last-updated", projectsController.getLastUpdatedProjects);
+
+// Existing endpoints
 // Public list
 router.get("/", projectsController.getProjects);
 

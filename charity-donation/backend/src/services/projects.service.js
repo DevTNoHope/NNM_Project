@@ -166,10 +166,39 @@ async function getDonationsByProjectId(projectId) {
   return donationsModel.getDonationsByProjectId(projectId);
 }
 
+async function getNewlyEligibleProjects(page = 0, limit = 3) {
+  const totalItems = await projectsModel.countPublished();
+  const offset = page * limit;
+  const projects = await projectsModel.findNewlyEligible(limit, offset);
+  
+  const totalPages = Math.ceil(totalItems / limit);
+
+  return {
+    projects,
+    pagination: {
+      totalItems,
+      totalPages,
+      currentPage: page,
+      limit
+    }
+  };
+}
+
+async function getRecentProjects(limit = 3) {
+  return projectsModel.findRecent(limit);
+}
+
+async function getLastUpdatedProjects(limit = 10) {
+  return projectsModel.findLastUpdated(limit);
+}
+
 module.exports = {
   getProjects,
   getProjectById,
   createProject,
+  getNewlyEligibleProjects,
+  getRecentProjects,
+  getLastUpdatedProjects,
   getMyProjects,
   updateMyProject,
   deleteMyProject,
