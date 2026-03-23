@@ -4,13 +4,21 @@ const { verifyAccessToken } = require("../utils/jwt");
 function authJwt(req, _res, next) {
   try {
     const authHeader = req.headers.authorization || "";
-    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
 
-    if (!token) return next(new ApiError(401, "Missing access token"));
+    if (!authHeader.startsWith("Bearer ")) {
+      return next(new ApiError(401, "Missing access token"));
+    }
+
+    const token = authHeader.slice(7);
 
     const payload = verifyAccessToken(token);
-    // payload gợi ý: { id, role, email }
-    req.user = payload;
+
+    req.user = {
+      id: payload.id || payload.sub,
+      role: payload.role,
+      email: payload.email || null,
+      wallet: payload.wallet || null,
+    };
 
     next();
   } catch (err) {

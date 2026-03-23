@@ -2,7 +2,7 @@ const { query } = require("../utils/dbQuery");
 
 async function findAll() {
   const sql = `
-    SELECT id, withdraw_request_id, admin_id, decision, admin_signature, nonce, decided_at
+    SELECT id, withdraw_request_id, admin_id, decision, admin_signature, nonce, deadline, decided_at
     FROM withdraw_approvals
     ORDER BY decided_at DESC
   `;
@@ -11,7 +11,7 @@ async function findAll() {
 
 async function findById(id) {
   const sql = `
-    SELECT id, withdraw_request_id, admin_id, decision, admin_signature, nonce, decided_at
+    SELECT id, withdraw_request_id, admin_id, decision, admin_signature, nonce, deadline, decided_at
     FROM withdraw_approvals
     WHERE id = ?
     LIMIT 1
@@ -20,13 +20,24 @@ async function findById(id) {
   return rows[0] || null;
 }
 
-async function create({ withdrawRequestId, adminId, decision, adminSignature, nonce }) {
+async function findByWithdrawRequestId(withdrawRequestId) {
   const sql = `
-    INSERT INTO withdraw_approvals (withdraw_request_id, admin_id, decision, admin_signature, nonce)
-    VALUES (?, ?, ?, ?, ?)
+    SELECT id, withdraw_request_id, admin_id, decision, admin_signature, nonce, deadline, decided_at
+    FROM withdraw_approvals
+    WHERE withdraw_request_id = ? AND decision = 'APPROVED'
+    LIMIT 1
   `;
-  const result = await query(sql, [withdrawRequestId, adminId, decision, adminSignature, nonce]);
+  const rows = await query(sql, [withdrawRequestId]);
+  return rows[0] || null;
+}
+
+async function create({ withdrawRequestId, adminId, decision, adminSignature, nonce, deadline }) {
+  const sql = `
+    INSERT INTO withdraw_approvals (withdraw_request_id, admin_id, decision, admin_signature, nonce, deadline)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+  const result = await query(sql, [withdrawRequestId, adminId, decision, adminSignature, nonce, deadline]);
   return result.insertId;
 }
 
-module.exports = { findAll, findById, create };
+module.exports = { findAll, findById, findByWithdrawRequestId, create };

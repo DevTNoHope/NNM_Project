@@ -6,11 +6,17 @@ const authJwt = require("../middleware/authJwt");
 // Public
 router.get("/top", donationsController.getTopDonations);
 
-// Protected
-router.post("/:projectId", authJwt, donationsController.donateToProject);
-router.get("/status/:id", authJwt, donationsController.getDonationStatus);
-
-// VNPay - Public callback
-router.get("/vnpay/return", donationsController.vnpayReturn);
+router.post(
+  "/projects/:projectId/donate",
+  authJwt,
+  donationsController.donateToProject,
+);
+router.post(
+  "/:id/confirm-crypto",
+  authJwt,
+  donationsController.confirmCryptoDonation,
+);
+router.get("/vnpay-return", donationsController.vnpayReturn);
+router.get("/:id/status", authJwt, donationsController.getDonationStatus);
 
 module.exports = router;

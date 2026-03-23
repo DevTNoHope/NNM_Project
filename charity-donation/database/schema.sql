@@ -15,8 +15,8 @@ USE charity_db;
 CREATE TABLE users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
 
-    email VARCHAR(255) UNIQUE NOT NULL,
-    google_sub VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) NULL,
+    google_sub VARCHAR(255) NULL,
 
     role ENUM('USER','FOUNDER','ADMIN') DEFAULT 'USER',
 
@@ -269,3 +269,21 @@ VALUES
 ('Disaster Relief'),
 ('Environment'),
 ('Community Support');
+
+
+USE charity_db;
+ALTER TABLE users
+ADD COLUMN name varchar(100) NULL,
+MODIFY google_sub VARCHAR(255) NULL;
+
+USE charity_db;
+ALTER TABLE users
+MODIFY email VARCHAR(255) NULL;
+
+
+USE charity_db;
+ALTER TABLE users
+ADD COLUMN is_verified TINYINT(1) DEFAULT 0;
+
+ALTER TABLE users
+ADD CONSTRAINT unique_wallet UNIQUE (linked_wallet);
