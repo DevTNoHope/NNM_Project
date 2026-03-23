@@ -98,3 +98,26 @@ export async function donateToVault({ vaultAddress, amount, account }) {
 
   return hash;
 }
+
+export async function claimFromVault({ vaultAddress, amount, nonce, deadline, signature, account }) {
+  const connectedAccount = await ensureWalletReady(account);
+  const walletClient = getWalletClient();
+
+  const simulation = await publicClient.simulateContract({
+    address: vaultAddress,
+    abi: vaultAbi,
+    functionName: "claim",
+    args: [BigInt(amount), BigInt(nonce), BigInt(deadline), signature],
+    account: connectedAccount,
+  });
+
+  const hash = await walletClient.writeContract(simulation.request);
+
+  const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+  if (receipt.status !== "success") {
+    throw new Error("Claim transaction failed");
+  }
+
+  return hash;
+}

@@ -410,6 +410,9 @@ async function getDonationStatus(donationId, userId) {
   };
 }
 
+async function getTopDonations(limit) {
+  return donationsModel.findTopDonations(limit);
+}
 async function getDonationsByProjectId(projectId) {
   if (!Number.isFinite(Number(projectId))) {
     throw new ApiError(400, "Invalid project id");
@@ -427,5 +430,6 @@ module.exports = {
   confirmCryptoDonation,
   handleVnpayReturn,
   getDonationStatus,
+  getTopDonations,
   getDonationsByProjectId
 };

@@ -1,18 +1,19 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getFeaturedProjects } from '../../api/projectApi';
 import ProjectGrid from '../project/ProjectGrid';
 import Button from '../common/Button';
 import Spinner from '../common/Spinner';
 import './EligibleProjectsSection.css';
 
-const EligibleProjectsSection = () => {
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+const EligibleProjectsSection = ({ projects, loading, pagination, onPageChange }) => {
+  const { currentPage, totalPages } = pagination || { currentPage: 0, totalPages: 0 };
 
-  useEffect(() => {
-    getFeaturedProjects().then(r => { setProjects(r.data); setLoading(false); });
-  }, []);
+  const handlePrev = () => {
+    if (currentPage > 0) onPageChange(currentPage - 1);
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages - 1) onPageChange(currentPage + 1);
+  };
 
   return (
     <section className="eligible-section">
@@ -25,7 +26,42 @@ const EligibleProjectsSection = () => {
             <Button as={Link} to="/projects" variant="primary" size="md">Explore →</Button>
           </div>
           <div className="eligible-section__right">
-            {loading ? <Spinner center /> : <ProjectGrid projects={projects} />}
+            {loading ? (
+              <Spinner center />
+            ) : (
+              <>
+                <ProjectGrid projects={projects} />
+                {totalPages > 1 && (
+                  <div className="eligible-pagination">
+                    <button 
+                      onClick={handlePrev} 
+                      disabled={currentPage === 0}
+                      className="pagination-arrow"
+                    >
+                      ←
+                    </button>
+                    
+                    {[...Array(totalPages)].map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => onPageChange(i)}
+                        className={`pagination-num ${currentPage === i ? 'active' : ''}`}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+
+                    <button 
+                      onClick={handleNext} 
+                      disabled={currentPage === totalPages - 1}
+                      className="pagination-arrow"
+                    >
+                      →
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>

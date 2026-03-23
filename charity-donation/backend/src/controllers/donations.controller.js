@@ -80,6 +80,15 @@ async function getDonationStatus(req, res, next) {
   }
 }
 
+async function getTopDonations(req, res, next) {
+  try {
+    const limit = req.query.limit ? Number(req.query.limit) : 5;
+    const data = await donationsService.getTopDonations(limit);
+    return response.ok(res, data, "Top donations fetched successfully");
+  } catch (err) {
+    next(err);
+  }
+}
 async function getByProjectId(req, res, next) {
   try {
     const { id } = req.params;
@@ -94,6 +103,7 @@ module.exports = {
   donateToProject,
   vnpayReturn,
   getDonationStatus,
+  getTopDonations,
   confirmCryptoDonation,
   getByProjectId
 };

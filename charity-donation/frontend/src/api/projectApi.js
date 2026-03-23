@@ -23,12 +23,17 @@ export const getDonationsByProjectId = (projectId) =>
  * User có thể tạo/sửa/xóa khi status là DRAFT hoặc REJECTED
  * =========================
  */
-export const createProjectDraft = (payload) => http.post("/projects", payload);
+export const createProjectDraft = (payload) => {
+  const isFormData = payload instanceof FormData;
+  return http.post("/projects", payload, isFormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {});
+};
 
 export const getMyProjects = () => http.get("/projects/me");
 
-export const updateMyProject = (projectId, payload) =>
-  http.put(`/projects/${projectId}`, payload);
+export const updateMyProject = (projectId, payload) => {
+  const isFormData = payload instanceof FormData;
+  return http.put(`/projects/${projectId}`, payload, isFormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {});
+};
 
 export const deleteMyProject = (projectId) =>
   http.delete(`/projects/${projectId}`);
@@ -60,5 +65,7 @@ export const getProjectDonations = (projectId) =>
 export const getProjectUpdates = (projectId) =>
   http.get(`/projects/${projectId}/updates`);
 
-export const createProjectUpdate = (projectId, payload) =>
-  http.post(`/projects/${projectId}/updates`, payload);
+export const createProjectUpdate = (projectId, payload) => {
+  const isFormData = payload instanceof FormData;
+  return http.post(`/projects/${projectId}/updates`, payload, isFormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : {});
+};

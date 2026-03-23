@@ -15,14 +15,16 @@ import 'ckeditor5/ckeditor5.css';
 import Button from "../common/Button";
 import "./UserProjectForm.css";
 
-export default function UserProjectForm({ 
-  formData, 
-  categories, 
-  isEditing, 
-  saving, 
-  onChange, 
-  onSubmit, 
-  onCancel 
+export default function UserProjectForm({
+  formData,
+  categories,
+  isEditing,
+  saving,
+  onChange,
+  onSubmit,
+  onCancel,
+  onFileChange,
+  imagePreview
 }) {
   return (
     <form className="user-projects-form" onSubmit={onSubmit}>
@@ -89,20 +91,39 @@ export default function UserProjectForm({
             className="form-input"
           />
         </div>
-        
+
         <div className="form-group" style={{ marginBottom: 0 }}>
-          <label htmlFor="image_url" className="form-label">Cover Image (URL)</label>
+          <label htmlFor="coverImage" className="form-label">Cover Image</label>
           <input
-            id="image_url"
-            name="image_url"
-            type="url"
-            value={formData.image_url}
-            onChange={onChange}
+            id="coverImage"
+            name="coverImage"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={onFileChange}
             className="form-input"
-            placeholder="https://example.com/image.jpg"
+            style={{ padding: '8px' }}
           />
+          <span style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>Max 5MB. JPG, PNG, WebP</span>
         </div>
       </div>
+
+      {/* Image Preview */}
+      {(imagePreview || formData.image_url) && (
+        <div style={{ marginBottom: '1rem' }}>
+          <label className="form-label">Preview</label>
+          <img
+            src={imagePreview || formData.image_url}
+            alt="Cover preview"
+            style={{
+              width: '100%',
+              maxHeight: '250px',
+              objectFit: 'cover',
+              borderRadius: '12px',
+              border: '1px solid #E5E7EB'
+            }}
+          />
+        </div>
+      )}
 
       <div className="form-group" style={{ marginBottom: "2rem" }}>
         <label htmlFor="description" className="form-label">Detailed Description *</label>

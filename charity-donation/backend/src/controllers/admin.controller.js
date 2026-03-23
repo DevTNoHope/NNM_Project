@@ -62,11 +62,78 @@ async function getUserHistory(req, res, next) {
   }
 }
 
+async function createVault(req, res, next) {
+  try {
+    const projectId = Number(req.params.id);
+
+    const projectsModel = require("../models/projects.model");
+    const usersModel = require("../models/users.model");
+    const { uploadJsonToIPFS } = require("../utils/pinata");
+    const { keccak256, toHex } = require("viem");
+    const { deployVaultViaFactory } = require("../utils/contracts");
+
+    const project = await projectsModel.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ success: false, message: "Project not found" });
+    }
+
+    if (project.status !== 'APPROVED') {
+      return res.status(400).json({ success: false, message: "Project must be APPROVED to create vault" });
+    }
+
+    const founder = await usersModel.findById(project.founder_id);
+    if (!founder?.linked_wallet) {
+      return res.status(400).json({ success: false, message: "Founder has no linked wallet address" });
+    }
+
+    // 1. Create metadata JSON
+    const metadata = {
+      title: project.title,
+      founder: founder.linked_wallet,
+      founderName: founder.name || "Unknown",
+      description: project.description || "",
+      coverImage: project.cover_image_url || "",
+      goalAmount: Number(project.goal_amount),
+      category: project.category_name || "General",
+      projectId: project.id,
+      createdAt: new Date().toISOString()
+    };
+
+    // 2. Upload to Pinata IPFS
+    const { cid, url } = await uploadJsonToIPFS(metadata, `HopeFund_Project_${projectId}`);
+
+    // 3. Hash CID to bytes32 for metaHash
+    const metaHash = keccak256(toHex(cid));
+
+    // 4. Deploy vault via Factory contract on-chain
+    const { vaultAddress, txHash } = await deployVaultViaFactory(
+      projectId,
+      founder.linked_wallet,
+      metaHash
+    );
+
+    // 5. Save vault_address, ipfs_cid, meta_hash and set PUBLISHED
+    await projectsModel.updateVaultAndPublish(projectId, vaultAddress, cid, metaHash);
+
+    return ok(res, {
+      vaultAddress,
+      txHash,
+      ipfsCid: cid,
+      ipfsUrl: url,
+      metaHash
+    }, "Vault created and project published successfully");
+  } catch (error) {
+    console.error("Create vault error:", error);
+    next(error);
+  }
+}
+
 module.exports = {
   getDashboard,
   getAllProjects,
   approveProjectRequest,
   rejectProjectRequest,
   getAllUsers,
-  getUserHistory
+  getUserHistory,
+  createVault
 };

@@ -21,6 +21,9 @@ import AdminDashboard from "../pages/Admin/Dashboard/AdminDashboard";
 import PendingProjects from "../pages/Admin/Projects/PendingProjects";
 import AdminCategories from "../pages/Admin/Categories/AdminCategories";
 import AdminUsers from "../pages/Admin/Users/AdminUsers";
+import WithdrawalManagement from "../pages/Admin/Withdrawal/WithdrawalManagement";
+import WithdrawalVerification from "../pages/Founder/Withdrawal/WithdrawalVerification";
+import ClaimWithdrawal from "../pages/Founder/Withdrawal/ClaimWithdrawal";
 import AdminRoute from "./AdminRoute";
 
 const AppRoutes = () => (
@@ -33,11 +36,14 @@ const AppRoutes = () => (
         <Route path="projects/pending" element={<PendingProjects />} />
         <Route path="categories" element={<AdminCategories />} />
         <Route path="users" element={<AdminUsers />} />
+        <Route path="withdrawals" element={<WithdrawalManagement />} />
       </Route>
     </Route>
 
     {/* Public Routes */}
     <Route path="/signin" element={<SignInPage />} />
+    <Route path="/verify-withdrawal" element={<WithdrawalVerification />} />
+    <Route path="/claim-withdrawal" element={<ClaimWithdrawal />} />
     <Route element={<MainLayout />}>
       <Route path="/" element={<HomePage />} />
       <Route path="/projects" element={<ProjectsPage />} />
