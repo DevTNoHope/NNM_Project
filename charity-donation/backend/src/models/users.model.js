@@ -133,6 +133,100 @@ async function markVerified(userId) {
   return await query(sql, [userId]);
 }
 
+async function updateRole(userId, newRole) {
+  const sql = `
+    UPDATE users
+    SET
+      role = ?,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `;
+  return await query(sql, [newRole, userId]);
+}
+
+async function getProjectsByUserId(userId) {
+  const sql = `
+    SELECT
+      p.id,
+      p.founder_id,
+      p.category_id,
+      p.title,
+      p.description,
+      p.goal_amount,
+      p.status,
+      p.cover_image_url,
+      p.vault_address,
+      p.created_at,
+      p.updated_at
+    FROM projects p
+    WHERE p.founder_id = ?
+    ORDER BY p.created_at DESC
+  `;
+  return await query(sql, [userId]);
+}
+
+async function getDonationsByUserId(userId) {
+  const sql = `
+    SELECT
+      d.id,
+      d.project_id,
+      p.title AS project_title,
+      d.user_id,
+      d.donor_wallet,
+      d.amount,
+      d.donation_type,
+      d.status,
+      d.created_at,
+      d.confirmed_at
+    FROM donations d
+    LEFT JOIN projects p ON p.id = d.project_id
+    WHERE d.user_id = ?
+    ORDER BY d.created_at DESC
+  `;
+  return await query(sql, [userId]);
+}
+
+async function getTotalReceivedByUserId(userId) {
+  const sql = `
+    SELECT COALESCE(SUM(d.amount), 0) AS total_received
+    FROM donations d
+    JOIN projects p ON p.id = d.project_id
+    WHERE p.founder_id = ?
+      AND d.status = 'CONFIRMED'
+  `;
+
+  const rows = await query(sql, [userId]);
+  return rows[0]?.total_received || 0;
+}
+async function countAll() {
+  const rows = await query(`
+    SELECT COUNT(*) AS total
+    FROM users
+  `);
+
+  return rows[0].total;
+}
+async function findAllWithStats() {
+  const rows = await query(`
+    SELECT 
+      u.id,
+      u.email,
+      u.role,
+      u.linked_wallet,
+      u.created_at,
+
+      COUNT(DISTINCT d.project_id) AS total_projects_donated,
+      IFNULL(SUM(d.amount),0) AS total_amount_donated
+
+    FROM users u
+    LEFT JOIN donations d ON d.user_id = u.id
+
+    GROUP BY u.id
+    ORDER BY u.created_at DESC
+  `);
+
+  return rows;
+}
 module.exports = {
   findByWallet,
   createWalletUser,
@@ -144,4 +238,10 @@ module.exports = {
   getPublicProfileById,
   updateMyProfile,
   markVerified,
+  updateRole,
+  getProjectsByUserId,
+  getDonationsByUserId,
+  getTotalReceivedByUserId,
+  countAll,
+  findAllWithStats,
 };

@@ -53,3 +53,8 @@
   padding-top: var(--space-5);
   margin-top: var(--space-8);
 }
+
+/* CKEditor styles */
+.ck-editor__editable_inline {
+  min-height: 200px;
+}

@@ -99,6 +99,7 @@ async function findPublished() {
     SELECT 
       p.id,
       p.founder_id,
+      u.name AS founder_name,
       p.category_id,
       c.name AS category_name,
       p.title,
@@ -110,12 +111,20 @@ async function findPublished() {
       p.created_at,
       p.updated_at,
       (
-        SELECT COALESCE(SUM(amount), 0)
-        FROM donations
-        WHERE project_id = p.id AND status = 'CONFIRMED'
-      ) AS total_donated
+        SELECT COALESCE(SUM(d.amount), 0)
+        FROM donations d
+        WHERE d.project_id = p.id
+          AND d.status = 'CONFIRMED'
+      ) AS total_donated,
+      (
+        SELECT COUNT(DISTINCT d.user_id)
+        FROM donations d
+        WHERE d.project_id = p.id
+          AND d.status = 'CONFIRMED'
+      ) AS total_donors
     FROM projects p
     LEFT JOIN categories c ON p.category_id = c.id
+    LEFT JOIN users u ON u.id = p.founder_id
     WHERE p.status = 'PUBLISHED'
     ORDER BY p.created_at DESC
   `;

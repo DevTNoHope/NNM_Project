@@ -1,4 +1,17 @@
 import React from "react";
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import {
+  ClassicEditor,
+  Essentials,
+  Paragraph,
+  Bold,
+  Italic,
+  List,
+  Link,
+  Heading,
+  BlockQuote
+} from 'ckeditor5';
+import 'ckeditor5/ckeditor5.css';
 import Button from "../common/Button";
 import "./UserProjectForm.css";
 
@@ -48,7 +61,7 @@ export default function UserProjectForm({
         </div>
 
         <div className="form-group" style={{ marginBottom: 0 }}>
-          <label htmlFor="goal_amount" className="form-label">Goal Amount (VNĐ) *</label>
+          <label htmlFor="goal_amount" className="form-label">Goal Amount ($) *</label>
           <input
             id="goal_amount"
             name="goal_amount"
@@ -91,18 +104,30 @@ export default function UserProjectForm({
         </div>
       </div>
 
-      <div className="form-group">
+      <div className="form-group" style={{ marginBottom: "2rem" }}>
         <label htmlFor="description" className="form-label">Detailed Description *</label>
-        <textarea
-          id="description"
-          name="description"
-          rows="6"
-          required
-          value={formData.description}
-          onChange={onChange}
-          className="form-input"
-          placeholder="Tell the story about your campaign..."
-        />
+        <div className="ckeditor-container" style={{ color: '#000' }}>
+          <CKEditor
+            editor={ClassicEditor}
+            config={{
+              licenseKey: 'GPL',
+              plugins: [
+                Essentials, Paragraph, Bold, Italic, List, Link, Heading, BlockQuote
+              ],
+              toolbar: [
+                'heading', '|',
+                'bold', 'italic', '|',
+                'link', 'bulletedList', 'numberedList', 'blockQuote'
+              ],
+              placeholder: 'Tell the story about your campaign...'
+            }}
+            data={formData.description || ""}
+            onChange={(event, editor) => {
+              const data = editor.getData();
+              onChange({ target: { name: 'description', value: data } });
+            }}
+          />
+        </div>
       </div>
 
       <div className="form-actions-row">
