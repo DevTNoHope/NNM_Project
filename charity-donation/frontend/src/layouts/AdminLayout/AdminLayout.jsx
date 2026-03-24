@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import NotificationBell from "../../components/NotificationBell/NotificationBell";
 import "./AdminLayout.css";
 
 const AdminLayout = () => {
@@ -97,9 +98,7 @@ const AdminLayout = () => {
             </div>
           </div>
           <ul className="header-actions">
-            <li className="notification-icon">
-              🔔<span className="badge-dot"></span>
-            </li>
+            <NotificationBell />
             <li className="help-icon">
               ❓
             </li>

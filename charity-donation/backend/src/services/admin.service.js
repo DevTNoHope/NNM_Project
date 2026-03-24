@@ -57,6 +57,44 @@ async function reviewProject(projectId, adminId, decision, note) {
     await usersModel.updateRole(project.founder_id, "FOUNDER");
   }
 
+  // Send notification to Founder
+  try {
+    const notificationsModel = require("../models/notifications.model");
+    const { getIO } = require("../utils/socket");
+    const notification = await notificationsModel.createNotification({
+      userId: project.founder_id,
+      title: decision === "APPROVED" ? "Project Approved" : "Project Rejected",
+      message: `Your project "${project.title}" has been ${decision.toLowerCase()}.`,
+      type: "PROJECT_REVIEWED",
+      relatedId: projectId
+    });
+    getIO().to(`user_${project.founder_id}`).emit("new_notification", notification);
+    
+    // Send email to Founder
+    const founder = await usersModel.findById(project.founder_id);
+    if (founder && founder.email) {
+      const { sendMail } = require("../utils/mailer");
+      await sendMail({
+        to: founder.email,
+        subject: `[HopeFund] Project ${decision === "APPROVED" ? "Approved" : "Rejected"}`,
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
+            <h2 style="color: ${decision === "APPROVED" ? "#10b981" : "#ef4444"}; margin-bottom: 20px;">
+              Project ${decision === "APPROVED" ? "Approved 🎉" : "Rejected"}
+            </h2>
+            <p>Hello <strong>${founder.name || 'Founder'}</strong>,</p>
+            <p>Your project <strong>${project.title}</strong> has been reviewed by the Admin.</p>
+            <p><strong>Status:</strong> ${decision}</p>
+            ${note ? `<p><strong>Admin Note:</strong> ${note}</p>` : ''}
+            <p>Thank you,<br/>The HopeFund Team</p>
+          </div>
+        `
+      });
+    }
+  } catch (error) {
+    console.error("Failed to send review notification:", error);
+  }
+
   return { projectId, newStatus: decision };
 }
 

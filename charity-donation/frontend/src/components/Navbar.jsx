@@ -5,6 +5,7 @@ import { NAV_LINKS } from "../utils/constants";
 import { ThemeContext } from "../App";
 import { useDisconnect } from "wagmi";
 import Button from "./common/Button";
+import NotificationBell from "./NotificationBell/NotificationBell";
 import "./Navbar.css";
 
 const shortenAddress = (address = "") => {
@@ -158,7 +159,11 @@ const Navbar = () => {
             </Button>
 
             {isLoggedIn ? (
-              <div className="navbar__account-menu">
+              <>
+                <ul style={{ margin: 0, padding: 0, display: "flex", alignItems: "center" }}>
+                  <NotificationBell />
+                </ul>
+                <div className="navbar__account-menu">
                 <button type="button" className="navbar__account">
                   <span className="navbar__account-label">{accountLabel}</span>
                   <span className="navbar__account-caret">▾</span>
@@ -188,6 +193,7 @@ const Navbar = () => {
                   </button>
                 </div>
               </div>
+              </>
             ) : (
               <Button as={Link} to="/signin" variant="outline" size="sm">
                 Sign In
