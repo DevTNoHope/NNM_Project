@@ -22,7 +22,7 @@ import PendingProjects from "../pages/Admin/Projects/PendingProjects";
 import AdminCategories from "../pages/Admin/Categories/AdminCategories";
 import AdminUsers from "../pages/Admin/Users/AdminUsers";
 import AdminRoute from "./AdminRoute";
-
+import Badges from "../pages/Admin/Badges/Badges";//Thêm
 const AppRoutes = () => (
   <Routes>
     {/* Admin Routes */}
@@ -33,6 +33,8 @@ const AppRoutes = () => (
         <Route path="projects/pending" element={<PendingProjects />} />
         <Route path="categories" element={<AdminCategories />} />
         <Route path="users" element={<AdminUsers />} />
+        {/* 👇 THÊM Ở ĐÂY */}
+        <Route path="badges" element={<Badges />} />
       </Route>
     </Route>
 
