@@ -54,6 +54,9 @@ const AdminLayout = () => {
                 <span className="nav-icon">👤</span> <span className="nav-text">Users</span>
               </Link>
             </li>
+            <li className={isActive("/admin/badges")}>
+              <Link to="/admin/badges">
+                <span className="nav-icon">🏅</span> <span className="nav-text">Badges</span>
             <li className={isActive("/admin/withdrawals")}>
               <Link to="/admin/withdrawals">
                 <span className="nav-icon">💰</span> <span className="nav-text">Withdrawals</span>
