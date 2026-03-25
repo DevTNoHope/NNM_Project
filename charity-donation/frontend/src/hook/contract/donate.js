@@ -35,7 +35,34 @@ async function ensureWalletReady(expectedAccount) {
   });
 
   if (currentChainId !== "0x61") {
-    throw new Error("Please switch MetaMask to BSC Testnet");
+    try {
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0x61" }],
+      });
+    } catch (switchError) {
+      // Error code 4902: chain chưa được thêm vào ví → tự động thêm
+      if (switchError.code === 4902) {
+        await window.ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: [
+            {
+              chainId: "0x61",
+              chainName: "BNB Smart Chain Testnet",
+              nativeCurrency: {
+                name: "tBNB",
+                symbol: "tBNB",
+                decimals: 18,
+              },
+              rpcUrls: ["https://data-seed-prebsc-1-s1.bnbchain.org:8545"],
+              blockExplorerUrls: ["https://testnet.bscscan.com"],
+            },
+          ],
+        });
+      } else {
+        throw switchError;
+      }
+    }
   }
 
   return currentAccount;
@@ -94,6 +121,29 @@ export async function donateToVault({ vaultAddress, amount, account }) {
 
   if (receipt.status !== "success") {
     throw new Error("Donation transaction failed");
+  }
+
+  return hash;
+}
+
+export async function claimFromVault({ vaultAddress, amount, nonce, deadline, signature, account }) {
+  const connectedAccount = await ensureWalletReady(account);
+  const walletClient = getWalletClient();
+
+  const simulation = await publicClient.simulateContract({
+    address: vaultAddress,
+    abi: vaultAbi,
+    functionName: "claim",
+    args: [BigInt(amount), BigInt(nonce), BigInt(deadline), signature],
+    account: connectedAccount,
+  });
+
+  const hash = await walletClient.writeContract(simulation.request);
+
+  const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+  if (receipt.status !== "success") {
+    throw new Error("Claim transaction failed");
   }
 
   return hash;

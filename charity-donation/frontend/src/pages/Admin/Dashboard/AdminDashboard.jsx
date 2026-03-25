@@ -10,6 +10,11 @@ const AdminDashboard = () => {
     donations: { totalCount: 0, totalAmount: 0 }
   });
   const [recentPending, setRecentPending] = useState([]);
+  const [featureWidgets, setFeatureWidgets] = useState({
+    topProject: null,
+    almostCompleted: [],
+    needsSupport: []
+  });
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
@@ -26,9 +31,46 @@ const AdminDashboard = () => {
       const projRes = await http.get('/admin/projects');
       const projData = projRes.data;
       if (projData.success && projData.data) {
+        const projects = projData.data;
+
         // Filter pending and get top 4
-        const pending = projData.data.filter(p => p.status === 'PENDING').slice(0, 4);
+        const pending = projects.filter(p => p.status === 'PENDING').slice(0, 4);
         setRecentPending(pending);
+
+        // Feature Widgets Data
+        const activeProjects = projects.filter(p => p.status === 'APPROVED' || p.status === 'ACTIVE' || p.status === 'PUBLISHED');
+
+        // Top Funded
+        let topProject = null;
+        if (activeProjects.length > 0) {
+          topProject = activeProjects.reduce((max, p) => parseFloat(p.total_donated || 0) > parseFloat(max.total_donated || 0) ? p : max, activeProjects[0]);
+        }
+
+        // Almost Completed (>70% funded, but not 100%)
+        const almostCompleted = activeProjects
+          .filter(p => {
+             const raised = parseFloat(p.total_donated || 0);
+             const goal = parseFloat(p.goal_amount || 0);
+             return goal > 0 && raised >= goal * 0.7 && raised < goal;
+          })
+          .sort((a, b) => (parseFloat(b.total_donated || 0) / parseFloat(b.goal_amount || 1)) - (parseFloat(a.total_donated || 0) / parseFloat(a.goal_amount || 1)))
+          .slice(0, 3);
+
+        // Needs Support ($0 or <20% funded)
+        const needsSupport = activeProjects
+          .filter(p => {
+             const raised = parseFloat(p.total_donated || 0);
+             const goal = parseFloat(p.goal_amount || 0);
+             return raised === 0 || (goal > 0 && raised < goal * 0.2);
+          })
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+          .slice(0, 3);
+
+        setFeatureWidgets({
+          topProject,
+          almostCompleted,
+          needsSupport
+        });
       }
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -129,6 +171,107 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Feature Widgets Row */}
+      {!loading && (
+        <div className="feature-widgets-row">
+          {/* Top Funded Project */}
+          <div className="feature-widget-card highlight-card">
+            <div className="feature-widget-header">
+               <span className="fw-icon text-warning">🏆</span> TOP FUNDED PROJECT
+            </div>
+            {featureWidgets.topProject ? (
+               <div className="fw-body top-funded">
+                  <div className="tf-image-wrapper">
+                     <img src={featureWidgets.topProject.cover_image_url || 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=400&q=80'} alt={featureWidgets.topProject.title} className="tf-image" onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=400&q=80' }} />
+                     <span className="tf-category">{featureWidgets.topProject.category_name || 'Community'}</span>
+                  </div>
+                  <h3 className="tf-title">{featureWidgets.topProject.title}</h3>
+                  <p className="tf-desc">{featureWidgets.topProject.description?.substring(0, 70) || 'Providing support and infrastructure...'}...</p>
+                  
+                  <div className="tf-progress-section">
+                     <div className="tf-progress-labels">
+                        <span className="text-secondary">Raised</span>
+                        <span className="tf-raised-val text-primary-purple font-bold">${parseFloat(featureWidgets.topProject.total_donated || 0).toLocaleString()}</span>
+                     </div>
+                     <div className="tf-progress-bar-bg">
+                        <div className="tf-progress-bar-fill bg-primary-purple" style={{width: `${Math.min(100, (parseFloat(featureWidgets.topProject.total_donated || 0) / Math.max(1, parseFloat(featureWidgets.topProject.goal_amount || 1))) * 100)}%`}}></div>
+                     </div>
+                     <div className="tf-goal-label">Goal: ${parseFloat(featureWidgets.topProject.goal_amount || 0).toLocaleString()}</div>
+                  </div>
+               </div>
+            ) : (
+               <div className="fw-empty">No active projects found</div>
+            )}
+          </div>
+
+          {/* Almost Completed */}
+          <div className="feature-widget-card">
+            <div className="feature-widget-header">
+               <span className="fw-icon text-success">✅</span> ALMOST COMPLETED
+            </div>
+            <div className="fw-body list-widget">
+               <div className="fw-list-container">
+                 {featureWidgets.almostCompleted.length > 0 ? (
+                     featureWidgets.almostCompleted.map(p => {
+                       const percent = Math.min(100, (parseFloat(p.total_donated || 0) / Math.max(1, parseFloat(p.goal_amount || 1))) * 100).toFixed(0);
+                       const left = parseFloat(p.goal_amount || 0) - parseFloat(p.total_donated || 0);
+                       return (
+                          <div key={p.id} className="ac-item">
+                             <div className="ac-item-header">
+                                <h4 className="ac-title">{p.title}</h4>
+                                <span className="ac-left-val text-success font-semibold">${left.toLocaleString()} left</span>
+                             </div>
+                             <div className="ac-item-meta text-secondary">{p.category_name || 'Environment'} • {percent}% Funded</div>
+                             <div className="tf-progress-bar-bg small">
+                                <div className="tf-progress-bar-fill bg-success" style={{width: `${percent}%`}}></div>
+                             </div>
+                          </div>
+                       );
+                    })
+                 ) : (
+                    <div className="fw-empty">No almost completed projects</div>
+                 )}
+               </div>
+               {featureWidgets.almostCompleted.length > 0 && (
+                  <button className="btn-outline-full mt-auto">View More Near Completion</button>
+               )}
+            </div>
+          </div>
+
+          {/* Needs Support */}
+          <div className="feature-widget-card">
+            <div className="feature-widget-header">
+               <span className="fw-icon text-danger">❗</span> NEEDS SUPPORT
+            </div>
+            <div className="fw-body list-widget d-flex-column">
+               <div className="fw-list-container flex-grow-1">
+                 {featureWidgets.needsSupport.length > 0 ? (
+                    featureWidgets.needsSupport.map(p => {
+                       return (
+                          <div key={p.id} className="ns-item">
+                             <div className="ns-icon-wrapper">
+                                <svg width="22" height="22" fill="#9CA3AF" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM13.96 12.29l-2.75 3.54-1.96-2.36L6.5 17h11l-3.54-4.71z"/></svg>
+                             </div>
+                             <div className="ns-item-content">
+                                <h4 className="ns-title">{p.title}</h4>
+                                <div className="ns-meta">
+                                   <span className="ns-raised-badge text-danger bg-danger-light font-semibold">${parseFloat(p.total_donated || 0).toLocaleString()} raised</span>
+                                   <span className="ns-created-date text-secondary ms-2">Goal: ${parseFloat(p.goal_amount || 0).toLocaleString()}</span>
+                                </div>
+                             </div>
+                          </div>
+                       );
+                    })
+                 ) : (
+                    <div className="fw-empty">All projects are well supported!</div>
+                 )}
+               </div>
+               <button className="btn-primary-full mt-auto mb-0">Create Promo Feature</button>
+            </div>
+          </div>
+        </div>
+      )}
 
        {/* Donation Trends Chart */}
       <div className="admin-card chart-card">

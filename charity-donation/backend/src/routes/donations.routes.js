@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
-
 const donationsController = require("../controllers/donations.controller");
 const authJwt = require("../middleware/authJwt");
+
+// Public
+router.get("/top", donationsController.getTopDonations);
 
 router.post(
   "/projects/:projectId/donate",

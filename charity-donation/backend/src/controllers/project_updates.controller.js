@@ -26,6 +26,14 @@ async function create(req, res, next) {
       projectId: req.params.id,
       authorId: req.user ? req.user.id : req.body.authorId
     };
+
+    // If file uploaded, upload to Cloudinary
+    if (req.file) {
+      const { uploadImage } = require("../utils/cloudinary");
+      const imageUrl = await uploadImage(req.file.buffer, "HopeFund/updates");
+      payload.imageUrl = imageUrl;
+    }
+
     const data = await projectUpdatesService.createProjectUpdate(payload);
     return ok(res, data, "Project update created successfully");
   } catch (err) {

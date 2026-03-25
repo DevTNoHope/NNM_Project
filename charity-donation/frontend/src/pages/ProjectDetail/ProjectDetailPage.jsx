@@ -81,7 +81,7 @@ const ProjectDetailPage = () => {
           getProjectById(slug),
           getProjects(),
           getProjectUpdates(slug).catch(() => ({ data: { data: [] } })),
-          getDonationsByProjectId(slug),        
+          getDonationsByProjectId(slug),
         ]);
 
         const currentProject = projectRes?.data?.data || null;
@@ -100,8 +100,8 @@ const ProjectDetailPage = () => {
         setRelated(
           Array.isArray(allProjects)
             ? allProjects
-                .filter((x) => String(x.id) !== String(slug))
-                .slice(0, 3)
+              .filter((x) => String(x.id) !== String(slug))
+              .slice(0, 3)
             : [],
         );
       } catch (error) {
@@ -149,6 +149,12 @@ const ProjectDetailPage = () => {
         const n1 = Number(a.amount);
         const n2 = Number(b.amount);
         return sortOrder === "asc" ? n1 - n2 : n2 - n1;
+      }
+
+      if (sortField === "donor") {
+        const nameA = (a.donor_name || "Anonymous").toLowerCase();
+        const nameB = (b.donor_name || "Anonymous").toLowerCase();
+        return sortOrder === "asc" ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
       }
 
       return 0;
@@ -210,11 +216,10 @@ const ProjectDetailPage = () => {
     <div className="project-detail">
       {paymentStatus && (
         <div
-          className={`payment-banner ${
-            paymentStatus === "success"
+          className={`payment-banner ${paymentStatus === "success"
               ? "payment-banner--success"
               : "payment-banner--failed"
-          }`}
+            }`}
         >
           <div className="payment-banner__content">
             <span className="payment-banner__icon">
@@ -246,9 +251,9 @@ const ProjectDetailPage = () => {
       )}
 
       <div className="project-detail__banner">
-        <img 
-          src={mappedProject.banner} 
-          alt={mappedProject.title} 
+        <img
+          src={mappedProject.banner}
+          alt={mappedProject.title}
           className="clickable-img"
           onClick={() => setLightboxImg(mappedProject.banner)}
         />
@@ -307,6 +312,51 @@ const ProjectDetailPage = () => {
                       ))}
                     </div>
                   )}
+
+                  {/* Blockchain Info */}
+                  {project?.vault_address && (
+                    <div className="bv-section">
+                      <h3 className="bv-section__title">Blockchain Info</h3>
+                      <div className="bv-section__grid">
+                        <div className="bv-section__item">
+                          <span className="bv-section__label">Smart Contract</span>
+                          <a
+                            href={`https://testnet.bscscan.com/address/${project.vault_address}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bv-section__link"
+                          >
+                            {project.vault_address.slice(0, 6)}...{project.vault_address.slice(-4)}
+                            <CiShare1 style={{ marginLeft: '4px' }} />
+                          </a>
+                        </div>
+
+                        {project?.ipfs_cid && (
+                          <div className="bv-section__item">
+                            <span className="bv-section__label">IPFS Metadata</span>
+                            <a
+                              href={`https://gateway.pinata.cloud/ipfs/${project.ipfs_cid}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="bv-section__link"
+                            >
+                              {project.ipfs_cid.slice(0, 8)}...{project.ipfs_cid.slice(-4)}
+                              <CiShare1 style={{ marginLeft: '4px' }} />
+                            </a>
+                          </div>
+                        )}
+
+                        {project?.meta_hash && (
+                          <div className="bv-section__item bv-section__item--full">
+                            <span className="bv-section__label">
+                              Integrity Hash <span className="bv-section__hint">(keccak256 of IPFS CID → stored on-chain)</span>
+                            </span>
+                            <span className="bv-section__hash">{project.meta_hash}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -363,7 +413,12 @@ const ProjectDetailPage = () => {
                       Date {renderSortIcon("date")}
                     </span>
 
-                    <span>Donor</span>
+                    <span
+                      className="sortable"
+                      onClick={() => handleSort("donor")}
+                    >
+                      Donor {renderSortIcon("donor")}
+                    </span>
 
                     <span>Type</span>
 
@@ -476,6 +531,7 @@ const ProjectDetailPage = () => {
                 Secure · Transparent · Verified
               </p>
             </div>
+
           </aside>
         </div>
 

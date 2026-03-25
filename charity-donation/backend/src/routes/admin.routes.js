@@ -23,5 +23,7 @@ router.get("/badges", badgeController.getAllBadges);
 router.post("/badges", badgeController.createBadge);
 router.put("/badges/:id", badgeController.updateBadge);
 router.delete("/badges/:id", badgeController.deleteBadge);
+// Create Vault (IPFS + Deploy)
+router.post("/projects/:id/create-vault", adminController.createVault);
 
 module.exports = router;

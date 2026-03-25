@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import Button from '../common/Button';
 import './HeroSection.css';
 
-const HeroSection = () => (
+const HeroSection = ({ stats }) => (
   <section className="hero">
     <div className="container">
       <div className="hero__inner">
@@ -51,7 +51,9 @@ const HeroSection = () => (
 
           {/* Floating badges */}
           <div className="hero__float hero__float--1">✓ Verified Projects</div>
-          <div className="hero__float hero__float--2">💰 $5M+ Raised</div>
+          <div className="hero__float hero__float--2">
+            💰 {stats ? `~$${Math.round(stats.totalDonations / 1000000)}M+` : '$5M+'} Raised
+          </div>
         </div>
 
       </div>

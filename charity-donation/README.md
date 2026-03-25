@@ -288,3 +288,28 @@ ADD COLUMN is_verified TINYINT(1) DEFAULT 0;
 
 ALTER TABLE users
 ADD CONSTRAINT unique_wallet UNIQUE (linked_wallet);
+
+--22/3
+use charity_db;
+
+-- 1. Cập nhật ENUM cho status để bao gồm PENDING_EMAIL và đặt làm mặc địn
+ALTER TABLE withdraw_requests 
+MODIFY COLUMN status ENUM('PENDING_EMAIL', 'PENDING', 'APPROVED', 'REJECTED', 'CLAIMED') 
+DEFAULT 'PENDING_EMAIL';
+-- 2. Thêm cột phân loại rút tiền (Crypto/Banking)
+ALTER TABLE withdraw_requests 
+ADD COLUMN type ENUM('CRYPTO', 'BANKING') NOT NULL DEFAULT 'CRYPTO';
+-- 3. Thêm các cột thông tin ngân hàng
+ALTER TABLE withdraw_requests 
+ADD COLUMN bank_name VARCHAR(255) NULL,
+ADD COLUMN account_number VARCHAR(100) NULL,
+ADD COLUMN account_name VARCHAR(255) NULL;
+-- 4. Thêm cột token xác thực email
+ALTER TABLE withdraw_requests 
+ADD COLUMN verification_token VARCHAR(255) NULL;
+
+ALTER TABLE withdraw_approvals ADD COLUMN deadline BIGINT AFTER nonce;
+
+-- 22/3 (Phase 3: IPFS + Vault)
+ALTER TABLE projects ADD COLUMN ipfs_cid VARCHAR(255) NULL;
+ALTER TABLE projects ADD COLUMN meta_hash VARCHAR(255) NULL;

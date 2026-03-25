@@ -1,7 +1,26 @@
-import { PROJECT_CATEGORIES, PROJECT_STATUSES, SORT_OPTIONS } from '../../utils/constants';
+import { useState, useEffect } from 'react';
+import { SORT_OPTIONS } from '../../utils/constants';
+import { getCategories } from '../../api/categoryApi';
 import './ProjectFilters.css';
 
+const PROJECT_STATUSES = ['All', 'Published', 'Archived'];
+
 const ProjectFilters = ({ filters, onChange, resultCount }) => {
+  const [categories, setCategories] = useState(['All']);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await getCategories();
+        const data = res.data?.data || res.data || [];
+        setCategories(['All', ...data.map(c => c.name)]);
+      } catch (err) {
+        console.error('Failed to fetch categories:', err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   const set = (key, val) => onChange({ ...filters, [key]: val });
 
   return (
@@ -18,7 +37,7 @@ const ProjectFilters = ({ filters, onChange, resultCount }) => {
         <div className="project-filters__group">
           <label className="project-filters__label">Category</label>
           <select className="project-filters__select" value={filters.category} onChange={e => set('category', e.target.value)}>
-            {PROJECT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+            {categories.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
         <div className="project-filters__group">
