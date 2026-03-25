@@ -20,4 +20,5 @@ router.get("/users/:id/donations", adminController.getUserHistory);
 // Create Vault (IPFS + Deploy)
 router.post("/projects/:id/create-vault", adminController.createVault);
 
+router.get("/dashboard/chart", adminController.getDashboardChart);
 module.exports = router;

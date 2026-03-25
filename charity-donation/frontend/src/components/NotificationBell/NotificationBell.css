@@ -5,9 +5,17 @@
 
 .bell-container {
   cursor: pointer;
-  font-size: 1.25rem;
   position: relative;
   padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4b5563;
+  transition: color 0.2s;
+}
+
+.bell-container:hover {
+  color: #7C4DFF;
 }
 
 .badge-dot {

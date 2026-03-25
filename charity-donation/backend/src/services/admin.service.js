@@ -3,6 +3,7 @@ const projectsModel = require("../models/projects.model");
 const donationsModel = require("../models/donations.model");
 const projectApprovalsModel = require("../models/project_approvals.model");
 const ApiError = require("../utils/apiError");
+const { query } = require("../utils/dbQuery");
 
 async function getDashboardStats() {
   const totalUsers = await usersModel.countAll();
@@ -106,10 +107,64 @@ async function getUserDonationHistory(userId) {
   return usersModel.getDonationsByUserId(userId);
 }
 
+async function getDashboardChart(year) {
+  // 🟣 Donations theo tháng
+  const donations = await query(`
+    SELECT 
+      MONTH(created_at) as month,
+      SUM(amount) as total
+    FROM donations
+    WHERE YEAR(created_at) = ?
+    GROUP BY MONTH(created_at)
+  `, [year]);
+
+  // 🟢 Projects publish theo tháng
+  const projects = await query(`
+    SELECT 
+      MONTH(created_at) as month,
+      COUNT(*) as total
+    FROM projects
+    WHERE status = 'PUBLISHED'
+      AND YEAR(created_at) = ?
+    GROUP BY MONTH(created_at)
+  `, [year]);
+
+  // 🎯 merge đủ 12 tháng
+  const result = [];
+
+  for (let i = 1; i <= 12; i++) {
+    const d = donations.find(x => x.month === i);
+    const p = projects.find(x => x.month === i);
+
+    result.push({
+      month: `T${i}`,
+      donations: d ? Number(d.total) : 0,
+      projects: p ? Number(p.total) : 0
+    });
+  }
+
+  // 🔥 BONUS: tìm tháng max
+  const maxDonationMonth = result.reduce((max, item) =>
+    item.donations > max.donations ? item : max,
+    result[0]
+  );
+
+  const maxProjectMonth = result.reduce((max, item) =>
+    item.projects > max.projects ? item : max,
+    result[0]
+  );
+
+  return {
+    chart: result,
+    maxDonationMonth,
+    maxProjectMonth
+  };
+}
 module.exports = {
   getDashboardStats,
   getAllAdminProjects,
   reviewProject,
   getAllUsersWithStats,
-  getUserDonationHistory
+  getUserDonationHistory,
+  getDashboardChart
 };

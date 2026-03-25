@@ -5,6 +5,7 @@ import { useSocket } from "../../hooks/useSocket";
 import { useAuth } from "../../context/AuthContext";
 import { toast } from "react-toastify";
 import { playNotificationSound } from "../../utils/sound";
+import { FaRegBell } from "react-icons/fa";
 import "./NotificationBell.css";
 
 const NotificationBell = () => {
@@ -116,8 +117,8 @@ const NotificationBell = () => {
   return (
     <li className="notification-icon" ref={dropdownRef}>
       <div className="bell-container" onClick={() => setIsOpen(!isOpen)}>
-        🔔
-        {unreadCount > 0 && <span className="badge-dot">{unreadCount}</span>}
+        <FaRegBell size={22} className="bell-svg" />
+        {unreadCount > 0 && <span className="badge-dot">{unreadCount > 99 ? '99+' : unreadCount}</span>}
       </div>
 
       {isOpen && (
