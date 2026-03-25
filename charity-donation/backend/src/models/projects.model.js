@@ -152,8 +152,8 @@ async function countByStatus(status) {
   return rows[0].total;
 }
 
-async function findPublished() {
-  const sql = `
+async function findPublished(searchQuery = "") {
+  let sql = `
     SELECT 
       p.id,
       p.founder_id,
@@ -180,13 +180,49 @@ async function findPublished() {
         WHERE d.project_id = p.id
           AND d.status = 'CONFIRMED'
       ) AS total_donors
+  `;
+  const params = [];
+
+  const hasSearch = searchQuery && searchQuery.trim() !== "";
+  const isShortWord = hasSearch && searchQuery.trim().length < 3;
+  const isLongWord = hasSearch && searchQuery.trim().length >= 3;
+
+  if (isLongWord) {
+    sql += `, MATCH(p.title, p.description) AGAINST (?) AS score `;
+    params.push(searchQuery.trim());
+  } else if (isShortWord) {
+    sql += `, 1 AS score `; // Give dummy score for LIKE matches to allow ORDER BY score
+  }
+
+  sql += `
     FROM projects p
     LEFT JOIN categories c ON p.category_id = c.id
     LEFT JOIN users u ON u.id = p.founder_id
-    WHERE p.status = 'PUBLISHED'
-    ORDER BY p.created_at DESC
+    WHERE p.status IN ('PUBLISHED', 'ARCHIVED')
   `;
-  return query(sql);
+
+  if (hasSearch) {
+    const q = searchQuery.trim();
+    if (isShortWord) {
+      sql += ` AND (p.title LIKE CONCAT('%', ?, '%') OR p.description LIKE CONCAT('%', ?, '%')) `;
+      params.push(q, q);
+    } else {
+      sql += ` AND (
+        MATCH(p.title, p.description) AGAINST (?)
+        OR p.title LIKE CONCAT('%', ?, '%')
+        OR p.description LIKE CONCAT('%', ?, '%')
+      ) `;
+      params.push(q, q, q);
+    }
+  }
+
+  if (hasSearch) {
+    sql += ` ORDER BY score DESC, p.created_at DESC `;
+  } else {
+    sql += ` ORDER BY p.created_at DESC `;
+  }
+
+  return query(sql, params);
 }
 
 async function findOwnedByUser(userId) {

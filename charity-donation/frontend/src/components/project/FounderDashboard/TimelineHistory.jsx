@@ -4,7 +4,7 @@ export default function TimelineHistory({ updates }) {
   const [lightboxImg, setLightboxImg] = useState(null);
   return (
     <div className="card" style={{ minWidth: 0 }}>
-      <h2 className="card-title">Timeline History</h2>
+      <h2 className="card-title">Timeline History ({updates.length})</h2>
       {updates.length === 0 ? (
         <p className="empty-text">No updates posted yet.</p>
       ) : (

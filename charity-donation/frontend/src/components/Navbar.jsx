@@ -128,7 +128,14 @@ const Navbar = () => {
             ))}
           </ul>
 
-          <div className="navbar__search">
+          <form 
+            className="navbar__search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const q = e.target.search.value;
+              if (q.trim()) navigate(`/projects?search=${encodeURIComponent(q.trim())}`);
+            }}
+          >
             <svg
               className="navbar__search-icon"
               width="16"
@@ -141,8 +148,15 @@ const Navbar = () => {
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.35-4.35" />
             </svg>
-            <span className="navbar__search-placeholder">Search</span>
-          </div>
+            <input 
+              type="text"
+              name="search"
+              className="navbar__search-input"
+              placeholder="Search"
+              autoComplete="off"
+              style={{ background: 'transparent', border: 'none', color: 'inherit', outline: 'none', width: '100%' }}
+            />
+          </form>
 
           <div className="navbar__actions">
             <button
