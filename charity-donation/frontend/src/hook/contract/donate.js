@@ -35,7 +35,34 @@ async function ensureWalletReady(expectedAccount) {
   });
 
   if (currentChainId !== "0x61") {
-    throw new Error("Please switch MetaMask to BSC Testnet");
+    try {
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0x61" }],
+      });
+    } catch (switchError) {
+      // Error code 4902: chain chưa được thêm vào ví → tự động thêm
+      if (switchError.code === 4902) {
+        await window.ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: [
+            {
+              chainId: "0x61",
+              chainName: "BNB Smart Chain Testnet",
+              nativeCurrency: {
+                name: "tBNB",
+                symbol: "tBNB",
+                decimals: 18,
+              },
+              rpcUrls: ["https://data-seed-prebsc-1-s1.bnbchain.org:8545"],
+              blockExplorerUrls: ["https://testnet.bscscan.com"],
+            },
+          ],
+        });
+      } else {
+        throw switchError;
+      }
+    }
   }
 
   return currentAccount;

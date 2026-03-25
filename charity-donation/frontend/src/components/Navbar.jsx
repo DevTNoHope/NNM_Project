@@ -5,6 +5,7 @@ import { NAV_LINKS } from "../utils/constants";
 import { ThemeContext } from "../App";
 import { useDisconnect } from "wagmi";
 import Button from "./common/Button";
+import logo from "../../public/hopefund-logo.png";
 import "./Navbar.css";
 
 const shortenAddress = (address = "") => {
@@ -96,7 +97,7 @@ const Navbar = () => {
 
       try {
         await disconnectAsync();
-      } catch {}
+      } catch { }
 
       navigate("/");
     } catch (error) {
@@ -109,7 +110,9 @@ const Navbar = () => {
       <div className="container">
         <nav className="navbar__inner">
           <Link to="/" className="navbar__logo">
-            <span className="navbar__logo-icon">🌿</span>
+            <span className="navbar__logo-icon">
+              <img src={logo} alt="logo" />
+            </span>
             <span className="navbar__logo-text">HopeFund</span>
           </Link>
 
@@ -128,7 +131,7 @@ const Navbar = () => {
             ))}
           </ul>
 
-          <form 
+          <form
             className="navbar__search"
             onSubmit={(e) => {
               e.preventDefault();
@@ -148,7 +151,7 @@ const Navbar = () => {
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.35-4.35" />
             </svg>
-            <input 
+            <input
               type="text"
               name="search"
               className="navbar__search-input"
