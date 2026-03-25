@@ -76,8 +76,8 @@ const ProjectDetailModal = ({ project, onClose, onApprove, onReject, onVaultCrea
                   <div style={{ fontWeight: 600, color: '#111827' }}>{project.category_name || "Education"}</div>
                </div>
                <div>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#6B7280', marginBottom: '4px' }}>Founder ID:</div>
-                  <div style={{ fontWeight: 600, color: '#111827' }}>{project.founder_id}</div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#6B7280', marginBottom: '4px' }}>Founder:</div>
+                  <div style={{ fontWeight: 600, color: '#111827' }}>{project.founder_name || 'N/A'} ({project.founder_id})</div>
                </div>
                <div>
                   <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#6B7280', marginBottom: '4px' }}>Goal Amount:</div>

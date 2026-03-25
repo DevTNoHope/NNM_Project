@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSocket } from "../../hooks/useSocket";
 import { useAuth } from "../../context/AuthContext";
+import { toast } from "react-toastify";
+import { playNotificationSound } from "../../utils/sound";
 import "./NotificationBell.css";
 
 const NotificationBell = () => {
@@ -14,6 +16,17 @@ const NotificationBell = () => {
   const dropdownRef = useRef(null);
 
   useEffect(() => {
+    if (user?.id) {
+      const savedNotifications = localStorage.getItem(`notifications_${user.id}`);
+      if (savedNotifications) {
+        try {
+          setNotifications(JSON.parse(savedNotifications));
+        } catch (e) {
+          console.error("Error parsing notifications from local storage", e);
+        }
+      }
+    }
+
     fetchNotifications();
 
     const handleClickOutside = (event) => {
@@ -25,13 +38,21 @@ const NotificationBell = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [user]);
+
+  // Sync notifications to local storage whenever they change
+  useEffect(() => {
+    if (user?.id && notifications.length > 0) {
+      localStorage.setItem(`notifications_${user.id}`, JSON.stringify(notifications));
+    }
+  }, [notifications, user]);
 
   useEffect(() => {
     if (socket) {
       socket.on("new_notification", (notification) => {
         setNotifications((prev) => [notification, ...prev]);
-        // Tùy chọn: API có thể emit ra notification detail
+        toast.info(notification.title || "Bạn có thông báo mới!");
+        playNotificationSound();
       });
     }
     return () => {
@@ -86,7 +107,7 @@ const NotificationBell = () => {
       navigate("/admin/withdrawals");
     } else if (notification.type === "PROJECT_REVIEWED" || notification.type === "WITHDRAWAL_REVIEWED") {
       // User / Founder click
-      navigate("/founder/projects");
+      navigate("/my-projects");
     }
   };
 

@@ -1,13 +1,16 @@
-import { useState, useEffect, useRef } from "react";
-import $ from "jquery";
-import "datatables.net";
-import "datatables.net-dt/css/dataTables.dataTables.css";
+import React, { useState, useEffect, useRef } from "react";
+import { Table, Input, Button as AntDButton, Space, Modal, Tag, Card, Row, Col, Statistic, message } from "antd";
+import { SearchOutlined, HistoryOutlined, DownloadOutlined, UserOutlined, ClockCircleOutlined, DollarOutlined } from "@ant-design/icons";
 import http from "../../../api/http";
 
 const AdminUsers = () => {
-  const tableRef = useRef(null);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Custom Table Filter State
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
+  const searchInput = useRef(null);
 
   // Modal State cho User History
   const [modalOpen, setModalOpen] = useState(false);
@@ -25,6 +28,7 @@ const AdminUsers = () => {
       }
     } catch (error) {
       console.error("Error fetching users:", error);
+      message.error("Failed to fetch users.");
     } finally {
       setLoading(false);
     }
@@ -33,27 +37,6 @@ const AdminUsers = () => {
   useEffect(() => {
     fetchUsers();
   }, []);
-
-  useEffect(() => {
-    let table;
-    if (!loading && users.length > 0) {
-      if ($.fn.dataTable.isDataTable(tableRef.current)) {
-        $(tableRef.current).DataTable().destroy();
-      }
-      table = $(tableRef.current).DataTable({
-        pageLength: 10,
-        lengthMenu: [5, 10, 20, 50],
-        ordering: true,
-        searching: true,
-        responsive: true
-      });
-    }
-    return () => {
-      if (table) {
-        table.destroy();
-      }
-    };
-  }, [users, loading]);
 
   const openHistoryModal = async (user) => {
     setSelectedUser(user);
@@ -68,165 +51,258 @@ const AdminUsers = () => {
       }
     } catch (error) {
       console.error("Error fetching user history:", error);
+      message.error("Failed to fetch user history.");
     } finally {
       setHistoryLoading(false);
     }
   };
+
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
+  };
+
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <AntDButton
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </AntDButton>
+          <AntDButton
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </AntDButton>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+    ),
+    onFilter: (value, record) =>
+      record[dataIndex]
+        ?.toString()
+        .toLowerCase()
+        .includes(value.toLowerCase()),
+    onFilterDropdownOpenChange: (visible) => {
+      if (visible) {
+        setTimeout(() => searchInput.current?.select(), 100);
+      }
+    },
+  });
+
+  const columns = [
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      width: 80,
+      sorter: (a, b) => a.id - b.id,
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+      sorter: (a, b) => a.email.localeCompare(b.email),
+      ...getColumnSearchProps("email"),
+      render: (text) => <span style={{ fontWeight: 600, color: '#111827' }}>{text}</span>,
+    },
+    {
+      title: "Role",
+      dataIndex: "role",
+      key: "role",
+      render: (role) => {
+        let color = "default";
+        if (role === "ADMIN") color = "red";
+        if (role === "FOUNDER") color = "blue";
+        if (role === "USER") color = "green";
+        return <Tag color={color}>{role}</Tag>;
+      }
+    },
+    {
+      title: "Linked Wallet",
+      dataIndex: "linked_wallet",
+      key: "linked_wallet",
+      render: (wallet) => (
+        wallet ? (
+          <Tag style={{ fontFamily: 'monospace' }}>
+            {wallet.substring(0, 6)}...{wallet.substring(wallet.length - 4)}
+          </Tag>
+        ) : (
+          <span style={{ color: '#ccc', fontStyle: 'italic' }}>None</span>
+        )
+      )
+    },
+    {
+      title: "Projects Donated",
+      dataIndex: "total_projects_donated",
+      key: "projects",
+      align: "center",
+      sorter: (a, b) => (a.total_projects_donated || 0) - (b.total_projects_donated || 0),
+    },
+    {
+      title: "Total Amount Donated ($)",
+      dataIndex: "total_amount_donated",
+      key: "amount",
+      sorter: (a, b) => (a.total_amount_donated || 0) - (b.total_amount_donated || 0),
+      render: (val) => <span style={{ color: '#10b981', fontWeight: 600 }}>${Number(val || 0).toLocaleString()}</span>,
+    },
+    {
+      title: "Joined At",
+      dataIndex: "created_at",
+      key: "created_at",
+      sorter: (a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0),
+      render: (date) => <span>{date ? new Date(date).toLocaleDateString() : "-"}</span>,
+    },
+    {
+      title: "Action",
+      key: "action",
+      align: "right",
+      render: (_, record) => (
+        <AntDButton 
+          type="primary" 
+          size="small"
+          icon={<HistoryOutlined />}
+          onClick={() => openHistoryModal(record)}
+        >
+          History
+        </AntDButton>
+      ),
+    },
+  ];
+
+  const historyColumns = [
+    {
+      title: "Project Name",
+      dataIndex: "project_title",
+      key: "project",
+      render: (text) => <span style={{ fontWeight: 600 }}>{text}</span>,
+    },
+    {
+      title: "Amount ($)",
+      dataIndex: "amount",
+      key: "amount",
+      render: (val) => <span style={{ color: '#1677ff', fontWeight: 600 }}>${Number(val || 0).toLocaleString()}</span>,
+    },
+    {
+      title: "Date",
+      dataIndex: "created_at",
+      key: "date",
+      render: (date) => <span>{date ? new Date(date).toLocaleDateString() : "-"}</span>,
+    },
+    {
+      title: "Method",
+      dataIndex: "donation_type",
+      key: "method",
+      align: "right",
+      render: (type) => {
+        if (!type) return 'N/A';
+        return <Tag color={type === 'CRYPTO' ? 'warning' : 'processing'}>{type}</Tag>;
+      }
+    }
+  ];
 
   return (
     <div>
       <div className="admin-card">
         <div className="admin-card-header">
           User Management
-          <span className="badge-soft-primary">TOTAL {users.length}</span>
+          <span className="badge-soft-primary" style={{ marginLeft: 10 }}>TOTAL {users.length}</span>
         </div>
         <div className="admin-card-body p-0">
-          {loading ? (
-            <p className="text-center py-4">Loading data...</p>
-          ) : users.length === 0 ? (
-            <p className="text-center py-4">No users found.</p>
-          ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table ref={tableRef} className="modern-table" style={{ width: '100%' }}>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Linked Wallet</th>
-                    <th className="text-center">Total Projects Donated</th>
-                    <th>Total Amount Donated ($)</th>
-                    <th>Joined At</th>
-                    <th className="text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map(u => (
-                    <tr key={u.id}>
-                      <td>{u.id}</td>
-                      <td className="font-semibold text-dark">{u.email}</td>
-                      <td>
-                        <span className={`badge-soft-${u.role === 'ADMIN' ? 'danger' : u.role === 'FOUNDER' ? 'primary' : 'success'}`}>
-                          {u.role}
-                        </span>
-                      </td>
-                      <td>
-                        {u.linked_wallet ? (
-                          <span style={{ fontFamily: 'monospace', color: '#6B7280' }}>
-                            {u.linked_wallet.substring(0, 6)}...{u.linked_wallet.substring(u.linked_wallet.length - 4)}
-                          </span>
-                        ) : (
-                          <span style={{ color: '#ccc', fontStyle: 'italic' }}>None</span>
-                        )}
-                      </td>
-                      <td className="text-center">{u.total_projects_donated || 0}</td>
-                      <td className="font-semibold text-success">
-                         ${parseInt(u.total_amount_donated || 0).toLocaleString()}
-                      </td>
-                      <td>{new Date(u.created_at).toLocaleDateString()}</td>
-                      <td className="text-right">
-                        <button 
-                          className="btn-action bg-primary"
-                          style={{ borderRadius: '20px', padding: '6px 16px' }}
-                          onClick={() => openHistoryModal(u)}
-                        >
-                          View History
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <div style={{ padding: '1.5rem' }}>
+            <Table
+              className="modern-antd-table"
+              columns={columns}
+              dataSource={users}
+              rowKey="id"
+              loading={loading}
+              pagination={{
+                defaultPageSize: 10,
+                showSizeChanger: true,
+                pageSizeOptions: ['5', '10', '20', '50'],
+              }}
+              scroll={{ x: 1000 }}
+            />
+          </div>
         </div>
       </div>
 
-      {modalOpen && selectedUser && (
-        <div className="admin-modal-overlay">
-          <div className="admin-modal-modern">
-            <div className="modal-header-modern">
-               <div>
-                  <h5>User Donation History - {selectedUser.email.split('@')[0]}</h5>
-                  <p>Contributor Profile & History</p>
-               </div>
-               <button className="modal-close-icon" onClick={() => setModalOpen(false)}>&times;</button>
-            </div>
-            
-            <div className="modal-body-modern" style={{ padding: '0' }}>
-               {/* Summary Cards Row */}
-               <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid #F3F4F6' }}>
-                  <div style={{ display: 'flex', gap: '1.5rem' }}>
-                     {/* Card 1 */}
-                     <div style={{ flex: 1, padding: '1.25rem', border: '1px solid #E5E7EB', borderRadius: '12px', background: '#F9FAFB' }}>
-                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', marginBottom: '8px' }}>Total Donated</div>
-                        <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#7C4DFF' }}>
-                           <span style={{fontSize: '1rem'}}>$</span> {history.reduce((sum, h) => sum + parseFloat(h.amount || 0), 0).toLocaleString()}
-                        </div>
-                     </div>
-                     {/* Card 2 */}
-                     <div style={{ flex: 1, padding: '1.25rem', border: '1px solid #E5E7EB', borderRadius: '12px', background: '#F9FAFB' }}>
-                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', marginBottom: '8px' }}>Joined On</div>
-                        <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#10B981', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                           <svg fill="currentColor" width="20" height="20" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                           {new Date(selectedUser.created_at).toLocaleDateString()}
-                        </div>
-                     </div>
-                  </div>
-               </div>
+      <Modal
+        title={`User Donation History - ${selectedUser?.email?.split('@')[0] || ''}`}
+        open={modalOpen}
+        onCancel={() => setModalOpen(false)}
+        footer={[
+          <AntDButton key="close" onClick={() => setModalOpen(false)}>
+            Close
+          </AntDButton>,
+          <AntDButton key="export" type="primary" icon={<DownloadOutlined />}>
+            Export Report
+          </AntDButton>
+        ]}
+        width={800}
+      >
+        {selectedUser && (
+          <Row gutter={16} style={{ marginBottom: 24, marginTop: 16 }}>
+            <Col span={12}>
+              <Card size="small">
+                <Statistic
+                  title="Total Donated"
+                  value={history.reduce((sum, h) => sum + parseFloat(h.amount || 0), 0)}
+                  precision={2}
+                  prefix={<DollarOutlined />}
+                  valueStyle={{ color: '#7c4dff' }}
+                />
+              </Card>
+            </Col>
+            <Col span={12}>
+              <Card size="small">
+                <Statistic
+                  title="Joined On"
+                  value={new Date(selectedUser.created_at).toLocaleDateString()}
+                  prefix={<ClockCircleOutlined />}
+                  valueStyle={{ color: '#10b981', fontSize: '1.25rem' }}
+                />
+              </Card>
+            </Col>
+          </Row>
+        )}
 
-               {/* Table Content */}
-               <div style={{ padding: '1.5rem 2rem 0 2rem' }}>
-                  <h6 style={{ fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.5px', color: '#111827', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                     <svg fill="currentColor" width="16" height="16" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
-                     RECENT DONATIONS
-                  </h6>
-               </div>
-
-               {historyLoading ? (
-                 <p className="text-center py-4">Loading user's donation history...</p>
-               ) : history.length === 0 ? (
-                 <p className="text-center py-4" style={{ color: '#6B7280' }}>No confirmed donations found for this user.</p>
-               ) : (
-                 <table className="modern-table">
-                   <thead>
-                     <tr>
-                       <th>Project Name</th>
-                       <th>Amount ($)</th>
-                       <th>Date</th>
-                       <th className="text-right">Method</th>
-                     </tr>
-                   </thead>
-                   <tbody>
-                     {history.map(h => (
-                       <tr key={h.id}>
-                         <td className="font-semibold text-dark">{h.project_title}</td>
-                         <td className="font-semibold text-dark">${parseInt(h.amount).toLocaleString()}</td>
-                         <td>{new Date(h.created_at).toLocaleDateString()}</td>
-                         <td className="text-right">
-                           {h.donation_type ? (
-                              <span className={`badge-soft-${h.donation_type === 'CRYPTO' ? 'warning' : 'primary'}`} style={{ textTransform: 'uppercase', fontSize: '0.65rem' }}>
-                                {h.donation_type}
-                              </span>
-                           ) : 'N/A'}
-                         </td>
-                       </tr>
-                     ))}
-                   </tbody>
-                 </table>
-               )}
-            </div>
-            
-            <div className="modal-footer-modern">
-              <button className="btn-core" style={{ background: 'transparent', color: '#6B7280' }} onClick={() => setModalOpen(false)}>Close</button>
-              <button className="btn-core btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                 Export Report
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        <h3 style={{ marginBottom: 16, fontSize: '1rem' }}><HistoryOutlined /> RECENT DONATIONS</h3>
+        
+        <Table
+          columns={historyColumns}
+          dataSource={history}
+          rowKey="id"
+          loading={historyLoading}
+          pagination={{ pageSize: 5 }}
+          scroll={{ x: 700 }}
+          locale={{ emptyText: "No confirmed donations found for this user." }}
+        />
+      </Modal>
     </div>
   );
 };
