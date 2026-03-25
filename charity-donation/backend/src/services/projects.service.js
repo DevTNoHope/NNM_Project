@@ -20,8 +20,8 @@ function validateProjectPayload(payload) {
   }
 }
 
-async function getProjects() {
-  return projectsModel.findPublished();
+async function getProjects(searchQuery = "") {
+  return projectsModel.findPublished(searchQuery);
 }
 
 async function getProjectById(id) {
