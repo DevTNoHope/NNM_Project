@@ -25,7 +25,7 @@ import WithdrawalManagement from "../pages/Admin/Withdrawal/WithdrawalManagement
 import WithdrawalVerification from "../pages/Founder/Withdrawal/WithdrawalVerification";
 import ClaimWithdrawal from "../pages/Founder/Withdrawal/ClaimWithdrawal";
 import AdminRoute from "./AdminRoute";
-
+import Badges from "../pages/Admin/Badges/Badges";//Thêm
 const AppRoutes = () => (
   <Routes>
     {/* Admin Routes */}
@@ -36,6 +36,7 @@ const AppRoutes = () => (
         <Route path="projects/pending" element={<PendingProjects />} />
         <Route path="categories" element={<AdminCategories />} />
         <Route path="users" element={<AdminUsers />} />
+        <Route path="badges" element={<Badges />} />
         <Route path="withdrawals" element={<WithdrawalManagement />} />
       </Route>
     </Route>
