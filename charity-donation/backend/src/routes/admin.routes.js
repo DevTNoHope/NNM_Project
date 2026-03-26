@@ -26,4 +26,5 @@ router.delete("/badges/:id", badgeController.deleteBadge);
 // Create Vault (IPFS + Deploy)
 router.post("/projects/:id/create-vault", adminController.createVault);
 
+router.get("/dashboard/chart", adminController.getDashboardChart);
 module.exports = router;

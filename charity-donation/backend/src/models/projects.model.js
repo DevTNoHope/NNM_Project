@@ -2,11 +2,12 @@ const { query } = require("../utils/dbQuery");
 
 async function findAll() {
   const sql = `
-    SELECT p.id, p.founder_id, p.category_id, c.name as category_name, p.title, p.description, p.goal_amount, p.status,
+    SELECT p.id, p.founder_id, u.name as founder_name, p.category_id, c.name as category_name, p.title, p.description, p.goal_amount, p.status,
            p.cover_image_url, p.vault_address, p.created_at, p.updated_at,
            (SELECT COALESCE(SUM(amount), 0) FROM donations WHERE project_id = p.id AND status = 'CONFIRMED') as total_donated
     FROM projects p
     LEFT JOIN categories c ON p.category_id = c.id
+    LEFT JOIN users u ON p.founder_id = u.id
     ORDER BY p.created_at DESC
   `;
   return query(sql);

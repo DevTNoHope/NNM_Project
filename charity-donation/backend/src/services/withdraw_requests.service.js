@@ -160,6 +160,22 @@ async function verifyWithdrawal(token) {
   await withdrawRequestsModel.updateStatus(request.id, 'PENDING');
   await withdrawRequestsModel.clearVerificationToken(request.id);
 
+  // Send realtime notification to Admin
+  try {
+    const notificationsModel = require("../models/notifications.model");
+    const { getIO } = require("../utils/socket");
+    const notification = await notificationsModel.createNotification({
+      userId: null,
+      title: "New Withdrawal Request",
+      message: `A manual withdrawal request for $${request.amount} has been verified and needs approval.`,
+      type: "WITHDRAWAL_REQUESTED",
+      relatedId: request.id
+    });
+    getIO().to("admin_room").emit("new_notification", notification);
+  } catch (error) {
+    console.error("Failed to notify admin of new withdrawal:", error);
+  }
+
   return { message: "Email verified successfully. Your request is now pending Admin approval." };
 }
 

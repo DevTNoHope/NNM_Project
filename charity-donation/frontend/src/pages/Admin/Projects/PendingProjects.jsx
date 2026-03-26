@@ -1,16 +1,29 @@
-import { useState, useEffect, useRef } from "react";
-import $ from "jquery";
-import "datatables.net";
-import "datatables.net-dt/css/dataTables.dataTables.css";
+import React, { useState, useEffect, useRef } from "react";
+import { Table, Input, Button as AntDButton, Space, Tag, Select } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 import ProjectDetailModal from "../../../components/ProjectDetailModal/ProjectDetailModal";
 import http from "../../../api/http";
+import "./PendingProjects.css";
+
+const STATUS_MAP = {
+  DRAFT: { label: "Draft", color: "default" },
+  PENDING: { label: "Pending", color: "orange" },
+  APPROVED: { label: "Approved", color: "blue" },
+  PUBLISHED: { label: "Published", color: "green" },
+  REJECTED: { label: "Rejected", color: "red" },
+  ARCHIVED: { label: "Archived", color: "purple" },
+};
 
 const PendingProjects = () => {
-  const tableRef = useRef(null);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('ALL');
   
+  // Custom Table Filter State
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
+  const searchInput = useRef(null);
+
   // Modal State
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
@@ -38,27 +51,6 @@ const PendingProjects = () => {
     fetchProjects();
   }, []);
 
-  useEffect(() => {
-    let table;
-    if (!loading && filteredProjects.length > 0) {
-      if ($.fn.dataTable.isDataTable(tableRef.current)) {
-        $(tableRef.current).DataTable().destroy();
-      }
-      table = $(tableRef.current).DataTable({
-        pageLength: 5, // Như trong hình mẫu
-        lengthMenu: [5, 10, 20, 50],
-        ordering: true,
-        searching: true,
-        responsive: true
-      });
-    }
-    return () => {
-      if (table) {
-        table.destroy();
-      }
-    };
-  }, [filteredProjects, loading]);
-
   const openDetailModal = (project) => {
     setSelectedProject(project);
     setModalOpen(true);
@@ -84,6 +76,112 @@ const PendingProjects = () => {
     }
   };
 
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
+  };
+
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <AntDButton
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </AntDButton>
+          <AntDButton
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </AntDButton>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+    ),
+    onFilter: (value, record) =>
+      record[dataIndex]
+        ?.toString()
+        .toLowerCase()
+        .includes(value.toLowerCase()),
+    onFilterDropdownOpenChange: (visible) => {
+      if (visible) {
+        setTimeout(() => searchInput.current?.select(), 100);
+      }
+    },
+  });
+
+  const columns = [
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      width: 80,
+      sorter: (a, b) => a.id - b.id,
+    },
+    {
+      title: "Title",
+      dataIndex: "title",
+      key: "title",
+      sorter: (a, b) => a.title.localeCompare(b.title),
+      ...getColumnSearchProps("title"),
+      render: (text) => <span style={{ fontWeight: 600, color: '#111827' }}>{text}</span>,
+    },
+    {
+      title: "Goal ($)",
+      dataIndex: "goal_amount",
+      key: "goal_amount",
+      sorter: (a, b) => Number(a.goal_amount || 0) - Number(b.goal_amount || 0),
+      render: (val) => <span>${Number(val || 0).toLocaleString()}</span>,
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (status) => {
+        const meta = STATUS_MAP[status] || { label: status, color: "default" };
+        return <Tag color={meta.color}>{meta.label}</Tag>;
+      },
+    },
+    {
+      title: "Action",
+      key: "action",
+      align: "right",
+      render: (_, record) => (
+        <AntDButton 
+          type="primary" 
+          shape="round" 
+          size="small"
+          onClick={() => openDetailModal(record)}
+        >
+          Details
+        </AntDButton>
+      ),
+    },
+  ];
+
   return (
     <div>
       <div className="admin-card">
@@ -94,61 +192,35 @@ const PendingProjects = () => {
         <div className="admin-card-body p-0">
           <div style={{ padding: '1.5rem 1.5rem 0', display: 'flex', gap: '1rem', alignItems: 'center' }}>
             <span style={{ fontWeight: 600, fontSize: '0.9rem', color: '#4B5563' }}>Filter by Status:</span>
-            <select 
+            <Select 
                value={filterStatus} 
-               onChange={(e) => setFilterStatus(e.target.value)}
-               style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #D1D5DB' }}
-            >
-              <option value="ALL">All Statuses</option>
-              <option value="PENDING">Pending</option>
-              <option value="APPROVED">Approved</option>
-              <option value="REJECTED">Rejected</option>
-              <option value="PUBLISHED">Published</option>
-            </select>
+               onChange={(val) => setFilterStatus(val)}
+               style={{ width: 150 }}
+               options={[
+                 { value: "ALL", label: "All Statuses" },
+                 { value: "PENDING", label: "Pending" },
+                 { value: "APPROVED", label: "Approved" },
+                 { value: "REJECTED", label: "Rejected" },
+                 { value: "PUBLISHED", label: "Published" },
+               ]}
+            />
           </div>
 
-          {loading ? (
-            <p className="text-center py-4">Loading data...</p>
-          ) : filteredProjects.length === 0 ? (
-            <p className="text-center py-4">No projects found.</p>
-          ) : (
-            <div style={{ overflowX: 'auto', padding: '1.5rem' }}>
-              <table ref={tableRef} className="modern-table" style={{ width: '100%' }}>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Goal ($)</th>
-                    <th>Status</th>
-                    <th className="text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredProjects.map(p => (
-                    <tr key={p.id}>
-                      <td>{p.id}</td>
-                      <td className="font-semibold text-dark">{p.title}</td>
-                      <td className="font-semibold">${parseInt(p.goal_amount).toLocaleString()}</td>
-                      <td>
-                         <span className={`badge-soft-${p.status === 'APPROVED' ? 'success' : p.status === 'REJECTED' ? 'danger' : p.status === 'PENDING' ? 'warning' : 'secondary'}`}>
-                           {p.status}
-                         </span>
-                      </td>
-                      <td className="text-right">
-                        <button 
-                          className="btn-action bg-primary"
-                          style={{ borderRadius: '20px', padding: '6px 16px' }}
-                          onClick={() => openDetailModal(p)}
-                        >
-                          Details
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <div style={{ padding: '1.5rem' }}>
+            <Table
+              className="modern-antd-table"
+              columns={columns}
+              dataSource={filteredProjects}
+              rowKey="id"
+              loading={loading}
+              pagination={{
+                defaultPageSize: 5,
+                showSizeChanger: true,
+                pageSizeOptions: ['5', '10', '20', '50'],
+              }}
+              scroll={{ x: 800 }}
+            />
+          </div>
         </div>
       </div>
 

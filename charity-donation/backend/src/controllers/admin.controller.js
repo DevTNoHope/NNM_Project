@@ -115,6 +115,42 @@ async function createVault(req, res, next) {
     // 5. Save vault_address, ipfs_cid, meta_hash and set PUBLISHED
     await projectsModel.updateVaultAndPublish(projectId, vaultAddress, cid, metaHash);
 
+    // 6. Send notification & email to Founder
+    try {
+      const notificationsModel = require("../models/notifications.model");
+      const { getIO } = require("../utils/socket");
+      const notification = await notificationsModel.createNotification({
+        userId: project.founder_id,
+        title: "Project Published",
+        message: `Your project "${project.title}" has been successfully published to the blockchain!`,
+        type: "PROJECT_PUBLISHED",
+        relatedId: projectId
+      });
+      getIO().to(`user_${project.founder_id}`).emit("new_notification", notification);
+      
+      if (founder && founder.email) {
+        const { sendMail } = require("../utils/mailer");
+        await sendMail({
+          to: founder.email,
+          subject: `[HopeFund] Project Published 🎉`,
+          html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
+              <h2 style="color: #10b981; margin-bottom: 20px;">
+                Project Published 🎉
+              </h2>
+              <p>Hello <strong>${founder.name || 'Founder'}</strong>,</p>
+              <p>Great news! Your project <strong>${project.title}</strong> has been successfully published to the blockchain and is now live.</p>
+              <p><strong>Vault Address:</strong> ${vaultAddress}</p>
+              <p>You can now start receiving donations. Share your project with the world!</p>
+              <p>Thank you,<br/>The HopeFund Team</p>
+            </div>
+          `
+        });
+      }
+    } catch (notifErr) {
+      console.error("Failed to send publish notification:", notifErr);
+    }
+
     return ok(res, {
       vaultAddress,
       txHash,
@@ -128,6 +164,17 @@ async function createVault(req, res, next) {
   }
 }
 
+async function getDashboardChart(req, res, next) {
+  try {
+    const year = Number(req.query.year) || new Date().getFullYear();
+
+    const data = await adminService.getDashboardChart(year);
+
+    return ok(res, data, "Chart data fetched successfully");
+  } catch (error) {
+    next(error);
+  }
+}
 module.exports = {
   getDashboard,
   getAllProjects,
@@ -135,5 +182,6 @@ module.exports = {
   rejectProjectRequest,
   getAllUsers,
   getUserHistory,
-  createVault
+  createVault,
+  getDashboardChart
 };
