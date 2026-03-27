@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import http from "../../api/http";
 import { useSocket } from "../../hooks/useSocket";
 import { useAuth } from "../../context/AuthContext";
 import { toast } from "react-toastify";
@@ -63,9 +63,7 @@ const NotificationBell = () => {
 
   const fetchNotifications = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/notifications", {
-        withCredentials: true,
-      });
+      const res = await http.get("/notifications");
       setNotifications(res.data.notifications || []);
     } catch (error) {
       console.error("Failed to fetch notifications:", error);
@@ -74,9 +72,7 @@ const NotificationBell = () => {
 
   const markAsRead = async (id) => {
     try {
-      await axios.put(`http://localhost:5000/api/notifications/${id}/read`, {}, {
-        withCredentials: true,
-      });
+      await http.put(`/notifications/${id}/read`);
       setNotifications((prev) =>
         prev.map((notif) => (notif.id === id ? { ...notif, is_read: 1 } : notif))
       );
@@ -87,9 +83,7 @@ const NotificationBell = () => {
 
   const markAllAsRead = async () => {
     try {
-      await axios.put("http://localhost:5000/api/notifications/read-all", {}, {
-        withCredentials: true,
-      });
+      await http.put("/notifications/read-all");
       setNotifications((prev) => prev.map((notif) => ({ ...notif, is_read: 1 })));
     } catch (error) {
       console.error("Failed to mark all as read:", error);

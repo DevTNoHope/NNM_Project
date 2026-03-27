@@ -4,7 +4,7 @@ const ApiError = require("../utils/apiError");
 async function getNotifications(req, res, next) {
   try {
     const userRole = req.user.role;
-    const userId = req.user.userId; // Trích xuất từ JWT token payload
+    const userId = req.user.id;
     
     let notifications = [];
     if (userRole === "ADMIN") {
@@ -32,7 +32,7 @@ async function markAsRead(req, res, next) {
 async function markAllAsRead(req, res, next) {
   try {
     const userRole = req.user.role;
-    const userId = req.user.userId;
+    const userId = req.user.id;
 
     if (userRole === "ADMIN") {
       await notificationsModel.markAllAsReadForAdmins();
