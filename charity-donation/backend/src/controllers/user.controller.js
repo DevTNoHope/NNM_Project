@@ -1,4 +1,5 @@
 const usersService = require("../services/users.service");
+const badgesService = require("../services/badges.service");
 const response = require("../utils/response");
 const ApiError = require("../utils/apiError");
 
@@ -82,6 +83,51 @@ const verifyOtp = async (req, res, next) => {
   }
 };
 
+const getMyBadges = async (req, res, next) => {
+  try {
+    const data = await badgesService.getMyBadges(req.user.id);
+    return response.ok(res, data, "Get my badges successfully");
+  } catch (err) {
+    return next(err);
+  }
+};
+
+const getMyBadgeProgress = async (req, res, next) => {
+  try {
+    const data = await badgesService.getMyBadgeProgress(req.user.id);
+    return response.ok(res, data, "Get my badge progress successfully");
+  } catch (err) {
+    return next(err);
+  }
+};
+
+const setMySelectedBadge = async (req, res, next) => {
+  try {
+    const data = await badgesService.setSelectedBadge(req.user.id, req.body.badgeId);
+    return response.ok(res, data, "Display badge updated successfully");
+  } catch (err) {
+    return next(err);
+  }
+};
+
+const getPublicBadges = async (req, res, next) => {
+  try {
+    const data = await badgesService.getMyBadges(req.params.userId);
+    return response.ok(res, data, "Get user badges successfully");
+  } catch (err) {
+    return next(err);
+  }
+};
+
+const getPublicBadgeProgress = async (req, res, next) => {
+  try {
+    const data = await badgesService.getMyBadgeProgress(req.params.userId);
+    return response.ok(res, data, "Get user badge progress successfully");
+  } catch (err) {
+    return next(err);
+  }
+};
+
 module.exports = {
   getMe,
   updateMe,
@@ -90,4 +136,9 @@ module.exports = {
   getUserDonations,
   sendVerificationOtp,
   verifyOtp,
+  getMyBadges,
+  getMyBadgeProgress,
+  setMySelectedBadge,
+  getPublicBadges,
+  getPublicBadgeProgress,
 };

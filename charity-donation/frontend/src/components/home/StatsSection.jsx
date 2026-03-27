@@ -5,8 +5,8 @@ const StatsSection = ({ stats }) => {
 
   const displayStats = [
     { label: 'Projects on Platform', value: stats.projectsCount.toLocaleString() },
-    { label: 'Total Donations', value: `~$${Math.round(stats.totalDonations).toLocaleString()}` },
-    { label: '# of Givers', value: stats.usersCount.toLocaleString() },
+    { label: 'Total Donations', value: `~$${Math.abs(Math.round(stats.totalDonations)).toLocaleString()}` },
+    { label: 'Global Donors', value: stats.usersCount.toLocaleString() },
   ];
 
   return (

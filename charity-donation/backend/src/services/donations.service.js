@@ -2,6 +2,7 @@ const ApiError = require("../utils/apiError");
 const donationsModel = require("../models/donations.model");
 const projectsModel = require("../models/projects.model");
 const vnpayService = require("./vnpay.service");
+const badgesService = require("./badges.service");
 const env = require("../config/env");
 const { getUsdToVndRate } = require("./exchangeRate.service");
 
@@ -337,6 +338,8 @@ async function confirmCryptoDonation(donationId, userId, payload) {
     verified.donorWallet,
   );
 
+  await badgesService.syncUserBadges(normalizedUserId);
+
   const updatedDonation = await donationsModel.findById(normalizedDonationId);
 
   return {
@@ -379,6 +382,9 @@ async function handleVnpayReturn(query) {
 
   if (responseCode === "00" && transactionStatus === "00") {
     await donationsModel.markConfirmedByVnpTxnRef(txnRef, vnpTransactionNo);
+    if (donation.user_id) {
+      await badgesService.syncUserBadges(donation.user_id);
+    }
   } else {
     await donationsModel.markFailedByVnpTxnRef(txnRef);
   }

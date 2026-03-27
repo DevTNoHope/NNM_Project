@@ -20,4 +20,10 @@ router.get("/users/:id/donations", adminController.getUserHistory);
 // Create Vault (IPFS + Deploy)
 router.post("/projects/:id/create-vault", adminController.createVault);
 
+// Badges management
+router.post("/badges", adminController.createBadge);
+router.put("/badges/:id", adminController.updateBadge);
+router.delete("/badges/:id", adminController.deleteBadge);
+router.get("/badges", adminController.getAllBadges);
+
 module.exports = router;

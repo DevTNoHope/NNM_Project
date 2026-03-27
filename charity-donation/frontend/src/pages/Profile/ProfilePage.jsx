@@ -9,12 +9,15 @@ import {
   sendVerificationOtp,
   verifyOtp,
   updateMyProfile,
+  getMyBadges,
+  getMyBadgeProgress,
+  setMySelectedBadge,
+  getUserBadges,
+  getUserBadgeProgress
 } from "../../api/userApi";
 import ProjectCard from "../../components/ProjectCard";
 import "./ProfilePage.css";
 import { Link } from "react-router-dom";
-
-const TABS = ["overview", "projects", "donations"];
 
 export default function ProfilePage({ isMe = false }) {
   const { userId } = useParams();
@@ -26,6 +29,8 @@ export default function ProfilePage({ isMe = false }) {
   const [profile, setProfile] = useState(null);
   const [projectsData, setProjectsData] = useState(null);
   const [donationsData, setDonationsData] = useState(null);
+  const [badgesData, setBadgesData] = useState(null);
+  const [badgeProgress, setBadgeProgress] = useState(null);
 
   const [editOpen, setEditOpen] = useState(false);
   const [otpOpen, setOtpOpen] = useState(false);
@@ -54,36 +59,38 @@ export default function ProfilePage({ isMe = false }) {
         setLoading(true);
         setError("");
 
+        let profileObj = null;
+        let pId = userId;
+
         if (isMe) {
           const meRes = await getMyProfile();
-          const me = meRes?.data;
-
-          if (!me || !me.id) {
-            throw new Error("Failed to load profile");
-          }
-
-          setProfile(me);
-
-          const [projectsRes, donationsRes] = await Promise.all([
-            getUserProjects(me.id),
-            getUserDonations(me.id),
-          ]);
-
-          setProjectsData(projectsRes?.data || null);
-          setDonationsData(donationsRes?.data || null);
+          profileObj = meRes?.data;
+          pId = profileObj?.id;
         } else {
           if (!userId) throw new Error("User ID is missing");
-
-          const [profileRes, projectsRes, donationsRes] = await Promise.all([
-            getPublicProfile(userId),
-            getUserProjects(userId),
-            getUserDonations(userId),
-          ]);
-
-          setProfile(profileRes?.data || null);
-          setProjectsData(projectsRes?.data || null);
-          setDonationsData(donationsRes?.data || null);
+          const profileRes = await getPublicProfile(userId);
+          profileObj = profileRes?.data;
         }
+
+        if (!profileObj || !profileObj.id) {
+          throw new Error("Failed to load profile");
+        }
+
+        setProfile(profileObj);
+
+        // Fetch everything else
+        const [projectsRes, donationsRes, badgesRes, progressRes] = await Promise.all([
+          getUserProjects(pId),
+          getUserDonations(pId),
+          isMe ? getMyBadges() : getUserBadges(pId),
+          isMe ? getMyBadgeProgress() : getUserBadgeProgress(pId),
+        ]);
+
+        setProjectsData(projectsRes?.data || null);
+        setDonationsData(donationsRes?.data || null);
+        setBadgesData(badgesRes?.data || []);
+        setBadgeProgress(progressRes?.data || null);
+
       } catch (err) {
         console.error("Failed to load profile:", err);
         setError(err?.response?.data?.message || "User not found.");
@@ -94,6 +101,12 @@ export default function ProfilePage({ isMe = false }) {
 
     fetchProfile();
   }, [isMe, userId]);
+
+  useEffect(() => {
+    if (!isMe && activeTab === "badges") {
+      setActiveTab("overview");
+    }
+  }, [isMe, activeTab]);
 
   const handleSendOtp = async () => {
     try {
@@ -106,6 +119,19 @@ export default function ProfilePage({ isMe = false }) {
       alert(err?.response?.data?.message || "Failed to send OTP");
     } finally {
       setSendingOtp(false);
+    }
+  };
+
+  const handleSetBadge = async (badgeId) => {
+    try {
+      await setMySelectedBadge(badgeId);
+      const [meRes, badgesRes] = await Promise.all([getMyProfile(), getMyBadges()]);
+      setProfile(meRes.data);
+      setBadgesData(badgesRes.data);
+      alert("Display badge updated!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update badge");
     }
   };
 
@@ -240,6 +266,44 @@ export default function ProfilePage({ isMe = false }) {
   const hasEmail = Boolean(profile.email);
   const hasWallet = Boolean(profile.linked_wallet);
   const isVerified = profile.is_verified === 1;
+  const availableTabs = isMe
+    ? ["overview", "projects", "donations", "badges"]
+    : ["overview", "projects", "donations"];
+
+  const getProgressWidth = (totalPoints, allBadges) => {
+    if (!allBadges || allBadges.length < 2) return 0;
+    
+    // There are (N-1) gaps between N markers
+    const numGaps = allBadges.length - 1;
+    const gapWidth = 100 / numGaps;
+
+    // Is the user below the first marker? (e.g. < 100 pts)
+    if (totalPoints < allBadges[0].min_points) {
+      return 0; // The markers start at the very beginning
+    }
+
+    // Find which gap the user is currently in
+    let gapIndex = -1;
+    for (let i = 0; i < numGaps; i++) {
+      if (totalPoints >= allBadges[i].min_points && (i === numGaps - 1 || totalPoints < allBadges[i+1].min_points)) {
+        gapIndex = i;
+        break;
+      }
+    }
+
+    if (gapIndex === -1) return 100; // All badges achieved
+
+    // Calculate progress within that specific gap
+    const prevPoints = allBadges[gapIndex].min_points;
+    const nextPoints = gapIndex < numGaps ? allBadges[gapIndex + 1].min_points : prevPoints;
+    
+    if (totalPoints >= allBadges[numGaps].min_points) return 100;
+    
+    const percentageInGap = (totalPoints - prevPoints) / (nextPoints - prevPoints);
+    return (gapIndex * gapWidth) + (percentageInGap * gapWidth);
+  };
+
+  const progressWidth = badgeProgress?.allBadges ? getProgressWidth(badgeProgress.totalPoints, badgeProgress.allBadges) : 0;
 
   return (
     <div className="profile-page">
@@ -257,6 +321,21 @@ export default function ProfilePage({ isMe = false }) {
             {isVerified && (
               <span className="verified-badge" title="Verified account">
                 ✓
+              </span>
+            )}
+            {profile.selectedBadge && (
+              <span 
+                className="profile-badge-tag" 
+                style={{ 
+                  backgroundColor: profile.selectedBadge.color || '#9c27b0',
+                  boxShadow: `0 4px 14px ${profile.selectedBadge.color || '#9c27b0'}66`
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 15C15.3137 15 18 12.3137 18 9C18 5.68629 15.3137 3 12 3C8.68629 3 6 5.68629 6 9C6 12.3137 8.68629 15 12 15Z"/>
+                  <path d="M8.286 14.114L6 21L12 18.5L18 21L15.714 14.114C14.6541 15.2892 13.3989 15.9984 12 16C10.6011 15.9984 9.34591 15.2892 8.286 14.114Z"/>
+                </svg>
+                {profile.selectedBadge.name}
               </span>
             )}
           </div>
@@ -315,7 +394,7 @@ export default function ProfilePage({ isMe = false }) {
       </section>
 
       <section className="profile-tabs">
-        {TABS.map((tab) => (
+        {availableTabs.map((tab) => (
           <button
             key={tab}
             className={activeTab === tab ? "active" : ""}
@@ -324,36 +403,131 @@ export default function ProfilePage({ isMe = false }) {
             {tab === "overview" && "Overview"}
             {tab === "projects" && "Projects"}
             {tab === "donations" && "Donations"}
+            {tab === "badges" && "Badges"}
           </button>
         ))}
       </section>
-
       {activeTab === "overview" && (
-        <section className="overview-grid">
-          <div className="stat-card">
-            <span>Donations</span>
-            <strong>{stats?.total_donations || 0}</strong>
-          </div>
+        <div className="overview-container">
+          {badgeProgress && (
+            <section className="dashboard-progression-wrapper">
+              <h2 className="dp-main-title">Badge Achievements</h2>
+              <div className="dashboard-progression-card horizontal-layout">
+                
+                {/* Top Section */}
+                <div className="dp-top-section">
+                  <div className="dp-info-block">
+                    <span className="dp-label">Total Points:</span>
+                    <strong className="dp-value-large">{Number(badgeProgress.totalPoints).toLocaleString()} pts</strong>
+                  </div>
+                  
+                  <div className="dp-divider-v"></div>
+                  
+                  <div className="dp-info-block dp-current-block">
+                    <div className="dp-current-icon-wrapper">
+                      {(profile.selectedBadge?.icon_url || badgeProgress.currentBadge?.icon_url) ? (
+                        <img src={profile.selectedBadge?.icon_url || badgeProgress.currentBadge.icon_url} alt="badge" className="dp-current-icon" />
+                      ) : (
+                        <div className="dp-current-badge-placeholder" style={{ backgroundColor: profile.selectedBadge?.color || badgeProgress.currentBadge?.color || '#8b5cf6' }}>
+                           {(profile.selectedBadge?.name || badgeProgress.currentBadge?.name || 'R').charAt(0)}
+                        </div>
+                      )}
+                    </div>
+                    <div className="dp-current-text">
+                       <span className="dp-label">Current Rank:</span>
+                       <strong className="dp-value-large">{profile.selectedBadge?.name || badgeProgress.currentBadge?.name || 'None'}</strong>
+                    </div>
+                  </div>
+                </div>
 
-          <div className="stat-card">
-            <span>Total Amount Donated</span>
-            <strong>
-              ${Number(stats?.total_donated_amount || 0).toLocaleString()}
-            </strong>
-          </div>
+                <div className="dp-divider-h"></div>
 
-          <div className="stat-card">
-            <span>Projects</span>
-            <strong>{stats?.total_projects || 0}</strong>
-          </div>
+                {/* Timeline Section */}
+                <div className="dp-timeline-container-hz">
+                   <div className="dp-timeline-track-hz">
+                      <div 
+                        className="dp-timeline-fill-hz" 
+                        style={{ 
+                          width: `${progressWidth}%`,
+                          background: `linear-gradient(90deg, #10b981 0%, #0ea5e9 33%, #8b5cf6 66%, #f59e0b 100%)`
+                        }} 
+                      />
+                   </div>
+                   
+                   <div className="dp-timeline-markers-hz">
+                      {badgeProgress.allBadges?.map((b, index) => {
+                         const totalBadges = badgeProgress.allBadges.length;
+                         // distribute them evenly along the line.
+                         const leftPos = (index / (Math.max(1, totalBadges - 1))) * 100;
+                         const achieved = badgeProgress.totalPoints >= b.min_points;
+                         const isCurrentBadge = badgeProgress.currentBadge?.id === b.id;
+                         
+                         return (
+                           <div 
+                             key={b.id || b.badge_id || index} 
+                             className={`dp-marker-hz ${achieved ? 'achieved' : ''} ${isCurrentBadge ? 'current' : ''}`}
+                             style={{ left: `${leftPos}%` }}
+                           >
+                             <div 
+                               className="dp-marker-circle-hz" 
+                               style={{ 
+                                 backgroundColor: achieved ? (b.color || '#10b981') : '#e2e8f0', 
+                                 boxShadow: isCurrentBadge ? `0 0 0 10px ${b.color || '#f59e0b'}33, 0 0 20px ${b.color || '#f59e0b'}66` : 'none',
+                                 transform: isCurrentBadge ? 'scale(1.5)' : 'scale(1)'
+                               }}
+                             >
+                                <span className="dp-check-hz">✓</span>
+                             </div>
+                             <div className="dp-marker-label-hz" style={{ marginTop: isCurrentBadge ? '24px' : '16px' }}>
+                               <div className="dp-marker-icon-small">
+                                  {/* Small placeholder ribbon icon */}
+                                  <svg width="24" height="24" viewBox="0 0 24 24" fill={b.color || '#10b981'} xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 15C15.3137 15 18 12.3137 18 9C18 5.68629 15.3137 3 12 3C8.68629 3 6 5.68629 6 9C6 12.3137 8.68629 15 12 15Z"/>
+                                    <path d="M8.286 14.114L6 21L12 18.5L18 21L15.714 14.114C14.6541 15.2892 13.3989 15.9984 12 16C10.6011 15.9984 9.34591 15.2892 8.286 14.114Z"/>
+                                  </svg>
+                               </div>
+                               <strong style={{ color: '#1e293b' }}>{b.name}</strong>
+                               <span>{Number(b.min_points).toLocaleString()} pts</span>
+                             </div>
+                           </div>
+                         );
+                      })}
+                   </div>
+                </div>
 
-          <div className="stat-card">
-            <span>Donations Received</span>
-            <strong>
-              ${Number(stats?.total_received || 0).toLocaleString()}
-            </strong>
-          </div>
-        </section>
+                <div className="dp-divider-h"></div>
+
+                {/* Status Section */}
+                <div className="dp-status-message-hz">
+                  {badgeProgress.nextBadge ? (
+                    <p>Keep going! You need <strong>{Number(badgeProgress.pointsNeeded).toLocaleString()} more points</strong> to unlock <strong>{badgeProgress.nextBadge.name}</strong>.</p>
+                  ) : (
+                    <p>Congratulations! You have reached the highest rank. Continue your contributions to earn more points and unlock future achievements.</p>
+                  )}
+                </div>
+              </div>
+            </section>
+          )}
+
+          <section className="overview-grid">
+            <div className="stat-card">
+              <span>Donations</span>
+              <strong>{stats?.total_donations || 0}</strong>
+            </div>
+            <div className="stat-card">
+              <span>Total Amount Donated</span>
+              <strong>${Number(stats?.total_donated_amount || 0).toLocaleString()}</strong>
+            </div>
+            <div className="stat-card">
+              <span>Projects</span>
+              <strong>{stats?.total_projects || 0}</strong>
+            </div>
+            <div className="stat-card">
+              <span>Donations Received</span>
+              <strong>${Number(stats?.total_received || 0).toLocaleString()}</strong>
+            </div>
+          </section>
+        </div>
       )}
 
       {activeTab === "projects" && (
@@ -450,6 +624,75 @@ export default function ProfilePage({ isMe = false }) {
               <div className="donation-row">
                 <span>No donations found.</span>
               </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {activeTab === "badges" && isMe && (
+        <section className="achievement-gallery-section">
+          {badgeProgress && (
+            <div className="gallery-header-card">
+              <div className="gallery-summary-item">
+                <span className="gs-label">Total Points</span>
+                <strong className="gs-value">{Number(badgeProgress.totalPoints).toLocaleString()}</strong>
+              </div>
+              <div className="gallery-summary-divider" />
+              <div className="gallery-summary-item">
+                <span className="gs-label">Current Badge</span>
+                <strong className="gs-value" style={{ color: profile?.selectedBadge?.color || badgeProgress.currentBadge?.color || '#9c27b0' }}>
+                  {profile?.selectedBadge?.name || badgeProgress.currentBadge?.name || 'None'}
+                </strong>
+              </div>
+              <div className="gallery-summary-divider" />
+              <div className="gallery-summary-item">
+                <span className="gs-label">Unlocked</span>
+                <strong className="gs-value">{badgesData?.length || 0} / {badgeProgress.allBadges?.length || 0}</strong>
+              </div>
+            </div>
+          )}
+          
+          <div className="achievement-badge-grid">
+            {badgeProgress?.allBadges?.length ? (
+              badgeProgress.allBadges.map(b => {
+                const isLocked = badgeProgress.totalPoints < b.min_points;
+                const earnedBadge = badgesData?.find(eb => (eb.badge_id === b.id || eb.badge_id === b.badge_id));
+                const isCurrent = profile?.selectedBadge?.id === b.id || earnedBadge?.is_selected === 1;
+                
+                const cardClass = isLocked ? "achievement-card locked" : isCurrent ? "achievement-card current" : "achievement-card earned";
+                
+                return (
+                  <div key={b.id || b.badge_id} className={cardClass} style={{ '--badge-color': b.color || '#9c27b0' }}>
+                     <div className="ac-icon-wrapper" style={{ backgroundColor: isLocked ? '#f1f5f9' : `${b.color}15` }}>
+                        {b.icon_url ? (
+                          <img src={b.icon_url} alt={b.name} className="ac-icon" style={{ filter: isLocked ? 'grayscale(100%) opacity(0.4)' : 'none' }} />
+                        ) : (
+                          <div className="ac-icon-placeholder" style={{ backgroundColor: isLocked ? '#cbd5e1' : b.color }}>
+                            {b.name.charAt(0)}
+                          </div>
+                        )}
+                        {isCurrent && <div className="ac-current-indicator">Current</div>}
+                        {!isLocked && !isCurrent && <div className="ac-check-indicator">✓</div>}
+                     </div>
+                     <div className="ac-content">
+                       <h4 className="ac-name">{b.name}</h4>
+                       <p className="ac-req">{Number(b.min_points).toLocaleString()} pts required</p>
+                       <p className="ac-desc">{b.description}</p>
+                     </div>
+                     <div className="ac-action">
+                       {isLocked ? (
+                         <span className="ac-status-text locked-text">🔒 Locked</span>
+                       ) : isCurrent ? (
+                         <span className="ac-status-text current-text">Using Display Badge</span>
+                       ) : (
+                         isMe ? <button className="btn-set-display" onClick={() => handleSetBadge(b.id || b.badge_id)}>Set as Display Badge</button> : <span className="ac-status-text earned-text">Earned</span>
+                       )}
+                     </div>
+                  </div>
+                )
+              })
+            ) : (
+              <p>No badges available.</p>
             )}
           </div>
         </section>

@@ -29,7 +29,12 @@ const UpdatesSection = ({ updates }) => {
             {safeUpdates.map(u => (
               <div key={`u1-${u.id}`} className="update-item">
                 <div className="update-item__image">
-                  <img src={u.cover_image_url} alt={u.title} loading="lazy" />
+                  <img 
+                    src={u.cover_image_url || "https://via.placeholder.com/300x200?text=Update"} 
+                    alt={u.title} 
+                    loading="lazy"
+                    onError={(e) => { e.currentTarget.src = "https://via.placeholder.com/300x200?text=Update" }} 
+                  />
                 </div>
                 <div className="update-item__body">
                   <p className="update-item__date">{timeAgo(u.updated_at)}</p>
@@ -41,7 +46,12 @@ const UpdatesSection = ({ updates }) => {
             {safeUpdates.map(u => (
               <div key={`u2-${u.id}`} className="update-item">
                 <div className="update-item__image">
-                  <img src={u.cover_image_url} alt={u.title} loading="lazy" />
+                  <img 
+                    src={u.cover_image_url || "https://via.placeholder.com/300x200?text=Update"} 
+                    alt={u.title} 
+                    loading="lazy"
+                    onError={(e) => { e.currentTarget.src = "https://via.placeholder.com/300x200?text=Update" }} 
+                  />
                 </div>
                 <div className="update-item__body">
                   <p className="update-item__date">{timeAgo(u.updated_at)}</p>

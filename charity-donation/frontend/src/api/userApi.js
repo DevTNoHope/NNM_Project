@@ -34,3 +34,27 @@ export const verifyOtp = async (otp) => {
   const res = await http.post("/users/verify-otp", { otp });
   return res.data;
 };
+
+export const getMyBadges = async () => {
+  const res = await http.get("/users/me/badges");
+  return res.data;
+};
+
+export const getMyBadgeProgress = async () => {
+  const res = await http.get("/users/me/badge-progress");
+  return res.data;
+};
+
+export const setMySelectedBadge = async (badgeId) => {
+  const res = await http.patch("/users/me/selected-badge", { badgeId });
+  return res.data;
+};
+export const getUserBadges = async (userId) => {
+  const res = await http.get(`/users/${userId}/badges`);
+  return res.data;
+};
+
+export const getUserBadgeProgress = async (userId) => {
+  const res = await http.get(`/users/${userId}/badge-progress`);
+  return res.data;
+};

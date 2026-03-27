@@ -1,8 +1,8 @@
 export const NAV_LINKS = [
   { label: 'Home', path: '/' },
   { label: 'Projects', path: '/projects' },
-  { label: 'Login', path: '/login' },
-  { label: 'Profile', path: '/profile' },
+  { label: 'Community', path: '/community' },
+  { label: 'About', path: '/about' },
 ];
 
 export const PROJECT_CATEGORIES = [

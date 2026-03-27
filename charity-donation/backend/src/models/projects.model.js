@@ -104,9 +104,12 @@ async function findNewlyEligible(limit = 3, offset = 0) {
       p.goal_amount,
       p.description as excerpt,
       p.created_at,
-      COALESCE(SUM(CASE WHEN d.status='CONFIRMED' THEN d.amount ELSE 0 END), 0) AS total_raised
+      u.name AS founder_name,
+      COALESCE(SUM(CASE WHEN d.status='CONFIRMED' THEN d.amount ELSE 0 END), 0) AS total_raised,
+      COUNT(DISTINCT CASE WHEN d.status='CONFIRMED' THEN COALESCE(CAST(d.user_id AS CHAR), d.donor_wallet) END) AS total_donors
     FROM projects p
     LEFT JOIN donations d ON d.project_id = p.id
+    LEFT JOIN users u ON p.founder_id = u.id
     WHERE p.status = 'PUBLISHED'
     GROUP BY p.id
     ORDER BY p.created_at DESC
@@ -118,15 +121,21 @@ async function findNewlyEligible(limit = 3, offset = 0) {
 async function findRecent(limit = 3) {
   const sql = `
     SELECT
-      id,
-      title,
-      cover_image_url,
-      description as excerpt,
-      goal_amount,
-      created_at
-    FROM projects
-    WHERE status = 'PUBLISHED'
-    ORDER BY created_at DESC
+      p.id,
+      p.title,
+      p.cover_image_url,
+      p.description as excerpt,
+      p.goal_amount,
+      p.created_at,
+      u.name AS founder_name,
+      COALESCE(SUM(CASE WHEN d.status='CONFIRMED' THEN d.amount ELSE 0 END), 0) AS total_raised,
+      COUNT(DISTINCT CASE WHEN d.status='CONFIRMED' THEN COALESCE(CAST(d.user_id AS CHAR), d.donor_wallet) END) AS total_donors
+    FROM projects p
+    LEFT JOIN donations d ON d.project_id = p.id
+    LEFT JOIN users u ON p.founder_id = u.id
+    WHERE p.status = 'PUBLISHED'
+    GROUP BY p.id
+    ORDER BY p.created_at DESC
     LIMIT ?
   `;
   return query(sql, [limit]);
@@ -135,13 +144,16 @@ async function findRecent(limit = 3) {
 async function findLastUpdated(limit = 10) {
   const sql = `
     SELECT
-      id,
-      title,
-      cover_image_url,
-      updated_at
-    FROM projects
-    WHERE status = 'PUBLISHED'
-    ORDER BY updated_at DESC
+      pu.id,
+      pu.title,
+      pu.image_url as cover_image_url,
+      pu.updated_at,
+      p.id as project_id,
+      p.title as project_title
+    FROM project_updates pu
+    JOIN projects p ON p.id = pu.project_id
+    WHERE p.status = 'PUBLISHED'
+    ORDER BY pu.updated_at DESC
     LIMIT ?
   `;
   return query(sql, [limit]);
