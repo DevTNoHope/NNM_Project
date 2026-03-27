@@ -56,10 +56,4 @@ const BadgeModel = {
 };
 
 module.exports = BadgeModel;
-// Also export standalone functions for backward compatibility if needed by directly requiring them
-BadgeModel.create = create;
-BadgeModel.update = update;
-BadgeModel.remove = remove;
-BadgeModel.findById = findById;
-BadgeModel.findBySlug = findBySlug;
-BadgeModel.findAll = findAll;
+

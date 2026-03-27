@@ -1,6 +1,5 @@
 const adminService = require("../services/admin.service");
-const badgesService = require("../services/badges.service");
-const { ok, created } = require("../utils/response");
+const { ok } = require("../utils/response");
 
 async function getDashboard(req, res, next) {
   try {
@@ -175,41 +174,7 @@ async function getDashboardChart(req, res, next) {
   }
 }
 
-async function createBadge(req, res, next) {
-  try {
-    const badge = await badgesService.createBadge(req.body);
-    return created(res, badge, "Badge created successfully");
-  } catch (error) {
-    next(error);
-  }
-}
 
-async function updateBadge(req, res, next) {
-  try {
-    const badge = await badgesService.updateBadge(req.params.id, req.body);
-    return ok(res, badge, "Badge updated successfully");
-  } catch (error) {
-    next(error);
-  }
-}
-
-async function deleteBadge(req, res, next) {
-  try {
-    const result = await badgesService.deleteBadge(req.params.id);
-    return ok(res, result, "Badge deleted successfully");
-  } catch (error) {
-    next(error);
-  }
-}
-
-async function getAllBadges(req, res, next) {
-  try {
-    const badges = await badgesService.getAllBadges();
-    return ok(res, badges, "All badges fetched successfully");
-  } catch (error) {
-    next(error);
-  }
-}
 
 module.exports = {
   getDashboard,
@@ -220,8 +185,4 @@ module.exports = {
   getUserHistory,
   createVault,
   getDashboardChart,
-  createBadge,
-  updateBadge,
-  deleteBadge,
-  getAllBadges,
 };
