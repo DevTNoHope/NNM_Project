@@ -313,3 +313,47 @@ ALTER TABLE withdraw_approvals ADD COLUMN deadline BIGINT AFTER nonce;
 -- 22/3 (Phase 3: IPFS + Vault)
 ALTER TABLE projects ADD COLUMN ipfs_cid VARCHAR(255) NULL;
 ALTER TABLE projects ADD COLUMN meta_hash VARCHAR(255) NULL;
+
+
+--23/2 Dat (Thêm 2 bảng mới)
+use charity_db;
+
+CREATE TABLE badges (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(120) NOT NULL,
+    description VARCHAR(255) DEFAULT NULL,
+    min_points DECIMAL(18,2) NOT NULL,
+    icon_url VARCHAR(500) DEFAULT NULL,
+    color VARCHAR(50) DEFAULT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY unique_badge_name (name),
+    UNIQUE KEY unique_badge_slug (slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE user_badges (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    badge_id BIGINT NOT NULL,
+    earned_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    is_selected TINYINT(1) DEFAULT 0,
+    PRIMARY KEY (id),
+    UNIQUE KEY unique_user_badge (user_id, badge_id),
+    KEY idx_user_badges_user (user_id),
+    KEY idx_user_badges_badge (badge_id),
+    CONSTRAINT fk_user_badges_user
+        FOREIGN KEY (user_id) REFERENCES users(id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_user_badges_badge
+        FOREIGN KEY (badge_id) REFERENCES badges(id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO badges (name, slug, description, min_points, color)
+VALUES
+('Supporter', 'supporter', 'Reached 100 donation points', 100, '#4CAF50'),
+('Contributor', 'contributor', 'Reached 500 donation points', 500, '#2196F3'),
+('Benefactor', 'benefactor', 'Reached 1000 donation points', 1000, '#9C27B0'),
+('Philanthropist', 'philanthropist', 'Reached 5000 donation points', 5000, '#FF5722');

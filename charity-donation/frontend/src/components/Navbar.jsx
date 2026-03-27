@@ -118,7 +118,7 @@ const Navbar = () => {
           </Link>
 
           <ul className="navbar__links">
-            {NAV_LINKS.slice(0, 2).map((l) => (
+            {NAV_LINKS.map((l) => (
               <li key={l.path}>
                 <NavLink
                   to={l.path}

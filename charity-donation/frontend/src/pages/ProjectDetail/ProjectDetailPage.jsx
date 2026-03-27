@@ -448,8 +448,21 @@ const ProjectDetailPage = () => {
                               <Link
                                 to={`/profile/${item.user_id}`}
                                 className="donation-project-link"
+                                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
                               >
                                 {item.donor_name || "Anonymous"}
+                                {item.badge_name && (
+                                  <span 
+                                    className="profile-badge-tag" 
+                                    style={{ 
+                                      backgroundColor: item.badge_color || '#9c27b0', 
+                                      fontSize: '0.7rem', 
+                                      padding: '2px 8px' 
+                                    }}
+                                  >
+                                    {item.badge_name}
+                                  </span>
+                                )}
                               </Link>
                             ) : (
                               item.donor_name || "Anonymous"

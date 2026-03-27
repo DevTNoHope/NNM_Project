@@ -6,6 +6,9 @@ const usersController = require("../controllers/user.controller");
 // Profile của chính mình
 router.get("/me", verifyToken, usersController.getMe);
 router.put("/me", verifyToken, usersController.updateMe);
+router.get("/me/badges", verifyToken, usersController.getMyBadges);
+router.get("/me/badge-progress", verifyToken, usersController.getMyBadgeProgress);
+router.patch("/me/selected-badge", verifyToken, usersController.setMySelectedBadge);
 
 // Verify account
 router.post(
@@ -20,5 +23,7 @@ router.post("/verify-otp", verifyToken, usersController.verifyOtp);
 router.get("/:userId/profile", usersController.getPublicProfile);
 router.get("/:userId/projects", usersController.getUserProjects);
 router.get("/:userId/donations", usersController.getUserDonations);
+router.get("/:userId/badges", usersController.getPublicBadges);
+router.get("/:userId/badge-progress", usersController.getPublicBadgeProgress);
 
 module.exports = router;

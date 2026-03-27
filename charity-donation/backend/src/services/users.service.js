@@ -1,6 +1,7 @@
 const usersModel = require("../models/users.model");
 const donationsModel = require("../models/donations.model");
 const projectsModel = require("../models/projects.model");
+const userBadgesModel = require("../models/user_badges.model");
 const ApiError = require("../utils/apiError");
 const { saveOtp, getOtp, deleteOtp } = require("../utils/otpStore");
 const { sendMail } = require("../utils/mailer");
@@ -24,8 +25,11 @@ const usersService = {
       return sum + Number(donation.amount || 0);
     }, 0);
 
+    const selectedBadge = await userBadgesModel.getSelectedBadge(userId);
+
     return {
       ...user,
+      selectedBadge,
       stats: {
         total_donations: donations.length,
         total_donated_amount: totalDonatedAmount,
@@ -60,7 +64,8 @@ const usersService = {
     if (!user) {
       throw new ApiError(404, "User not found");
     }
-    return user;
+    const selectedBadge = await userBadgesModel.getSelectedBadge(userId);
+    return { ...user, selectedBadge };
   },
 
   getUserProjects: async (userId) => {

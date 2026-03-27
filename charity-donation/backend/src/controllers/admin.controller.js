@@ -167,14 +167,15 @@ async function createVault(req, res, next) {
 async function getDashboardChart(req, res, next) {
   try {
     const year = Number(req.query.year) || new Date().getFullYear();
-
     const data = await adminService.getDashboardChart(year);
-
     return ok(res, data, "Chart data fetched successfully");
   } catch (error) {
     next(error);
   }
 }
+
+
+
 module.exports = {
   getDashboard,
   getAllProjects,
@@ -183,5 +184,5 @@ module.exports = {
   getAllUsers,
   getUserHistory,
   createVault,
-  getDashboardChart
+  getDashboardChart,
 };

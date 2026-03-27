@@ -5,7 +5,7 @@ import "./ProjectCard.css";
 
 const ProjectCard = ({ project }) => {
   const raised = Number(
-    project?.raised ?? project?.raised_amount ?? project?.total_donated ?? 0,
+    project?.raised ?? project?.raised_amount ?? project?.total_donated ?? project?.total_raised ?? 0,
   );
 
   const goal = Number(project?.goal ?? project?.goal_amount ?? 0);
@@ -59,7 +59,13 @@ const ProjectCard = ({ project }) => {
         <h3 className="project-card__title">{project?.title}</h3>
 
         <p className="project-card__org">
-          <strong>{founder}</strong>
+          {project?.founder_id ? (
+            <Link to={`/profile/${project.founder_id}`} className="founder-link">
+              <strong>{founder}</strong>
+            </Link>
+          ) : (
+            <strong>{founder}</strong>
+          )}
         </p>
 
         <div className="project-card__progress">

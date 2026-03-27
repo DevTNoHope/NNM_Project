@@ -188,6 +188,17 @@ async function getDonationsByUserId(userId) {
   return await query(sql, [userId]);
 }
 
+async function getTotalDonatedByUserId(userId) {
+  const sql = `
+    SELECT COALESCE(SUM(amount), 0) AS total_donated
+    FROM donations
+    WHERE user_id = ?
+      AND status = 'CONFIRMED'
+  `;
+  const rows = await query(sql, [userId]);
+  return rows[0]?.total_donated || 0;
+}
+
 async function getTotalReceivedByUserId(userId) {
   const sql = `
     SELECT COALESCE(SUM(d.amount), 0) AS total_received
@@ -217,10 +228,15 @@ async function getDonationsByProjectId(projectId) {
       d.created_at,
       d.confirmed_at,
       stats.total_project_donations,
-      stats.total_donors
+      stats.total_donors,
+      b.name AS badge_name,
+      b.color AS badge_color,
+      b.icon_url AS badge_icon_url
     FROM donations d
     LEFT JOIN projects p ON p.id = d.project_id
     LEFT JOIN users u ON u.id = d.user_id
+    LEFT JOIN user_badges ub ON ub.user_id = d.user_id AND ub.is_selected = 1
+    LEFT JOIN badges b ON b.id = ub.badge_id
     LEFT JOIN (
       SELECT
         project_id,
@@ -261,6 +277,7 @@ module.exports = {
   markCryptoConfirmed,
   markCryptoFailed,
   getDonationsByUserId,
+  getTotalDonatedByUserId,
   getTotalReceivedByUserId,
   getDonationsByProjectId,
   getSumByProjectAndType,
