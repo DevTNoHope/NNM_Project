@@ -20,8 +20,8 @@ function validateProjectPayload(payload) {
   }
 }
 
-async function getProjects() {
-  return projectsModel.findPublished();
+async function getProjects(searchQuery = "") {
+  return projectsModel.findPublished(searchQuery);
 }
 
 async function getProjectById(id) {
@@ -152,6 +152,23 @@ async function submitProject(userId, projectId) {
   }
 
   await projectsModel.updateStatus(projectId, "PENDING");
+
+  // Send realtime notification to Admin
+  try {
+    const notificationsModel = require("../models/notifications.model");
+    const { getIO } = require("../utils/socket");
+    const notification = await notificationsModel.createNotification({
+      userId: null,
+      title: "New Project Submitted",
+      message: `Project "${project.title}" has been submitted for review.`,
+      type: "PROJECT_SUBMITTED",
+      relatedId: projectId
+    });
+    getIO().to("admin_room").emit("new_notification", notification);
+  } catch (err) {
+    console.error("Failed to send notification:", err);
+  }
+
   return {
     message: "Project submitted for admin review",
     status: "PENDING",

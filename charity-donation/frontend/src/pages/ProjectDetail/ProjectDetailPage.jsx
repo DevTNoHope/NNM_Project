@@ -151,6 +151,12 @@ const ProjectDetailPage = () => {
         return sortOrder === "asc" ? n1 - n2 : n2 - n1;
       }
 
+      if (sortField === "donor") {
+        const nameA = (a.donor_name || "Anonymous").toLowerCase();
+        const nameB = (b.donor_name || "Anonymous").toLowerCase();
+        return sortOrder === "asc" ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+      }
+
       return 0;
     });
   }, [donations, sortField, sortOrder]);
@@ -407,7 +413,12 @@ const ProjectDetailPage = () => {
                       Date {renderSortIcon("date")}
                     </span>
 
-                    <span>Donor</span>
+                    <span
+                      className="sortable"
+                      onClick={() => handleSort("donor")}
+                    >
+                      Donor {renderSortIcon("donor")}
+                    </span>
 
                     <span>Type</span>
 

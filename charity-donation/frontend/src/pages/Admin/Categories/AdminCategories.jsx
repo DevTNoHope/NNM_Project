@@ -1,17 +1,20 @@
-import { useState, useEffect, useRef } from "react";
-import $ from "jquery";
-import "datatables.net";
-import "datatables.net-dt/css/dataTables.dataTables.css";
+import React, { useState, useEffect, useRef } from "react";
+import { Table, Input, Button as AntDButton, Space, Modal, message, Tag } from "antd";
+import { SearchOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import http from "../../../api/http";
 
 const AdminCategories = () => {
-  const tableRef = useRef(null);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Custom Table Filter State
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
+  const searchInput = useRef(null);
+
   // Modal State cho tạo/chỉnh sửa Category
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingCat, setEditingCat] = useState(null); // Tồn tại = EDIT, Null = CREATE
+  const [editingCat, setEditingCat] = useState(null);
   const [catName, setCatName] = useState("");
 
   // Modal State cho danh sách Projects thuộc Category
@@ -30,6 +33,7 @@ const AdminCategories = () => {
       }
     } catch (error) {
       console.error("Error fetching categories:", error);
+      message.error("Failed to fetch categories.");
     } finally {
       setLoading(false);
     }
@@ -38,27 +42,6 @@ const AdminCategories = () => {
   useEffect(() => {
     fetchCategories();
   }, []);
-
-  useEffect(() => {
-    let table;
-    if (!loading && categories.length > 0) {
-      if ($.fn.dataTable.isDataTable(tableRef.current)) {
-        $(tableRef.current).DataTable().destroy();
-      }
-      table = $(tableRef.current).DataTable({
-        pageLength: 10,
-        lengthMenu: [5, 10, 20, 50],
-        ordering: true,
-        searching: true,
-        responsive: true
-      });
-    }
-    return () => {
-      if (table) {
-        table.destroy();
-      }
-    };
-  }, [categories, loading]);
 
   const openCreateModal = () => {
     setEditingCat(null);
@@ -72,20 +55,28 @@ const AdminCategories = () => {
     setModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this category?")) return;
-    try {
-      const res = await http.delete(`/categories/${id}`);
-      const data = res.data;
-      if (data.success) {
-        fetchCategories();
-      } else {
-        alert("Delete failed: " + data.message);
+  const handleDelete = (id) => {
+    Modal.confirm({
+      title: "Are you sure you want to delete this category?",
+      content: "This action cannot be undone.",
+      okText: "Yes, Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: async () => {
+        try {
+          const res = await http.delete(`/categories/${id}`);
+          if (res.data.success) {
+            message.success("Category deleted successfully.");
+            fetchCategories();
+          } else {
+            message.error("Delete failed: " + res.data.message);
+          }
+        } catch (error) {
+          console.error(error);
+          message.error("Network error on delete.");
+        }
       }
-    } catch (error) {
-       console.error(error);
-       alert("Network error on delete.");
-    }
+    });
   };
 
   const openProjectsModal = async (cat) => {
@@ -95,12 +86,12 @@ const AdminCategories = () => {
     setCategoryProjects([]);
     try {
       const res = await http.get(`/categories/${cat.id}/projects`);
-      const data = res.data;
-      if (data.success) {
-        setCategoryProjects(data.data);
+      if (res.data.success) {
+        setCategoryProjects(res.data.data);
       }
     } catch (error) {
       console.error("Error fetching category projects:", error);
+      message.error("Failed to load projects.");
     } finally {
       setProjectsLoading(false);
     }
@@ -108,184 +99,265 @@ const AdminCategories = () => {
 
   const handleSubmit = async () => {
     if (!catName.trim()) {
-      alert("Category name cannot be empty!");
+      message.warning("Category name cannot be empty!");
       return;
     }
 
     try {
       let res;
       if (editingCat) {
-        // Cập nhật (PUT)
         res = await http.put(`/categories/${editingCat.id}`, { name: catName });
       } else {
-        // Tạo mới (POST)
         res = await http.post(`/categories`, { name: catName });
       }
 
-      const data = res.data;
-      if (data.success) {
+      if (res.data.success) {
+        message.success(editingCat ? "Category updated." : "Category created.");
         setModalOpen(false);
         fetchCategories();
       } else {
-        alert("Error: " + data.message);
+        message.error("Error: " + res.data.message);
       }
     } catch (error) {
-      alert("Server connection error.");
+      message.error("Server connection error.");
       console.error(error);
     }
   };
 
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
+  };
+
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <AntDButton
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </AntDButton>
+          <AntDButton
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </AntDButton>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+    ),
+    onFilter: (value, record) =>
+      record[dataIndex]
+        ?.toString()
+        .toLowerCase()
+        .includes(value.toLowerCase()),
+    onFilterDropdownOpenChange: (visible) => {
+      if (visible) {
+        setTimeout(() => searchInput.current?.select(), 100);
+      }
+    },
+  });
+
+  const columns = [
+    {
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
+      width: 80,
+      sorter: (a, b) => a.id - b.id,
+    },
+    {
+      title: "Category Name",
+      dataIndex: "name",
+      key: "name",
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      ...getColumnSearchProps("name"),
+      render: (text) => <span style={{ fontWeight: 600, color: '#111827' }}>{text}</span>,
+    },
+    {
+      title: "Total Donated ($)",
+      dataIndex: "total_amount",
+      key: "total_amount",
+      sorter: (a, b) => Number(a.total_amount || 0) - Number(b.total_amount || 0),
+      render: (val) => <span style={{ color: '#10b981', fontWeight: 600 }}>${Number(val || 0).toLocaleString()}</span>,
+    },
+    {
+      title: "Created At",
+      dataIndex: "created_at",
+      key: "created_at",
+      sorter: (a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0),
+      render: (date) => <span>{date ? new Date(date).toLocaleDateString() : "-"}</span>,
+    },
+    {
+      title: "Action",
+      key: "action",
+      align: "right",
+      render: (_, record) => (
+        <Space>
+          <AntDButton 
+            type="default" 
+            size="small" 
+            icon={<EyeOutlined />} 
+            onClick={() => openProjectsModal(record)}
+          >
+            Projects
+          </AntDButton>
+          <AntDButton 
+            type="primary" 
+            size="small" 
+            icon={<EditOutlined />} 
+            onClick={() => openEditModal(record)}
+          >
+            Edit
+          </AntDButton>
+          <AntDButton 
+            danger 
+            size="small" 
+            icon={<DeleteOutlined />} 
+            onClick={() => handleDelete(record.id)}
+          >
+            Delete
+          </AntDButton>
+        </Space>
+      ),
+    },
+  ];
+
+  const projectColumns = [
+    {
+      title: "Project ID",
+      dataIndex: "id",
+      key: "id",
+      sorter: (a, b) => a.id - b.id,
+    },
+    {
+      title: "Title",
+      dataIndex: "title",
+      key: "title",
+      render: (text) => <span style={{ fontWeight: 600 }}>{text}</span>,
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (status) => {
+        let color = "default";
+        if (status === "APPROVED" || status === "PUBLISHED") color = "green";
+        if (status === "PENDING") color = "orange";
+        if (status === "REJECTED") color = "red";
+        return <Tag color={color}>{status}</Tag>;
+      }
+    },
+    {
+      title: "Goal ($)",
+      dataIndex: "goal_amount",
+      key: "goal",
+      render: (val) => <span>${Number(val || 0).toLocaleString()}</span>,
+    },
+    {
+      title: "Raised ($)",
+      dataIndex: "total_donated",
+      key: "raised",
+      render: (val) => <span style={{ color: '#1677ff', fontWeight: 600 }}>${Number(val || 0).toLocaleString()}</span>,
+    },
+    {
+      title: "Created At",
+      dataIndex: "created_at",
+      key: "created",
+      render: (date) => <span>{date ? new Date(date).toLocaleDateString() : "-"}</span>,
+    }
+  ];
+
   return (
     <div>
       <div className="admin-card">
-        <div className="admin-card-header">
-          Category Management
-          <button className="btn-core btn-primary btn-sm" onClick={openCreateModal}>
+        <div className="admin-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>Category Management</span>
+          <AntDButton type="primary" onClick={openCreateModal}>
             + Add New
-          </button>
+          </AntDButton>
         </div>
         <div className="admin-card-body p-0">
-          {loading ? (
-            <p className="text-center py-4">Loading data...</p>
-          ) : categories.length === 0 ? (
-            <p className="text-center py-4">No categories yet.</p>
-          ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table ref={tableRef} className="modern-table" style={{ width: '100%' }}>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Category Name</th>
-                    <th>Total Donated ($)</th>
-                    <th>Created At</th>
-                    <th className="text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {categories.map(c => (
-                    <tr key={c.id}>
-                      <td>{c.id}</td>
-                      <td className="font-semibold text-dark">{c.name}</td>
-                      <td className="font-semibold text-success">
-                        ${parseInt(c.total_amount || 0).toLocaleString()}
-                      </td>
-                      <td>{new Date(c.created_at).toLocaleDateString()}</td>
-                      <td className="text-right">
-                        <button 
-                          className="btn-action bg-success"
-                          onClick={() => openProjectsModal(c)}
-                        >
-                          View
-                        </button>
-                        <button 
-                          className="btn-action bg-danger" 
-                          onClick={() => openEditModal(c)}
-                        >
-                          Edit
-                        </button>
-                        <button 
-                          className="btn-action bg-danger"
-                          onClick={() => handleDelete(c.id)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <div style={{ padding: '1.5rem' }}>
+            <Table
+              className="modern-antd-table"
+              columns={columns}
+              dataSource={categories}
+              rowKey="id"
+              loading={loading}
+              pagination={{
+                defaultPageSize: 10,
+                showSizeChanger: true,
+                pageSizeOptions: ['5', '10', '20', '50'],
+              }}
+              scroll={{ x: 800 }}
+            />
+          </div>
         </div>
       </div>
 
-       {/* Component Modal */}
-      {modalOpen && (
-        <div className="admin-modal-overlay">
-          <div className="admin-modal-modern" style={{ width: '450px' }}>
-            <div className="modal-header-modern">
-               <div>
-                  <h5>{editingCat ? "Update Category" : "Add New Category"}</h5>
-                  <p>{editingCat ? "Change the category name" : "Create a new category for projects"}</p>
-               </div>
-               <button className="modal-close-icon" onClick={() => setModalOpen(false)}>&times;</button>
-            </div>
-            <div className="modal-body-modern">
-              <label>Category Name</label>
-              <input 
-                type="text" 
-                value={catName} 
-                onChange={(e) => setCatName(e.target.value)} 
-                placeholder="e.g., Flood Relief..." />
-            </div>
-            <div className="modal-footer-modern">
-              <button className="btn-core btn-danger" onClick={() => setModalOpen(false)}>Cancel</button>
-              <button 
-                className="btn-core btn-primary"
-                onClick={handleSubmit}
-              >
-                {editingCat ? "Update" : "Create"}
-              </button>
-            </div>
-          </div>
+      <Modal
+        title={editingCat ? "Update Category" : "Add New Category"}
+        open={modalOpen}
+        onOk={handleSubmit}
+        onCancel={() => setModalOpen(false)}
+        okText={editingCat ? "Update" : "Create"}
+        cancelText="Cancel"
+      >
+        <div style={{ marginBottom: 16 }}>
+          <p>{editingCat ? "Change the category name" : "Create a new category for projects"}</p>
+          <Input 
+            value={catName} 
+            onChange={(e) => setCatName(e.target.value)} 
+            placeholder="e.g., Flood Relief..." 
+          />
         </div>
-      )}
+      </Modal>
 
-      {/* Modal for Category Projects */}
-      {projectsModalOpen && selectedCatForProjects && (
-        <div className="admin-modal-overlay">
-          <div className="admin-modal-modern">
-            <div className="modal-header-modern">
-               <div>
-                  <h5>Projects in Category: {selectedCatForProjects.name}</h5>
-                  <p>All projects assigned to this category.</p>
-               </div>
-               <button className="modal-close-icon" onClick={() => setProjectsModalOpen(false)}>&times;</button>
-            </div>
-            <div className="modal-body-modern" style={{ padding: '0' }}>
-              {projectsLoading ? (
-                <p className="text-center py-4">Loading projects...</p>
-              ) : categoryProjects.length === 0 ? (
-                <p className="text-center py-4">No projects found in this category.</p>
-              ) : (
-                <table className="modern-table">
-                  <thead>
-                    <tr>
-                      <th>Project ID</th>
-                      <th>Title</th>
-                      <th>Status</th>
-                      <th>Goal ($)</th>
-                      <th>Raised ($)</th>
-                      <th>Created At</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {categoryProjects.map(p => (
-                      <tr key={p.id}>
-                        <td>{p.id}</td>
-                        <td className="font-semibold text-dark">{p.title}</td>
-                        <td>
-                           <span className={`badge-soft-${p.status === 'APPROVED' ? 'success' : p.status === 'REJECTED' ? 'danger' : 'warning'}`}>
-                            {p.status}
-                          </span>
-                        </td>
-                        <td>${parseInt(p.goal_amount).toLocaleString()}</td>
-                        <td className="text-primary font-semibold">
-                           ${parseInt(p.total_donated || 0).toLocaleString()}
-                        </td>
-                        <td>{new Date(p.created_at).toLocaleDateString()}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-            <div className="modal-footer-modern">
-              <button className="btn-core btn-danger" onClick={() => setProjectsModalOpen(false)}>Close</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        title={`Projects in Category: ${selectedCatForProjects?.name}`}
+        open={projectsModalOpen}
+        onCancel={() => setProjectsModalOpen(false)}
+        footer={[
+          <AntDButton key="close" onClick={() => setProjectsModalOpen(false)}>
+            Close
+          </AntDButton>
+        ]}
+        width={800}
+      >
+        <p style={{ marginBottom: 16 }}>All projects assigned to this category.</p>
+        <Table
+          columns={projectColumns}
+          dataSource={categoryProjects}
+          rowKey="id"
+          loading={projectsLoading}
+          pagination={{ pageSize: 5 }}
+          scroll={{ x: 700 }}
+        />
+      </Modal>
     </div>
   );
 };

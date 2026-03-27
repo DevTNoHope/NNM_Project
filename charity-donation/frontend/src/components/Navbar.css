@@ -6,7 +6,8 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  width: 100%; /* PHẢI có width: 100% */
+  width: 100%;
+  /* PHẢI có width: 100% */
   height: var(--navbar-height);
   display: flex;
   align-items: center;
@@ -24,7 +25,7 @@
 }
 
 /* Container bên trong navbar phải fill full */
-.navbar > .container {
+.navbar>.container {
   width: 100%;
   max-width: var(--max-width);
 }
@@ -33,7 +34,8 @@
 .navbar__inner {
   display: flex;
   align-items: center;
-  width: 100%; /* PHẢI có width: 100% */
+  width: 100%;
+  /* PHẢI có width: 100% */
   gap: var(--space-4);
 }
 
@@ -45,10 +47,13 @@
   text-decoration: none;
   flex-shrink: 0;
 }
+
 .navbar__logo-icon {
-  font-size: 1.4rem;
-  line-height: 1;
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
 }
+
 .navbar__logo-text {
   font-family: var(--font-display);
   font-weight: 800;
@@ -78,10 +83,12 @@
     color var(--transition-fast),
     background var(--transition-fast);
 }
+
 .navbar__link:hover {
   color: var(--color-text);
   background: var(--color-surface-hover);
 }
+
 .navbar__link--active {
   color: var(--color-primary);
   font-weight: 600;
@@ -139,7 +146,8 @@
   align-items: center;
   gap: var(--space-3);
   flex-shrink: 0;
-  margin-left: auto; /* đẩy sát phải */
+  margin-left: auto;
+  /* đẩy sát phải */
 }
 
 .navbar__theme {
@@ -303,7 +311,7 @@
 .navbar__logo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0px;
   font-weight: 700;
 }
 

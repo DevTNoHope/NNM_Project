@@ -1,5 +1,16 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import {
+  ComposedChart,
+  Line,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
 import "./AdminDashboard.css";
 import http from "../../../api/http";
 
@@ -16,6 +27,12 @@ const AdminDashboard = () => {
     needsSupport: []
   });
   const [loading, setLoading] = useState(true);
+  const [year, setYear] = useState(new Date().getFullYear());
+   const [chartData, setChartData] = useState([]);
+   const [chartMeta, setChartMeta] = useState({
+   maxDonationMonth: null,
+   maxProjectMonth: null
+   });
 
   const fetchData = async () => {
     try {
@@ -82,6 +99,26 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const fetchChart = async () => {
+      try {
+        const res = await http.get(`/admin/dashboard/chart?year=${year}`);
+        const data = res.data;
+
+        if (data.success) {
+          setChartData(data.data.chart);
+          setChartMeta({
+            maxDonationMonth: data.data.maxDonationMonth,
+            maxProjectMonth: data.data.maxProjectMonth
+          });
+        }
+      } catch (err) {
+        console.error("Chart error:", err);
+      }
+    };
+    fetchChart();
+  }, [year]);
 
   const handleAction = async (projectId, action) => {
     const endpoint = action === 'APPROVE' 
@@ -275,48 +312,63 @@ const AdminDashboard = () => {
 
        {/* Donation Trends Chart */}
       <div className="admin-card chart-card">
-        <div className="admin-card-header chart-header">
+        <div className="admin-card-header chart-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
            <div>
-              <div className="chart-title">Donation Trends</div>
-              <div className="chart-subtitle">Daily contributions over the last 30 days</div>
+              <div className="chart-title">Platform Statistics ({year})</div>
+              <div className="chart-subtitle">
+                Donations and projects published over the year
+              </div>
            </div>
-          <div className="chart-actions-pills">
-            <button className="active">Last 30 Days</button>
-            <button>Last 6 Months</button>
-          </div>
+           <div className="chart-actions-pills" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+             <select 
+                value={year} 
+                onChange={(e) => setYear(Number(e.target.value))}
+                style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #e5e7eb', outline: 'none', cursor: 'pointer' }}
+             >
+               {[...Array(5)].map((_, i) => {
+                 const y = new Date().getFullYear() - i;
+                 return <option key={y} value={y}>{y}</option>
+               })}
+             </select>
+           </div>
         </div>
-        <div className="admin-card-body chart-body">
-          <div className="mock-chart-graphic style-v2">
-            <svg width="100%" height="250" preserveAspectRatio="none">
-               {/* Grid */}
-               <line x1="0" y1="50" x2="100%" y2="50" stroke="#f0f3f5" strokeWidth="1"/>
-               <line x1="0" y1="100" x2="100%" y2="100" stroke="#f0f3f5" strokeWidth="1"/>
-               <line x1="0" y1="150" x2="100%" y2="150" stroke="#f0f3f5" strokeWidth="1"/>
-               <line x1="0" y1="200" x2="100%" y2="200" stroke="#f0f3f5" strokeWidth="1"/>
-               <line x1="0" y1="240" x2="100%" y2="240" stroke="#f0f3f5" strokeWidth="1"/>
-
-               {/* Wave Background */}
-               <defs>
-                  <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                     <stop offset="0%" stopColor="rgba(124, 77, 255, 0.2)" />
-                     <stop offset="100%" stopColor="rgba(124, 77, 255, 0)" />
-                  </linearGradient>
-               </defs>
-               <path d="M0,180 Q150,130 300,150 T600,100 T800,40 C900,50 1000,70 1100,60 L1100,240 L0,240 Z" fill="url(#purpleGradient)" />
-               {/* Wave Line */}
-               <path d="M0,180 Q150,130 300,150 T600,100 T800,40 C900,50 1000,70 1100,60" fill="none" stroke="#7C4DFF" strokeWidth="3" />
-               
-               {/* Data Point */}
-               <circle cx="800" cy="40" r="4" fill="#7C4DFF" />
-            </svg>
-            <div className="chart-x-axis">
-               <span>OCT 01</span>
-               <span>OCT 08</span>
-               <span>OCT 15</span>
-               <span>OCT 22</span>
-               <span>OCT 30</span>
+        
+        {/* Highest Stats Summary */}
+        <div style={{ display: 'flex', gap: '20px', padding: '0 24px', marginBottom: '10px' }}>
+          {chartMeta.maxDonationMonth && (
+            <div style={{ padding: '12px 16px', background: '#f8f9fa', borderRadius: '8px', flex: 1 }}>
+              <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '4px' }}>Highest Donation Month</div>
+              <div style={{ fontSize: '16px', fontWeight: '600', color: '#7C4DFF' }}>
+                {chartMeta.maxDonationMonth.month}: ${(chartMeta.maxDonationMonth.donations || 0).toLocaleString()}
+              </div>
             </div>
-          </div>
+          )}
+          {chartMeta.maxProjectMonth && (
+            <div style={{ padding: '12px 16px', background: '#f8f9fa', borderRadius: '8px', flex: 1 }}>
+              <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '4px' }}>Most Projects Published</div>
+              <div style={{ fontSize: '16px', fontWeight: '600', color: '#2ed573' }}>
+                {chartMeta.maxProjectMonth.month}: {chartMeta.maxProjectMonth.projects} projects
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="admin-card-body chart-body" style={{ height: '350px', padding: '10px 24px 24px' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={chartData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f3f5" />
+              <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 13}} dy={10} />
+              <YAxis yAxisId="left" orientation="left" stroke="#7C4DFF" axisLine={false} tickLine={false} tickFormatter={(val) => `$${val}`} />
+              <YAxis yAxisId="right" orientation="right" stroke="#2ed573" axisLine={false} tickLine={false} />
+              <Tooltip 
+                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.05)' }}
+                cursor={{ fill: '#f3efff' }}
+              />
+              <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="circle" />
+              <Bar yAxisId="right" dataKey="projects" name="Published Projects" barSize={20} fill="#2ed573" radius={[4, 4, 0, 0]} />
+              <Line yAxisId="left" type="monotone" dataKey="donations" name="Donations ($)" stroke="#7C4DFF" strokeWidth={3} dot={{r: 4, fill: '#7C4DFF', strokeWidth: 2, stroke: '#fff'}} activeDot={{r: 6}} />
+            </ComposedChart>
+          </ResponsiveContainer>
         </div>
       </div>
 

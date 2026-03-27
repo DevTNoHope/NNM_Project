@@ -2,7 +2,7 @@ const express = require("express");
 const adminController = require("../controllers/admin.controller");
 const { verifyToken } = require("../middleware/verifyToken");
 const requireRole = require("../middleware/requireRole");
-
+const badgeController = require("../controllers/badge.controller");//Thêm 
 const router = express.Router();
 
 // Apply auth middleware to all admin routes
@@ -17,13 +17,14 @@ router.post("/projects/:id/reject", adminController.rejectProjectRequest);
 router.get("/users", adminController.getAllUsers);
 router.get("/users/:id/donations", adminController.getUserHistory);
 
+
+// BADGES
+router.get("/badges", badgeController.getAllBadges);
+router.post("/badges", badgeController.createBadge);
+router.put("/badges/:id", badgeController.updateBadge);
+router.delete("/badges/:id", badgeController.deleteBadge);
 // Create Vault (IPFS + Deploy)
 router.post("/projects/:id/create-vault", adminController.createVault);
 
-// Badges management
-router.post("/badges", adminController.createBadge);
-router.put("/badges/:id", adminController.updateBadge);
-router.delete("/badges/:id", adminController.deleteBadge);
-router.get("/badges", adminController.getAllBadges);
-
+router.get("/dashboard/chart", adminController.getDashboardChart);
 module.exports = router;

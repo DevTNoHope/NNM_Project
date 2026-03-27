@@ -3,6 +3,7 @@ const projectsModel = require("../models/projects.model");
 const donationsModel = require("../models/donations.model");
 const projectApprovalsModel = require("../models/project_approvals.model");
 const ApiError = require("../utils/apiError");
+const { query } = require("../utils/dbQuery");
 
 async function getDashboardStats() {
   const totalUsers = await usersModel.countAll();
@@ -57,6 +58,44 @@ async function reviewProject(projectId, adminId, decision, note) {
     await usersModel.updateRole(project.founder_id, "FOUNDER");
   }
 
+  // Send notification to Founder
+  try {
+    const notificationsModel = require("../models/notifications.model");
+    const { getIO } = require("../utils/socket");
+    const notification = await notificationsModel.createNotification({
+      userId: project.founder_id,
+      title: decision === "APPROVED" ? "Project Approved" : "Project Rejected",
+      message: `Your project "${project.title}" has been ${decision.toLowerCase()}.`,
+      type: "PROJECT_REVIEWED",
+      relatedId: projectId
+    });
+    getIO().to(`user_${project.founder_id}`).emit("new_notification", notification);
+    
+    // Send email to Founder
+    const founder = await usersModel.findById(project.founder_id);
+    if (founder && founder.email) {
+      const { sendMail } = require("../utils/mailer");
+      await sendMail({
+        to: founder.email,
+        subject: `[HopeFund] Project ${decision === "APPROVED" ? "Approved" : "Rejected"}`,
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
+            <h2 style="color: ${decision === "APPROVED" ? "#10b981" : "#ef4444"}; margin-bottom: 20px;">
+              Project ${decision === "APPROVED" ? "Approved 🎉" : "Rejected"}
+            </h2>
+            <p>Hello <strong>${founder.name || 'Founder'}</strong>,</p>
+            <p>Your project <strong>${project.title}</strong> has been reviewed by the Admin.</p>
+            <p><strong>Status:</strong> ${decision}</p>
+            ${note ? `<p><strong>Admin Note:</strong> ${note}</p>` : ''}
+            <p>Thank you,<br/>The HopeFund Team</p>
+          </div>
+        `
+      });
+    }
+  } catch (error) {
+    console.error("Failed to send review notification:", error);
+  }
+
   return { projectId, newStatus: decision };
 }
 
@@ -68,10 +107,64 @@ async function getUserDonationHistory(userId) {
   return usersModel.getDonationsByUserId(userId);
 }
 
+async function getDashboardChart(year) {
+  // 🟣 Donations theo tháng
+  const donations = await query(`
+    SELECT 
+      MONTH(created_at) as month,
+      SUM(amount) as total
+    FROM donations
+    WHERE YEAR(created_at) = ?
+    GROUP BY MONTH(created_at)
+  `, [year]);
+
+  // 🟢 Projects publish theo tháng
+  const projects = await query(`
+    SELECT 
+      MONTH(created_at) as month,
+      COUNT(*) as total
+    FROM projects
+    WHERE status = 'PUBLISHED'
+      AND YEAR(created_at) = ?
+    GROUP BY MONTH(created_at)
+  `, [year]);
+
+  // 🎯 merge đủ 12 tháng
+  const result = [];
+
+  for (let i = 1; i <= 12; i++) {
+    const d = donations.find(x => x.month === i);
+    const p = projects.find(x => x.month === i);
+
+    result.push({
+      month: `T${i}`,
+      donations: d ? Number(d.total) : 0,
+      projects: p ? Number(p.total) : 0
+    });
+  }
+
+  // 🔥 BONUS: tìm tháng max
+  const maxDonationMonth = result.reduce((max, item) =>
+    item.donations > max.donations ? item : max,
+    result[0]
+  );
+
+  const maxProjectMonth = result.reduce((max, item) =>
+    item.projects > max.projects ? item : max,
+    result[0]
+  );
+
+  return {
+    chart: result,
+    maxDonationMonth,
+    maxProjectMonth
+  };
+}
 module.exports = {
   getDashboardStats,
   getAllAdminProjects,
   reviewProject,
   getAllUsersWithStats,
-  getUserDonationHistory
+  getUserDonationHistory,
+  getDashboardChart
 };

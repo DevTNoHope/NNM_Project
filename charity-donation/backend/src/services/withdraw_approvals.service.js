@@ -131,6 +131,22 @@ async function createWithdrawApproval(payload) {
   // 2. Update withdraw request status
   await withdrawRequestsModel.updateStatus(withdrawRequestId, finalStatus);
 
+  // Send realtime notification to Founder
+  try {
+    const notificationsModel = require("../models/notifications.model");
+    const { getIO } = require("../utils/socket");
+    const notification = await notificationsModel.createNotification({
+      userId: request.founder_id,
+      title: finalStatus === "APPROVED" ? "Withdrawal Approved" : "Withdrawal Rejected",
+      message: `Your withdrawal request for $${request.amount} has been ${finalStatus.toLowerCase()}.`,
+      type: "WITHDRAWAL_REVIEWED",
+      relatedId: withdrawRequestId
+    });
+    getIO().to(`user_${request.founder_id}`).emit("new_notification", notification);
+  } catch (error) {
+    console.error("Failed to notify founder of withdrawal review:", error);
+  }
+
   return { id: newId, status: finalStatus };
 }
 
