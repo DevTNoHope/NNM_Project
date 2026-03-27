@@ -3,6 +3,8 @@ import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes";
 import { getStoredTheme, applyTheme } from "./utils/theme";
 import { AuthProvider } from "./context/AuthContext";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./styles/global.css";
 
 export const ThemeContext = createContext({
@@ -26,6 +28,7 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
           <AppRoutes />
+          <ToastContainer position="top-right" autoClose={3000} />
         </BrowserRouter>
       </AuthProvider>
     </ThemeContext.Provider>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { getProjects } from "../../api/projectApi";
 import { filterProjects } from "../../utils/filterProjects";
 import SearchBar from "../../components/common/SearchBar";
@@ -12,32 +13,55 @@ import "./ProjectsPage.css";
 const PAGE_SIZE = 6;
 
 const ProjectsPage = () => {
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get("search") || "";
+
   const [all, setAll] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({
-    search: '',
+    search: initialSearch,
     status: 'All',
     category: 'All',
     sort: 'newest'
   });
 
   useEffect(() => {
+    const urlSearch = searchParams.get("search") || "";
+    setFilters(f => ({ ...f, search: urlSearch }));
+  }, [searchParams]);
+
+  useEffect(() => {
+    let active = true;
     const loadProjects = async () => {
       try {
         setLoading(true);
-        const r = await getProjects();
-        setAll(r?.data?.data || r?.data || []);
+        const params = filters.search.trim() ? { search: filters.search.trim() } : {};
+        const r = await getProjects(params);
+        if (active) {
+          setAll(r?.data?.data || r?.data || []);
+        }
       } catch (error) {
-        console.error('Load projects failed:', error);
-        setAll([]);
+        if (active) {
+          console.error('Load projects failed:', error);
+          setAll([]);
+        }
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     };
 
-  loadProjects();
-}, []);
+    const timer = setTimeout(() => {
+      loadProjects();
+    }, 500);
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [filters.search]);
 
   const filtered = useMemo(() => filterProjects(all, filters), [all, filters]);
   const paginated = filtered.slice(0, page * PAGE_SIZE);

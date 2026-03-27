@@ -1,21 +1,24 @@
 const { query } = require("../utils/dbQuery");
 
-async function create({ name, slug, description, minPoints, color, iconUrl }) {
+async function create(data) {
+  const { name, slug, description, min_points, color, icon_url } = data;
   const sql = `
     INSERT INTO badges (name, slug, description, min_points, color, icon_url)
     VALUES (?, ?, ?, ?, ?, ?)
   `;
-  const result = await query(sql, [name, slug, description, minPoints, color, iconUrl]);
-  return result.insertId;
+  const result = await query(sql, [name, slug, description, min_points, color, icon_url]);
+  return { id: result.insertId, ...data };
 }
 
-async function update(id, { name, slug, description, minPoints, color, iconUrl }) {
+async function update(id, data) {
+  const { name, slug, description, min_points, color, icon_url } = data;
   const sql = `
     UPDATE badges
     SET name = ?, slug = ?, description = ?, min_points = ?, color = ?, icon_url = ?
     WHERE id = ?
   `;
-  await query(sql, [name, slug, description, minPoints, color, iconUrl, id]);
+  await query(sql, [name, slug, description, min_points, color, icon_url, id]);
+  return { id, ...data };
 }
 
 async function remove(id) {
@@ -41,11 +44,22 @@ async function findAll() {
   return rows;
 }
 
-module.exports = {
+const BadgeModel = {
   create,
   update,
+  delete: remove,
   remove,
   findById,
   findBySlug,
   findAll,
+  getAll: findAll,
 };
+
+module.exports = BadgeModel;
+// Also export standalone functions for backward compatibility if needed by directly requiring them
+BadgeModel.create = create;
+BadgeModel.update = update;
+BadgeModel.remove = remove;
+BadgeModel.findById = findById;
+BadgeModel.findBySlug = findBySlug;
+BadgeModel.findAll = findAll;

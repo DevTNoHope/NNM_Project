@@ -4,7 +4,8 @@ const { uploadImage } = require("../utils/cloudinary");
 
 async function getProjects(req, res, next) {
   try {
-    const data = await projectsService.getProjects();
+    const search = req.query.search;
+    const data = await projectsService.getProjects(search);
     return ok(res, data);
   } catch (err) {
     next(err);

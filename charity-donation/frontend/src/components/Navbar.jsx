@@ -5,6 +5,8 @@ import { NAV_LINKS } from "../utils/constants";
 import { ThemeContext } from "../App";
 import { useDisconnect } from "wagmi";
 import Button from "./common/Button";
+import NotificationBell from "./NotificationBell/NotificationBell";
+import logo from "../../public/hopefund-logo.png";
 import "./Navbar.css";
 
 const shortenAddress = (address = "") => {
@@ -96,7 +98,7 @@ const Navbar = () => {
 
       try {
         await disconnectAsync();
-      } catch {}
+      } catch { }
 
       navigate("/");
     } catch (error) {
@@ -109,7 +111,9 @@ const Navbar = () => {
       <div className="container">
         <nav className="navbar__inner">
           <Link to="/" className="navbar__logo">
-            <span className="navbar__logo-icon">🌿</span>
+            <span className="navbar__logo-icon">
+              <img src={logo} alt="logo" />
+            </span>
             <span className="navbar__logo-text">HopeFund</span>
           </Link>
 
@@ -128,7 +132,14 @@ const Navbar = () => {
             ))}
           </ul>
 
-          <div className="navbar__search">
+          <form
+            className="navbar__search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const q = e.target.search.value;
+              if (q.trim()) navigate(`/projects?search=${encodeURIComponent(q.trim())}`);
+            }}
+          >
             <svg
               className="navbar__search-icon"
               width="16"
@@ -141,8 +152,15 @@ const Navbar = () => {
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.35-4.35" />
             </svg>
-            <span className="navbar__search-placeholder">Search</span>
-          </div>
+            <input
+              type="text"
+              name="search"
+              className="navbar__search-input"
+              placeholder="Search"
+              autoComplete="off"
+              style={{ background: 'transparent', border: 'none', color: 'inherit', outline: 'none', width: '100%' }}
+            />
+          </form>
 
           <div className="navbar__actions">
             <button
@@ -158,7 +176,11 @@ const Navbar = () => {
             </Button>
 
             {isLoggedIn ? (
-              <div className="navbar__account-menu">
+              <>
+                <ul style={{ margin: 0, padding: 0, display: "flex", alignItems: "center" }}>
+                  <NotificationBell />
+                </ul>
+                <div className="navbar__account-menu">
                 <button type="button" className="navbar__account">
                   <span className="navbar__account-label">{accountLabel}</span>
                   <span className="navbar__account-caret">▾</span>
@@ -188,6 +210,7 @@ const Navbar = () => {
                   </button>
                 </div>
               </div>
+              </>
             ) : (
               <Button as={Link} to="/signin" variant="outline" size="sm">
                 Sign In

@@ -144,7 +144,7 @@ export default function UserProjectsTable({ projects, onRowClick, onEdit, onSubm
       key: "actions",
       render: (_, record) => {
         const canEditOrDelete = record.status === "DRAFT" || record.status === "REJECTED";
-        const canManage = record.status === "APPROVED" || record.status === "PUBLISHED";
+        const canManage = record.status === "PUBLISHED" || record.status === "ARCHIVED";
 
         return (
           <div className="table-actions" style={{ display: "flex", gap: "8px" }} onClick={(e) => e.stopPropagation()}>
@@ -152,7 +152,15 @@ export default function UserProjectsTable({ projects, onRowClick, onEdit, onSubm
               <>
                 <Button size="sm" variant="outline" onClick={() => onEdit(record.id)}>Edit</Button>
                 <Button size="sm" variant="outline" onClick={() => onSubmit(record.id)}>Submit</Button>
-                <button className="btn-delete" onClick={() => onDelete(record.id)} style={{ color: "#ef4444", fontSize: "12px", border: "1px solid #fee2e2", padding: "4px 8px", borderRadius: "4px", background: "white", cursor: "pointer" }}>Delete</button>
+                <Button
+                  size="sm"
+                  onClick={() => onDelete(record.id)}
+                  style={{ backgroundColor: "#ef4444", color: "white", border: "none" }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = "#dc2626"}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = "#ef4444"}
+                >
+                  Delete
+                </Button>
               </>
             )}
             {canManage && (

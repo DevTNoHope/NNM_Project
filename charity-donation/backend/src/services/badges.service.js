@@ -9,8 +9,8 @@ const badgesService = {
     if (existingBadge) {
       throw new ApiError(400, "Badge slug already exists");
     }
-    const id = await badgesModel.create(payload);
-    return await badgesModel.findById(id);
+    const result = await badgesModel.create(payload);
+    return await badgesModel.findById(result.id);
   },
 
   updateBadge: async (id, payload) => {
@@ -18,7 +18,7 @@ const badgesService = {
     if (!existing) {
       throw new ApiError(404, "Badge not found");
     }
-    
+
     if (payload.slug && payload.slug !== existing.slug) {
       const slugExists = await badgesModel.findBySlug(payload.slug);
       if (slugExists) {
@@ -30,13 +30,13 @@ const badgesService = {
       name: payload.name || existing.name,
       slug: payload.slug || existing.slug,
       description: payload.description !== undefined ? payload.description : existing.description,
-      minPoints: payload.minPoints !== undefined ? payload.minPoints : existing.min_points,
+      min_points: payload.minPoints !== undefined ? payload.minPoints : existing.min_points,
       color: payload.color !== undefined ? payload.color : existing.color,
-      iconUrl: payload.iconUrl !== undefined ? payload.iconUrl : existing.icon_url,
+      icon_url: payload.iconUrl !== undefined ? payload.iconUrl : existing.icon_url,
     };
 
-    await badgesModel.update(id, updateData);
-    return await badgesModel.findById(id);
+    const result = await badgesModel.update(id, updateData);
+    return await badgesModel.findById(result.id);
   },
 
   deleteBadge: async (id) => {
@@ -72,7 +72,7 @@ const badgesService = {
   getMyBadgeProgress: async (userId) => {
     const totalPoints = Number(await donationsModel.getTotalDonatedByUserId(userId));
     const allBadges = await badgesModel.findAll();
-    
+
     // Determine current and next badge
     let currentBadge = null;
     let nextBadge = null;
@@ -112,10 +112,10 @@ const badgesService = {
   syncUserBadges: async (userId) => {
     const totalPoints = Number(await donationsModel.getTotalDonatedByUserId(userId));
     const allBadges = await badgesModel.findAll();
-    
+
     const userBadges = await userBadgesModel.getUserBadges(userId);
     const earnedBadgeIds = new Set(userBadges.map(b => b.badge_id));
-    
+
     let newlyEarnedBadges = [];
 
     for (const badge of allBadges) {
