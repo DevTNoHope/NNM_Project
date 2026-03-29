@@ -1,0 +1,87 @@
+/* SweetAlert2 HopeFund Theme */
+.swal-hopefund {
+  font-family: 'Inter', sans-serif;
+  border-radius: 16px !important;
+  padding: 2rem 1.5rem !important;
+}
+
+.swal-hopefund .swal2-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.swal-hopefund .swal2-html-container {
+  font-size: 0.95rem;
+  color: #6B7280;
+  line-height: 1.5;
+}
+
+.swal-hopefund .swal2-icon {
+  margin-top: 0.5rem;
+}
+
+/* Base button */
+.swal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 999px;
+  padding: 0.6rem 1.5rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+  margin: 0 0.35rem;
+}
+
+.swal-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Confirm (primary purple) */
+.swal-btn-confirm {
+  background: #7C4DFF;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(124, 77, 255, 0.3);
+}
+
+.swal-btn-confirm:hover {
+  background: #6a3de8;
+}
+
+/* Cancel */
+.swal-btn-cancel {
+  background: transparent;
+  color: #7C4DFF;
+  border: 2px solid #7C4DFF;
+}
+
+.swal-btn-cancel:hover {
+  background: #7C4DFF;
+  color: #fff;
+}
+
+/* Danger */
+.swal-btn-danger {
+  background: #ef4444;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+}
+
+.swal-btn-danger:hover {
+  background: #dc2626;
+}
+
+/* Deny */
+.swal-btn-deny {
+  background: #F3F4F6;
+  color: #374151;
+}
+
+.swal-btn-deny:hover {
+  background: #E5E7EB;
+}

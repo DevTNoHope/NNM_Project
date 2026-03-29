@@ -5,6 +5,7 @@ import { getCategories } from "../../api/categoryApi";
 import Button from "../../components/common/Button";
 import Spinner from "../../components/common/Spinner";
 import UserProjectForm from "../../components/project/UserProjectForm";
+import { alertSuccess } from "../../utils/alert";
 import "./UserProjects.css";
 
 export default function UserProjectFormPage() {
@@ -108,10 +109,10 @@ export default function UserProjectFormPage() {
 
       if (isEditing) {
         await updateMyProject(id, data);
-        alert("Project updated successfully!");
+        alertSuccess('Updated!', 'Project updated successfully!');
       } else {
         await createProjectDraft(data);
-        alert("Draft created successfully!");
+        alertSuccess('Created!', 'Draft created successfully!');
       }
 
       navigate("/my-projects");

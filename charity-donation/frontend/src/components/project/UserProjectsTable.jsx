@@ -176,7 +176,7 @@ export default function UserProjectsTable({ projects, onRowClick, onEdit, onSubm
   ];
 
   return (
-    <div className="user-projects-table-wrapper" style={{ background: 'white', borderRadius: 8, padding: 16 }}>
+    <div className="user-projects-table-wrapper" style={{ backgroundColor: 'var(--color-surface)', borderRadius: 8, padding: 16 }}>
       <Table
         columns={columns}
         dataSource={projects}

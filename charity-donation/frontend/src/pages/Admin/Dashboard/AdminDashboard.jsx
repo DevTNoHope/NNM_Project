@@ -13,6 +13,9 @@ import {
 } from 'recharts';
 import "./AdminDashboard.css";
 import http from "../../../api/http";
+import { FiDollarSign, FiCheckSquare, FiClipboard, FiUsers, FiImage } from "react-icons/fi";
+import Button from "../../../components/common/Button";
+import { alertError, alertSuccess } from "../../../utils/alert";
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -131,10 +134,10 @@ const AdminDashboard = () => {
       if (data.success) {
         fetchData(); // Refresh data
       } else {
-        alert("Error occurred: " + data.message);
+        alertError("Error", data.message);
       }
     } catch (error) {
-      alert("Server connection error.");
+      alertError("Error", "Server connection error.");
       console.error(error);
     }
   };
@@ -151,10 +154,7 @@ const AdminDashboard = () => {
         <div className="widget-card">
           <div className="widget-card-top">
             <div className="widget-icon-box" style={{backgroundColor: '#f3efff', color: '#7C4DFF'}}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/>
-                <rect x="6" y="8" width="12" height="8" rx="2" fill="currentColor" fillOpacity="0.5"/>
-              </svg>
+              <FiDollarSign size={24} />
             </div>
             <div className="widget-trend positive">+12% ↗</div>
           </div>
@@ -170,7 +170,7 @@ const AdminDashboard = () => {
         <div className="widget-card">
           <div className="widget-card-top">
             <div className="widget-icon-box" style={{backgroundColor: '#e6f7ef', color: '#2ed573'}}>
-               <svg fill="currentColor" width="24" height="24" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+               <FiCheckSquare size={24} />
             </div>
             <div className="widget-trend positive">+5% ↗</div>
           </div>
@@ -184,7 +184,7 @@ const AdminDashboard = () => {
         <div className="widget-card">
           <div className="widget-card-top">
             <div className="widget-icon-box" style={{backgroundColor: '#f3efff', color: '#7C4DFF'}}>
-              <svg fill="currentColor" width="24" height="24" viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm-2 14l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+              <FiClipboard size={24} />
             </div>
             <div className="widget-trend warning">15 Pending</div>
           </div>
@@ -198,7 +198,7 @@ const AdminDashboard = () => {
         <div className="widget-card">
           <div className="widget-card-top">
             <div className="widget-icon-box" style={{backgroundColor: '#f6f3ff', color: '#a55eea'}}>
-               <svg fill="currentColor" width="24" height="24" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+               <FiUsers size={24} />
             </div>
              <div className="widget-trend positive">+8% ↗</div>
           </div>
@@ -224,7 +224,7 @@ const AdminDashboard = () => {
                      <span className="tf-category">{featureWidgets.topProject.category_name || 'Community'}</span>
                   </div>
                   <h3 className="tf-title">{featureWidgets.topProject.title}</h3>
-                  <p className="tf-desc">{featureWidgets.topProject.description?.substring(0, 70) || 'Providing support and infrastructure...'}...</p>
+                  <p className="tf-desc">{(featureWidgets.topProject.description?.replace(/<[^>]*>/g, '') || 'Providing support and infrastructure...').substring(0, 70)}...</p>
                   
                   <div className="tf-progress-section">
                      <div className="tf-progress-labels">
@@ -288,7 +288,7 @@ const AdminDashboard = () => {
                        return (
                           <div key={p.id} className="ns-item">
                              <div className="ns-icon-wrapper">
-                                <svg width="22" height="22" fill="#9CA3AF" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM13.96 12.29l-2.75 3.54-1.96-2.36L6.5 17h11l-3.54-4.71z"/></svg>
+                                <FiImage size={22} color="#9CA3AF" />
                              </div>
                              <div className="ns-item-content">
                                 <h4 className="ns-title">{p.title}</h4>
@@ -407,14 +407,20 @@ const AdminDashboard = () => {
                            <td className="font-semibold">${parseInt(p.goal_amount).toLocaleString()}</td>
                            <td><span className="category-badge">{p.category?.name || 'Environment'}</span></td>
                            <td className="text-right actions-cell">
-                              <button 
-                                 className="btn-action bg-success text-white"
-                                 onClick={() => handleAction(p.id, 'APPROVE')}
-                              >Approve</button>
-                              <button 
-                                 className="btn-action bg-danger text-dark"
-                                 onClick={() => handleAction(p.id, 'REJECT')}
-                              >Reject</button>
+                              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                <Button
+                                  size="sm"
+                                  variant="primary"
+                                  onClick={() => handleAction(p.id, 'APPROVE')}
+                                  style={{ backgroundColor: '#10B981', boxShadow: 'none' }}
+                                >Approve</Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleAction(p.id, 'REJECT')}
+                                  style={{ color: '#6B7280', borderColor: '#D1D5DB' }}
+                                >Reject</Button>
+                              </div>
                            </td>
                         </tr>
                      ))
