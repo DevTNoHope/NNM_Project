@@ -1,31 +1,31 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import MainLayout from "../layouts/MainLayout";
-import HomePage from "../pages/Home/HomePage";
-import ProjectsPage from "../pages/Projects/ProjectsPage";
-import ProjectDetailPage from "../pages/ProjectDetail/ProjectDetailPage";
-import AboutPage from "../pages/About/AboutPage";
-import FAQPage from "../pages/FAQ/FAQPage";
-import CommunityPage from "../pages/Community/CommunityPage";
-import BlogPage from "../pages/Blog/BlogPage";
-import NotFoundPage from "../pages/NotFound/NotFoundPage";
-import SignInPage from "../pages/SignIn/SignInPage";
+import MainLayout from "@/layouts/MainLayout";
+import HomePage from "@/pages/Home/HomePage";
+import ProjectsPage from "@/pages/Projects/ProjectsPage";
+import ProjectDetailPage from "@/pages/ProjectDetail/ProjectDetailPage";
+import AboutPage from "@/pages/About/AboutPage";
+import FAQPage from "@/pages/FAQ/FAQPage";
+import CommunityPage from "@/pages/Community/CommunityPage";
+import BlogPage from "@/pages/Blog/BlogPage";
+import NotFoundPage from "@/pages/NotFound/NotFoundPage";
+import SignInPage from "@/pages/SignIn/SignInPage";
 import ProtectedRoute from "./ProtectedRoute";
-import ProfilePage from "../pages/Profile/ProfilePage";
-import UserProjectsPage from "../pages/UserProjects/UserProjectsPage";
-import UserProjectFormPage from "../pages/UserProjects/UserProjectFormPage";
-import FounderProjectDashboard from "../pages/Founder/Projects/FounderProjectDashboard";
+import ProfilePage from "@/pages/Profile/ProfilePage";
+import UserProjectsPage from "@/pages/UserProjects/UserProjectsPage";
+import UserProjectFormPage from "@/pages/UserProjects/UserProjectFormPage";
+import FounderProjectDashboard from "@/pages/Founder/Projects/FounderProjectDashboard";
 
 // Admin Imports
-import AdminLayout from "../layouts/AdminLayout/AdminLayout";
-import AdminDashboard from "../pages/Admin/Dashboard/AdminDashboard";
-import PendingProjects from "../pages/Admin/Projects/PendingProjects";
-import AdminCategories from "../pages/Admin/Categories/AdminCategories";
-import AdminUsers from "../pages/Admin/Users/AdminUsers";
-import WithdrawalManagement from "../pages/Admin/Withdrawal/WithdrawalManagement";
-import WithdrawalVerification from "../pages/Founder/Withdrawal/WithdrawalVerification";
-import ClaimWithdrawal from "../pages/Founder/Withdrawal/ClaimWithdrawal";
+import AdminLayout from "@/layouts/AdminLayout/AdminLayout";
+import AdminDashboard from "@/pages/Admin/Dashboard/AdminDashboard";
+import PendingProjects from "@/pages/Admin/Projects/PendingProjects";
+import AdminCategories from "@/pages/Admin/Categories/AdminCategories";
+import AdminUsers from "@/pages/Admin/Users/AdminUsers";
+import WithdrawalManagement from "@/pages/Admin/Withdrawal/WithdrawalManagement";
+import WithdrawalVerification from "@/pages/Founder/Withdrawal/WithdrawalVerification";
+import ClaimWithdrawal from "@/pages/Founder/Withdrawal/ClaimWithdrawal";
 import AdminRoute from "./AdminRoute";
-import Badges from "../pages/Admin/Badges/Badges";//Thêm
+import Badges from "@/pages/Admin/Badges/Badges";//Thêm
 const AppRoutes = () => (
   <Routes>
     {/* Admin Routes */}

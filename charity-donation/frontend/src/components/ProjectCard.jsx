@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { calcProgress, formatCurrency } from "../utils/formatCurrency";
+import { calcProgress, formatCurrency } from "@/utils/formatCurrency";
 import Tag from "./common/Tag";
 import "./ProjectCard.css";
 

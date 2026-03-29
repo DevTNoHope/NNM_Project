@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
-import ProjectGrid from '../project/ProjectGrid';
-import Button from '../common/Button';
-import Spinner from '../common/Spinner';
+import ProjectGrid from '@/components/project/ProjectGrid';
+import Button from '@/components/common/Button';
+import Spinner from '@/components/common/Spinner';
 import './EligibleProjectsSection.css';
 
 const EligibleProjectsSection = ({ projects, loading, pagination, onPageChange }) => {

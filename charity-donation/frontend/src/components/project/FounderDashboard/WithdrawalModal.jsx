@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import withdrawApi from '../../../api/withdraw.api';
-import Button from '../../common/Button';
-import Spinner from '../../common/Spinner';
+import withdrawApi from '@/api/withdraw.api';
+import Button from '@/components/common/Button';
+import Spinner from '@/components/common/Spinner';
 import './WithdrawalModal.css';
 
 const WithdrawalModal = ({ project, onClose, onSuccess }) => {

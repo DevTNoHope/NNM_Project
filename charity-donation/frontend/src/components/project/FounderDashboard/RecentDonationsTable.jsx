@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 import { CiShare1 } from "react-icons/ci";
+import { getTxUrl } from "@/utils/constants";
 import "./RecentDonationsTable.css";
 
 export default function RecentDonationsTable({ donations = [] }) {
@@ -81,7 +82,7 @@ export default function RecentDonationsTable({ donations = [] }) {
           {sortedDonations.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((item) => {
             const isCrypto = item.donation_type === "CRYPTO";
             const txUrl = item.tx_hash
-              ? `https://testnet.bscscan.com/tx/${item.tx_hash}`
+              ? getTxUrl(item.tx_hash)
               : null;
 
             return (

@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import NotificationBell from "../../components/NotificationBell/NotificationBell";
+import { useAuth } from "@/context/AuthContext";
+import NotificationBell from "@/components/NotificationBell/NotificationBell";
 import { FiGrid, FiFolder, FiLayers, FiUsers, FiAward, FiDollarSign, FiMenu, FiSearch, FiHelpCircle, FiChevronsLeft, FiChevronsRight } from "react-icons/fi";
-import logo from "../../../public/hopefund-logo.png";
 import "./AdminLayout.css";
+const logo = "/hopefund-logo.png";
+
 
 const AdminLayout = () => {
   const location = useLocation();

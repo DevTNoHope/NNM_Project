@@ -1,6 +1,6 @@
 import React from "react";
-import Button from "../../common/Button";
-import { alertWarning } from "../../../utils/alert";
+import Button from "@/components/common/Button";
+import { alertWarning } from "@/utils/alert";
 import "./PostUpdateForm.css";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import {

@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getMyProjects, deleteMyProject, submitProjectForReview } from "../../api/projectApi";
-import { useAuth } from "../../context/AuthContext";
-import Button from "../../components/common/Button";
-import Spinner from "../../components/common/Spinner";
-import EmptyState from "../../components/common/EmptyState";
-import UserProjectsTable from "../../components/project/UserProjectsTable";
-import ProjectDetailsModal from "../../components/project/ProjectDetailsModal";
-import { alertSuccess, alertError, alertConfirm } from "../../utils/alert";
+import { getMyProjects, deleteMyProject, submitProjectForReview } from "@/api/projectApi";
+import { useAuth } from "@/context/AuthContext";
+import Button from "@/components/common/Button";
+import Spinner from "@/components/common/Spinner";
+import EmptyState from "@/components/common/EmptyState";
+import UserProjectsTable from "@/components/project/UserProjectsTable";
+import ProjectDetailsModal from "@/components/project/ProjectDetailsModal";
+import { alertSuccess, alertError, alertConfirm } from "@/utils/alert";
 import "./UserProjects.css";
 
 

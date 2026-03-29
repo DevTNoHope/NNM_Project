@@ -14,9 +14,10 @@ import {
   setMySelectedBadge,
   getUserBadges,
   getUserBadgeProgress
-} from "../../api/userApi";
-import ProjectCard from "../../components/ProjectCard";
-import { alertSuccess, alertError, alertInfo, alertWarning } from "../../utils/alert";
+} from "@/api/userApi";
+import ProjectCard from "@/components/ProjectCard";
+import { alertSuccess, alertError, alertInfo, alertWarning } from "@/utils/alert";
+import { getTxUrl } from "@/utils/constants";
 import "./ProfilePage.css";
 import { Link } from "react-router-dom";
 
@@ -587,7 +588,7 @@ export default function ProfilePage({ isMe = false }) {
               donationsData.donations.map((item) => {
                 const isCrypto = item.donation_type === "CRYPTO";
                 const txUrl = item.tx_hash
-                  ? `https://testnet.bscscan.com/tx/${item.tx_hash}`
+                  ? getTxUrl(item.tx_hash)
                   : null;
 
                 return (

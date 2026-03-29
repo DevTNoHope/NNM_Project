@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Table, Input, Button as AntDButton, Space, Modal, Tag, Card, Row, Col, Statistic } from "antd";
 import { SearchOutlined, HistoryOutlined, DownloadOutlined, ClockCircleOutlined, DollarOutlined } from "@ant-design/icons";
-import Button from "../../../components/common/Button";
-import { alertError } from "../../../utils/alert";
-import http from "../../../api/http";
+import Button from "@/components/common/Button";
+import { alertError } from "@/utils/alert";
+import http from "@/api/http";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);

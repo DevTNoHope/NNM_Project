@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { isValidEmail } from '../../utils/validators';
-import Button from '../common/Button';
+import { isValidEmail } from '@/utils/validators';
+import Button from '@/components/common/Button';
 import './NewsletterSection.css';
 
 const NewsletterSection = () => {

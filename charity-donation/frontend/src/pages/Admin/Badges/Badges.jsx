@@ -2,8 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import { HexColorPicker } from "react-colorful";
 import { Table, Input, Button as AntDButton, Space } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import Button from "../../../components/common/Button";
-import { alertConfirm } from "../../../utils/alert";
+import Button from "@/components/common/Button";
+import { alertConfirm } from "@/utils/alert";
 
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 

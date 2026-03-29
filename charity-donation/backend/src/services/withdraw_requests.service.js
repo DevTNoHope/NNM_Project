@@ -26,8 +26,8 @@ async function getAvailableBalance(projectId, type) {
   // Map withdraw type → donation type
   // withdraw_requests.type: 'CRYPTO' | 'BANKING'
   // donations.donation_type: 'CRYPTO' | 'BANKING'
-  const donationType = type ;
 
+  const donationType = type;
   const totalDonations = await donationsModel.getSumByProjectAndType(projectId, donationType);
 
   // BANKING (BANKING): APPROVED = admin đã chuyển tiền → final

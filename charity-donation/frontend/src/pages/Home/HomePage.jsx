@@ -1,21 +1,21 @@
 import { useState, useEffect } from 'react';
-import HeroSection from '../../components/home/HeroSection';
-import FeatureSection from '../../components/home/FeatureSection';
-import EligibleProjectsSection from '../../components/home/EligibleProjectsSection';
-import CauseSection from '../../components/home/CauseSection';
-import StatsSection from '../../components/home/StatsSection';
-import AboutPlatformSection from '../../components/home/AboutPlatformSection';
-import PartnersSection from '../../components/home/PartnersSection';
-import RecentPostsSection from '../../components/home/RecentPostsSection';
-import NewsletterSection from '../../components/home/NewsletterSection';
-import UpdatesSection from '../../components/home/UpdatesSection';
+import HeroSection from '@/components/home/HeroSection';
+import FeatureSection from '@/components/home/FeatureSection';
+import EligibleProjectsSection from '@/components/home/EligibleProjectsSection';
+import CauseSection from '@/components/home/CauseSection';
+import StatsSection from '@/components/home/StatsSection';
+import AboutPlatformSection from '@/components/home/AboutPlatformSection';
+import PartnersSection from '@/components/home/PartnersSection';
+import RecentPostsSection from '@/components/home/RecentPostsSection';
+import NewsletterSection from '@/components/home/NewsletterSection';
+import UpdatesSection from '@/components/home/UpdatesSection';
 import {
   getPlatformStats,
   getNewlyEligibleProjects,
   getTopDonations,
   getRecentProjects,
   getLastUpdatedProjects
-} from '../../api/homeApi';
+} from '@/api/homeApi';
 import './HomePage.css';
 
 const HomePage = () => {

@@ -7,6 +7,7 @@ const projectUpdatesController = require("../controllers/project_updates.control
 const authJwt = require("../middleware/authJwt");
 const requireRole = require("../middleware/requireRole");
 const upload = require("../middleware/upload");
+const { createRateLimit } = require("../middleware/rateLimiter");
 
 // Public endpoints for landing page
 router.get("/newly-eligible", projectsController.getNewlyEligibleProjects);
@@ -17,11 +18,11 @@ router.get("/last-updated", projectsController.getLastUpdatedProjects);
 router.get("/", projectsController.getProjects);
 
 // User & Founder — draft management
-router.post("/", authJwt, requireRole("USER", "FOUNDER"), upload.single("coverImage"), projectsController.createProject);
+router.post("/", createRateLimit({ limit: 10 }), authJwt, requireRole("USER", "FOUNDER"), upload.single("coverImage"), projectsController.createProject);
 router.get("/me", authJwt, requireRole("USER", "FOUNDER"), projectsController.getMyProjects);
 router.put("/:id", authJwt, requireRole("USER", "FOUNDER"), upload.single("coverImage"), projectsController.updateMyProject);
 router.delete("/:id", authJwt, requireRole("USER", "FOUNDER"), projectsController.deleteMyProject);
-router.post("/:id/submit", authJwt, requireRole("USER", "FOUNDER"), projectsController.submitProject);
+router.post("/:id/submit", createRateLimit({ limit: 10 }), authJwt, requireRole("USER", "FOUNDER"), projectsController.submitProject);
 
 // Founder only
 router.get("/founder/me", authJwt, requireRole("FOUNDER"), projectsController.getFounderProjects);

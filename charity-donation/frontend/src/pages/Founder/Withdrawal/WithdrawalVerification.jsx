@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import withdrawApi from '../../../api/withdraw.api';
-import Spinner from '../../../components/common/Spinner';
-import Button from '../../../components/common/Button';
+import withdrawApi from '@/api/withdraw.api';
+import Spinner from '@/components/common/Spinner';
+import Button from '@/components/common/Button';
 
 const WithdrawalVerification = () => {
   const [searchParams] = useSearchParams();

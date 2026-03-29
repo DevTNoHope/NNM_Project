@@ -7,16 +7,17 @@ import {
   getProjectById,
   getDonationsByProjectId,
   getProjectUpdates,
-} from "../../api/projectApi";
-import { calcProgress, formatCurrency } from "../../utils/formatCurrency";
-import DonateModal from "../../components/project/DonateModal";
-import ProjectGrid from "../../components/project/ProjectGrid";
-import Tag from "../../components/common/Tag";
-import Button from "../../components/common/Button";
-import Spinner from "../../components/common/Spinner";
-import EmptyState from "../../components/common/EmptyState";
-import { runCelebration } from "../../utils/celebration";
-import NotFoundPage from "../NotFound/NotFoundPage";
+} from "@/api/projectApi";
+import { calcProgress, formatCurrency } from "@/utils/formatCurrency";
+import DonateModal from "@/components/project/DonateModal";
+import ProjectGrid from "@/components/project/ProjectGrid";
+import Tag from "@/components/common/Tag";
+import Button from "@/components/common/Button";
+import Spinner from "@/components/common/Spinner";
+import EmptyState from "@/components/common/EmptyState";
+import { runCelebration } from "@/utils/celebration";
+import { getTxUrl, getAddressUrl, getIpfsUrl } from "@/utils/constants";
+import NotFoundPage from "@/pages/NotFound/NotFoundPage";
 import "./ProjectDetailPage.css";
 
 const TABS = ["Overview", "Updates", "Donations"];
@@ -322,7 +323,7 @@ const ProjectDetailPage = () => {
                         <div className="bv-section__item">
                           <span className="bv-section__label">Smart Contract</span>
                           <a
-                            href={`https://testnet.bscscan.com/address/${project.vault_address}`}
+                            href={getAddressUrl(project.vault_address)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="bv-section__link"
@@ -336,7 +337,7 @@ const ProjectDetailPage = () => {
                           <div className="bv-section__item">
                             <span className="bv-section__label">IPFS Metadata</span>
                             <a
-                              href={`https://gateway.pinata.cloud/ipfs/${project.ipfs_cid}`}
+                              href={getIpfsUrl(project.ipfs_cid)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="bv-section__link"
@@ -435,7 +436,7 @@ const ProjectDetailPage = () => {
                     sortedDonations.map((item) => {
                       const isCrypto = item.donation_type === "CRYPTO";
                       const txUrl = item.tx_hash
-                        ? `https://testnet.bscscan.com/tx/${item.tx_hash}`
+                        ? getTxUrl(item.tx_hash)
                         : null;
 
                       return (

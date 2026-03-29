@@ -2,12 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useGoogleLogin } from "@react-oauth/google";
-import AuthOptionButton from "../../components/auth/AuthOptionButton";
-import { useAuth } from "../../context/AuthContext";
-import useWalletAuth from "../../hook/wallet/useWalletAuth";
+import AuthOptionButton from "@/components/auth/AuthOptionButton";
+import { useAuth } from "@/context/AuthContext";
+import useWalletAuth from "@/hooks/wallet/useWalletAuth";
 import { FcGoogle } from "react-icons/fc";
 import { CiWallet } from "react-icons/ci";
-import { alertError } from "../../utils/alert";
+import { alertError } from "@/utils/alert";
 import "./SignInPage.css";
 
 const SignInPage = () => {

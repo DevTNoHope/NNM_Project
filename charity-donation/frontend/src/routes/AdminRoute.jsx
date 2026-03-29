@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Navigate, Outlet, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import Spinner from '../components/common/Spinner';
+import { useAuth } from '@/context/AuthContext';
+import Spinner from '@/components/common/Spinner';
 import { useGoogleLogin } from "@react-oauth/google";
-import AuthOptionButton from '../components/auth/AuthOptionButton';
+import AuthOptionButton from '@/components/auth/AuthOptionButton';
 import { FcGoogle } from "react-icons/fc";
 import { FiShield, FiArrowLeft, FiAlertOctagon } from "react-icons/fi";
 

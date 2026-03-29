@@ -3,6 +3,7 @@ const router = express.Router();
 const withdrawRequestsController = require("../controllers/withdraw_requests.controller");
 const authJwt = require("../middleware/authJwt");
 const requireRole = require("../middleware/requireRole");
+const { createRateLimit } = require("../middleware/rateLimiter");
 
 // Public (email verification link)
 router.get("/verify", withdrawRequestsController.verify);
@@ -13,7 +14,7 @@ router.get("/balance", authJwt, requireRole("FOUNDER", "ADMIN"), withdrawRequest
 router.get("/:id", authJwt, requireRole("FOUNDER", "ADMIN"), withdrawRequestsController.getById);
 
 // Founder only
-router.post("/", authJwt, requireRole("FOUNDER"), withdrawRequestsController.create);
-router.post("/claim", authJwt, requireRole("FOUNDER"), withdrawRequestsController.submitClaimTxHash);
+router.post("/", createRateLimit({ limit: 10 }), authJwt, requireRole("FOUNDER"), withdrawRequestsController.create);
+router.post("/claim", createRateLimit({ limit: 10 }), authJwt, requireRole("FOUNDER"), withdrawRequestsController.submitClaimTxHash);
 
 module.exports = router;

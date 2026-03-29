@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { parseUnits } from "viem";
-import Button from "../common/Button";
-import { submitDonation, confirmCryptoDonation } from "../../api/projectApi";
-import { approveUsdtMock, donateToVault } from "../../hook/contract/donate";
+import Button from "@/components/common/Button";
+import { submitDonation, confirmCryptoDonation } from "@/api/projectApi";
+import { approveUsdtMock, donateToVault } from "@/hooks/contract/donate";
 import "./DonateModal.css";
 
 const QUICK_AMOUNTS_USD = [5, 10, 20, 50, 100];
@@ -158,9 +158,9 @@ const DonateModal = ({ project, onClose }) => {
     } catch (err) {
       setApiError(
         err?.response?.data?.message ||
-          err?.shortMessage ||
-          err?.message ||
-          "Unable to process donation",
+        err?.shortMessage ||
+        err?.message ||
+        "Unable to process donation",
       );
     } finally {
       setLoading(false);

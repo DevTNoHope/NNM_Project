@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import http from "../../api/http";
-import Button from "../common/Button";
-import { alertConfirm, alertError } from "../../utils/alert";
+import http from "@/api/http";
+import Button from "@/components/common/Button";
+import { alertConfirm, alertError } from "@/utils/alert";
+import { getTxUrl, getAddressUrl } from "@/utils/constants";
 
 const ProjectDetailModal = ({ project, onClose, onApprove, onReject, onVaultCreated }) => {
   const [note, setNote] = useState("");
@@ -118,7 +119,7 @@ const ProjectDetailModal = ({ project, onClose, onApprove, onReject, onVaultCrea
             <div style={{ marginBottom: '1.5rem', background: '#fff', padding: '1rem', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
               <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#374151', marginBottom: '4px' }}>Vault Address:</div>
               <a 
-                href={`https://testnet.bscscan.com/address/${project.vault_address}`}
+                href={getAddressUrl(project.vault_address)}
                 target="_blank" 
                 rel="noopener noreferrer"
                 style={{ fontSize: '0.85rem', fontFamily: 'monospace', color: '#111827', wordBreak: 'break-all', display: 'inline-flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}
@@ -186,13 +187,13 @@ const ProjectDetailModal = ({ project, onClose, onApprove, onReject, onVaultCrea
               <div style={{ fontSize: '0.85rem', color: '#4B5563', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <p style={{ margin: 0 }}>
                   <strong>Vault:</strong>{' '}
-                  <a href={`https://testnet.bscscan.com/address/${vaultResult.vaultAddress}`} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'monospace', color: '#4F46E5' }}>
+                  <a href={getAddressUrl(vaultResult.vaultAddress)} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'monospace', color: '#4F46E5' }}>
                     {vaultResult.vaultAddress}
                   </a>
                 </p>
                 <p style={{ margin: 0 }}>
                   <strong>Tx:</strong>{' '}
-                  <a href={`https://testnet.bscscan.com/tx/${vaultResult.txHash}`} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'monospace', color: '#4F46E5', fontSize: '0.8rem' }}>
+                  <a href={getTxUrl(vaultResult.txHash)} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'monospace', color: '#4F46E5', fontSize: '0.8rem' }}>
                     {vaultResult.txHash}
                   </a>
                 </p>

@@ -1,4 +1,4 @@
-import ProjectCard from '../ProjectCard';
+import ProjectCard from '@/components/ProjectCard';
 import './ProjectGrid.css';
 
 const ProjectGrid = ({ projects }) => {

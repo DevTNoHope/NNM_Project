@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
-import { getPosts } from '../../api/postApi';
-import { filterPosts } from '../../utils/filterPosts';
-import PostCard from '../../components/post/PostCard';
-import SearchBar from '../../components/common/SearchBar';
-import EmptyState from '../../components/common/EmptyState';
-import Spinner from '../../components/common/Spinner';
+import { getPosts } from '@/api/postApi';
+import { filterPosts } from '@/utils/filterPosts';
+import PostCard from '@/components/post/PostCard';
+import SearchBar from '@/components/common/SearchBar';
+import EmptyState from '@/components/common/EmptyState';
+import Spinner from '@/components/common/Spinner';
 import './BlogPage.css';
 
 const BlogPage = () => {

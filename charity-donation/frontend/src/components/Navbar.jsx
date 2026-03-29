@@ -1,12 +1,12 @@
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { useState, useEffect, useContext, useMemo } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { NAV_LINKS } from "../utils/constants";
-import { ThemeContext } from "../App";
+import { NAV_LINKS } from "@/utils/constants";
+import { ThemeContext } from "@/App";
 import { useDisconnect } from "wagmi";
-import Button from "./common/Button";
-import NotificationBell from "./NotificationBell/NotificationBell";
-import logo from "../../public/hopefund-logo.png";
+import Button from "@/components/common/Button";
+import NotificationBell from "@/components/NotificationBell/NotificationBell";
+const logo = "/hopefund-logo.png";
 import "./Navbar.css";
 
 const shortenAddress = (address = "") => {
@@ -181,35 +181,35 @@ const Navbar = () => {
                   <NotificationBell />
                 </ul>
                 <div className="navbar__account-menu">
-                <button type="button" className="navbar__account">
-                  <span className="navbar__account-label">{accountLabel}</span>
-                  <span className="navbar__account-caret">▾</span>
-                </button>
-
-                <div className="navbar__dropdown">
-                  <button
-                    className="navbar__dropdown-item"
-                    onClick={() => navigate("/profile")}
-                  >
-                    Profile
+                  <button type="button" className="navbar__account">
+                    <span className="navbar__account-label">{accountLabel}</span>
+                    <span className="navbar__account-caret">▾</span>
                   </button>
 
-                  <button
-                    className="navbar__dropdown-item"
-                    onClick={() => navigate("/my-projects")}
-                  >
-                    My Projects
-                  </button>
+                  <div className="navbar__dropdown">
+                    <button
+                      className="navbar__dropdown-item"
+                      onClick={() => navigate("/profile")}
+                    >
+                      Profile
+                    </button>
 
-                  <button
-                    type="button"
-                    className="navbar__dropdown-item navbar__logout-btn"
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </button>
+                    <button
+                      className="navbar__dropdown-item"
+                      onClick={() => navigate("/my-projects")}
+                    >
+                      My Projects
+                    </button>
+
+                    <button
+                      type="button"
+                      className="navbar__dropdown-item navbar__logout-btn"
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </button>
+                  </div>
                 </div>
-              </div>
               </>
             ) : (
               <Button as={Link} to="/signin" variant="outline" size="sm">

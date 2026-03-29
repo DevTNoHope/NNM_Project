@@ -3,7 +3,7 @@ import "./index.css";
 import "./styles/sweetalert.css";
 import App from "./App.jsx";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import Web3Provider from "./hook/providers/Web3Provider";
+import Web3Provider from "@/hooks/providers/Web3Provider";
 
 createRoot(document.getElementById("root")).render(
   <Web3Provider>

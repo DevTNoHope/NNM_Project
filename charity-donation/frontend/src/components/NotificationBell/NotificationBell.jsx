@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import http from "../../api/http";
-import { useSocket } from "../../hooks/useSocket";
-import { useAuth } from "../../context/AuthContext";
+import http from "@/api/http";
+import { useSocket } from "@/hooks/useSocket";
+import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-toastify";
-import { playNotificationSound } from "../../utils/sound";
+import { playNotificationSound } from "@/utils/sound";
 import { FaRegBell } from "react-icons/fa";
 import "./NotificationBell.css";
 

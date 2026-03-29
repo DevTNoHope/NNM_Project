@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getProjectById, createProjectDraft, updateMyProject } from "../../api/projectApi";
-import { getCategories } from "../../api/categoryApi";
-import Button from "../../components/common/Button";
-import Spinner from "../../components/common/Spinner";
-import UserProjectForm from "../../components/project/UserProjectForm";
-import { alertSuccess } from "../../utils/alert";
+import { getProjectById, createProjectDraft, updateMyProject } from "@/api/projectApi";
+import { getCategories } from "@/api/categoryApi";
+import Button from "@/components/common/Button";
+import Spinner from "@/components/common/Spinner";
+import UserProjectForm from "@/components/project/UserProjectForm";
+import { alertSuccess } from "@/utils/alert";
 import "./UserProjects.css";
 
 export default function UserProjectFormPage() {

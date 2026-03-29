@@ -1,13 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { getProjects } from "../../api/projectApi";
-import { filterProjects } from "../../utils/filterProjects";
-import SearchBar from "../../components/common/SearchBar";
-import ProjectFilters from "../../components/project/ProjectFilters";
-import ProjectGrid from "../../components/project/ProjectGrid";
-import EmptyState from "../../components/common/EmptyState";
-import Spinner from "../../components/common/Spinner";
-import Button from "../../components/common/Button";
+import { getProjects } from "@/api/projectApi";
+import { filterProjects } from "@/utils/filterProjects";
+import SearchBar from "@/components/common/SearchBar";
+import ProjectFilters from "@/components/project/ProjectFilters";
+import ProjectGrid from "@/components/project/ProjectGrid";
+import EmptyState from "@/components/common/EmptyState";
+import Spinner from "@/components/common/Spinner";
+import Button from "@/components/common/Button";
 import "./ProjectsPage.css";
 
 const PAGE_SIZE = 6;

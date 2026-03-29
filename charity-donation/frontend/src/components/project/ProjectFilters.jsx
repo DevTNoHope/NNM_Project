@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { SORT_OPTIONS } from '../../utils/constants';
-import { getCategories } from '../../api/categoryApi';
+import { SORT_OPTIONS } from '@/utils/constants';
+import { getCategories } from '@/api/categoryApi';
 import './ProjectFilters.css';
 
 const PROJECT_STATUSES = ['All', 'Published', 'Archived'];

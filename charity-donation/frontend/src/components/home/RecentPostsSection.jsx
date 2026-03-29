@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import ProjectCard from '../ProjectCard';
-import { formatCurrency } from '../../utils/formatCurrency';
+import ProjectCard from '@/components/ProjectCard';
+import { formatCurrency } from '@/utils/formatCurrency';
 import './RecentPostsSection.css';
 
 const RecentPostsSection = ({ posts, topDonations }) => {

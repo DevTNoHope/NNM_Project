@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Table, Input, Button as AntDButton, Space, Tag } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import Button from "../common/Button";
+import Button from "@/components/common/Button";
 import "./UserProjectsTable.css";
 
 const STATUS_MAP = {

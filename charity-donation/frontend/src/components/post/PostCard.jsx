@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import Tag from '../common/Tag';
-import { formatDate } from '../../utils/formatCurrency';
+import Tag from '@/components/common/Tag';
+import { formatDate } from '@/utils/formatCurrency';
 import './PostCard.css';
 
 const PostCard = ({ post, featured = false }) => (
