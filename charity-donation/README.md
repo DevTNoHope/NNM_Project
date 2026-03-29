@@ -184,10 +184,9 @@ Sensitive endpoints are protected with rate limiting. For the full list of all A
 
 ---
 
-## 📄 License & Notes
+## 📄 License 
 
 - **License**: Educational purpose only.
-- **Database History**: All manual table changes and updates are tracked in [database/migrations.sql](database/migrations.sql).
 
 <div align="center">
   <br />
