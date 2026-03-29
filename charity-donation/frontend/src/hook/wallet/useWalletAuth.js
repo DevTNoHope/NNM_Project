@@ -3,7 +3,7 @@ import { useAccount, useDisconnect, useSignMessage } from "wagmi";
 import { loginWithWalletApi } from "../../api/authApi";
 
 const buildLoginMessage = (address) => {
-  return `Login to HopeFund
+  return `Login to HopeFund 
 Wallet: ${address}`;
 };
 

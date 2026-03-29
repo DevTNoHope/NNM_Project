@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { parseUnits } from "viem";
 import Button from "../common/Button";
 import { submitDonation, confirmCryptoDonation } from "../../api/projectApi";
-import { approveUsdtMock, donateToVault } from "../../hook/contract/donate";
+import { approveUsdtMock, donateToVault } from "../../hook/contract/vault";
 import "./DonateModal.css";
 
 const QUICK_AMOUNTS_USD = [5, 10, 20, 50, 100];

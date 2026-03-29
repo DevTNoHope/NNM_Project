@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
-import { claimFromVault } from '../../../hook/contract/donate';
+import { claimFromVault } from '../../../hook/contract/vault';
 import withdrawApi from '../../../api/withdraw.api';
 import Spinner from '../../../components/common/Spinner';
 import './ClaimWithdrawal.css';

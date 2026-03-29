@@ -25,8 +25,8 @@ async function getWithdrawRequestById(id) {
 async function getAvailableBalance(projectId, type) {
   // Map withdraw type → donation type
   // withdraw_requests.type: 'CRYPTO' | 'BANKING'
-  // donations.donation_type: 'CRYPTO' | 'VNPAY'
-  const donationType = type === 'BANKING' ? 'VNPAY' : 'CRYPTO';
+  // donations.donation_type: 'CRYPTO' | 'BANKING'
+  const donationType = type;
 
   const totalDonations = await donationsModel.getSumByProjectAndType(projectId, donationType);
 
