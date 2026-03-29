@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Table, Input, Button as AntDButton, Space, Tag, Select } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import ProjectDetailModal from "../../../components/ProjectDetailModal/ProjectDetailModal";
-import Button from "../../../components/common/Button";
-import { alertError } from "../../../utils/alert";
-import http from "../../../api/http";
+import ProjectDetailModal from "@/components/ProjectDetailModal/ProjectDetailModal";
+import Button from "@/components/common/Button";
+import { alertError } from "@/utils/alert";
+import http from "@/api/http";
 import "./PendingProjects.css";
 
 const STATUS_MAP = {

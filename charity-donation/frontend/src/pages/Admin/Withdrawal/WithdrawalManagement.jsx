@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Table, Space, Tag, Input, Button as AntDButton } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import Button from '../../../components/common/Button';
-import { alertSuccess, alertError, alertConfirm } from '../../../utils/alert';
-import withdrawApi from '../../../api/withdraw.api';
-import Spinner from '../../../components/common/Spinner';
+import Button from '@/components/common/Button';
+import { alertSuccess, alertError, alertConfirm } from '@/utils/alert';
+import withdrawApi from '@/api/withdraw.api';
+import Spinner from '@/components/common/Spinner';
 import './WithdrawalManagement.css';
 
 const WithdrawalManagement = () => {

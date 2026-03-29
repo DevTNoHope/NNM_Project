@@ -1,4 +1,4 @@
-import { MOCK_PARTNERS } from '../../utils/mockData';
+import { MOCK_PARTNERS } from '@/utils/mockData';
 import './PartnersSection.css';
 
 const PartnersSection = () => (

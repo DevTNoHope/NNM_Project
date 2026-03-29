@@ -60,8 +60,8 @@ export async function ensureWalletReady(expectedAccount) {
                 symbol: "tBNB",
                 decimals: 18,
               },
-              rpcUrls: ["https://data-seed-prebsc-1-s1.bnbchain.org:8545"],
-              blockExplorerUrls: ["https://testnet.bscscan.com"],
+              rpcUrls: [import.meta.env.VITE_RPC_URL || "https://data-seed-prebsc-1-s1.bnbchain.org:8545"],
+              blockExplorerUrls: [import.meta.env.VITE_BSC_EXPLORER_URL || "https://testnet.bscscan.com"],
             },
           ],
         });

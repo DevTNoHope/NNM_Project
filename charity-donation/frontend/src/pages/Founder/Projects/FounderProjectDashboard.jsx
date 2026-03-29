@@ -1,22 +1,23 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import NotFoundPage from "../../NotFound/NotFoundPage";
-import { useAuth } from "../../../context/AuthContext";
+import NotFoundPage from "@/pages/NotFound/NotFoundPage";
+import { useAuth } from "@/context/AuthContext";
 import {
   getProjectById,
   getProjectDonations,
   getProjectUpdates,
   createProjectUpdate
-} from "../../../api/projectApi";
-import Button from "../../../components/common/Button";
-import Spinner from "../../../components/common/Spinner";
-import CampaignProgressStat from "../../../components/project/FounderDashboard/CampaignProgressStat";
-import RecentDonationsTable from "../../../components/project/FounderDashboard/RecentDonationsTable";
-import PostUpdateForm from "../../../components/project/FounderDashboard/PostUpdateForm";
-import { alertSuccess, alertError } from "../../../utils/alert";
-import TimelineHistory from "../../../components/project/FounderDashboard/TimelineHistory";
-import WithdrawalModal from "../../../components/project/FounderDashboard/WithdrawalModal";
-import withdrawApi from "../../../api/withdraw.api";
+} from "@/api/projectApi";
+import Button from "@/components/common/Button";
+import Spinner from "@/components/common/Spinner";
+import CampaignProgressStat from "@/components/project/FounderDashboard/CampaignProgressStat";
+import RecentDonationsTable from "@/components/project/FounderDashboard/RecentDonationsTable";
+import PostUpdateForm from "@/components/project/FounderDashboard/PostUpdateForm";
+import { alertSuccess, alertError } from "@/utils/alert";
+import TimelineHistory from "@/components/project/FounderDashboard/TimelineHistory";
+import WithdrawalModal from "@/components/project/FounderDashboard/WithdrawalModal";
+import withdrawApi from "@/api/withdraw.api";
+import { getTxUrl } from "@/utils/constants";
 import "./FounderProjectDashboard.css";
 
 export default function FounderProjectDashboard() {
@@ -217,7 +218,7 @@ export default function FounderProjectDashboard() {
                     <td>
                       {w.claim_tx_hash && (
                         <a
-                          href={`https://testnet.bscscan.com/tx/${w.claim_tx_hash}`}
+                          href={getTxUrl(w.claim_tx_hash)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="btn btn-outline-primary btn-sm"

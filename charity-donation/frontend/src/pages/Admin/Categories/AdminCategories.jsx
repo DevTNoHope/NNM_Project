@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Table, Input, Button as AntDButton, Space, Tag, Modal } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import Button from "../../../components/common/Button";
-import { alertSuccess, alertError, alertWarning, alertConfirm } from "../../../utils/alert";
-import http from "../../../api/http";
+import Button from "@/components/common/Button";
+import { alertSuccess, alertError, alertWarning, alertConfirm } from "@/utils/alert";
+import http from "@/api/http";
 
 const AdminCategories = () => {
   const [categories, setCategories] = useState([]);

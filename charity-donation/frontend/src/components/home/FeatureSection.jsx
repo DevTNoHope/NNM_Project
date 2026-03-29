@@ -1,4 +1,4 @@
-import FeatureCard from '../project/FeatureCard';
+import FeatureCard from '@/components/project/FeatureCard';
 import './FeatureSection.css';
 
 const FEATURES = [

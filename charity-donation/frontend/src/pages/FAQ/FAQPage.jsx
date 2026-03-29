@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
-import { MOCK_FAQS } from '../../utils/mockData';
-import SearchBar from '../../components/common/SearchBar';
-import EmptyState from '../../components/common/EmptyState';
+import { MOCK_FAQS } from '@/utils/mockData';
+import SearchBar from '@/components/common/SearchBar';
+import EmptyState from '@/components/common/EmptyState';
 import './FAQPage.css';
 
 const CATS = ['All', ...new Set(MOCK_FAQS.map(f => f.category))];

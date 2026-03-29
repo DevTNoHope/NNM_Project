@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { useAccount, useDisconnect, useSignMessage } from "wagmi";
-import { loginWithWalletApi } from "../../api/authApi";
+import { loginWithWalletApi } from "@/api/authApi";
 
 const buildLoginMessage = (address) => {
   return `Login to HopeFund 

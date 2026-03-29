@@ -12,10 +12,10 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import "./AdminDashboard.css";
-import http from "../../../api/http";
+import http from "@/api/http";
 import { FiDollarSign, FiCheckSquare, FiClipboard, FiUsers, FiImage } from "react-icons/fi";
-import Button from "../../../components/common/Button";
-import { alertError, alertSuccess } from "../../../utils/alert";
+import Button from "@/components/common/Button";
+import { alertError, alertSuccess } from "@/utils/alert";
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import Button from '../common/Button';
+import Button from '@/components/common/Button';
 import './CauseSection.css';
 
 const CauseSection = ({ projects }) => {

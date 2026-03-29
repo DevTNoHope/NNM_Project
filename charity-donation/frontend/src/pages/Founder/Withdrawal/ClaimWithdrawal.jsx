@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useAuth } from '../../../context/AuthContext';
-import { claimFromVault } from '../../../hook/contract/vault';
-import withdrawApi from '../../../api/withdraw.api';
-import Spinner from '../../../components/common/Spinner';
+import { useAuth } from '@/context/AuthContext';
+import { claimFromVault } from '@/hooks/contract/donate';
+import withdrawApi from '@/api/withdraw.api';
+import Spinner from '@/components/common/Spinner';
+import { getTxUrl } from '@/utils/constants';
 import './ClaimWithdrawal.css';
 
 export default function ClaimWithdrawal() {
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  
+
   const [status, setStatus] = useState('ready'); // ready, connecting, claiming, success, error
   const [error, setError] = useState('');
   const [txHash, setTxHash] = useState('');
@@ -95,8 +96,8 @@ export default function ClaimWithdrawal() {
             <div className="claim-detail-box">
               <div className="claim-detail-row">
                 <span>Transaction Hash</span>
-                <a 
-                  href={`https://testnet.bscscan.com/tx/${txHash}`}
+                <a
+                  href={getTxUrl(txHash)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="tx-link"
@@ -105,9 +106,9 @@ export default function ClaimWithdrawal() {
                 </a>
               </div>
             </div>
-            <a 
-              href={`https://testnet.bscscan.com/tx/${txHash}`} 
-              target="_blank" 
+            <a
+              href={getTxUrl(txHash)}
+              target="_blank"
               rel="noopener noreferrer"
               className="claim-btn success-btn"
             >
@@ -119,7 +120,7 @@ export default function ClaimWithdrawal() {
             <div className="claim-icon">💰</div>
             <h2>Claim Your Withdrawal</h2>
             <p className="claim-subtitle">Connect your wallet and sign the transaction to receive your funds.</p>
-            
+
             <div className="claim-detail-box">
               <div className="claim-detail-row">
                 <span>Amount</span>
@@ -150,7 +151,7 @@ export default function ClaimWithdrawal() {
             {isExpired ? (
               <div className="claim-error">This claim link has expired. Please contact Admin.</div>
             ) : (
-              <button 
+              <button
                 className="claim-btn"
                 onClick={handleClaim}
                 disabled={status === 'connecting' || status === 'claiming'}

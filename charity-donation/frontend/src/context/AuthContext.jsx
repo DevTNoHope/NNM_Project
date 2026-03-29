@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
-import http, { setAccessToken } from "../api/http";
+import http, { setAccessToken } from "@/api/http";
 
 export const AuthContext = createContext({
   user: null,

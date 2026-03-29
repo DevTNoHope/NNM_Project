@@ -1,6 +1,6 @@
-import { publicClient, getWalletClient, ensureWalletReady } from "./wallet";
-import vaultAbi from "./abis/HopeFundVaultAbi.json";
-import erc20Abi from "./abis/ERC20Abi.json";
+import { publicClient, getWalletClient, ensureWalletReady } from "@/hooks/wallet/wallet";
+import vaultAbi from "@/hooks/contract/abis/HopeFundVaultAbi.json";
+import erc20Abi from "@/hooks/contract/abis/ERC20Abi.json";
 
 export async function approveUsdtMock({
   tokenAddress,
