@@ -172,7 +172,7 @@ npm run dev
 
 ## 🔒 API Documentation (Core Endpoints)
 
-Sensitive endpoints are protected with rate limiting. For the full list of all API endpoints and their specifications, please refer to the **[Full API Documentation](docs/API_DOCUMENTATION.md)**.
+Sensitive endpoints are protected with rate limiting:
 
 | Method | Endpoint | Description | Limit |
 |:---:|:---|:---|:---:|
