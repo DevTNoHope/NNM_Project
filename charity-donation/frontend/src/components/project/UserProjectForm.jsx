@@ -78,33 +78,18 @@ export default function UserProjectForm({
         </div>
       </div>
 
-      <div className="form-row-2">
-        <div className="form-group" style={{ marginBottom: 0 }}>
-          <label htmlFor="end_date" className="form-label">End Date *</label>
-          <input
-            id="end_date"
-            name="end_date"
-            type="date"
-            required
-            value={formData.end_date}
-            onChange={onChange}
-            className="form-input"
-          />
-        </div>
-
-        <div className="form-group" style={{ marginBottom: 0 }}>
-          <label htmlFor="coverImage" className="form-label">Cover Image</label>
-          <input
-            id="coverImage"
-            name="coverImage"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            onChange={onFileChange}
-            className="form-input"
-            style={{ padding: '8px' }}
-          />
-          <span style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>Max 5MB. JPG, PNG, WebP</span>
-        </div>
+      <div className="form-group">
+        <label htmlFor="coverImage" className="form-label">Cover Image</label>
+        <input
+          id="coverImage"
+          name="coverImage"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={onFileChange}
+          className="form-input"
+          style={{ padding: '8px' }}
+        />
+        <span style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>Max 5MB. JPG, PNG, WebP</span>
       </div>
 
       {/* Image Preview */}

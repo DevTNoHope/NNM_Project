@@ -256,10 +256,10 @@
 
 .donation-table {
   width: 100%;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border);
   border-radius: 16px;
   overflow: hidden;
-  background: #fff;
+  background: var(--color-surface);
 }
 
 .donation-head,
@@ -272,14 +272,14 @@
 }
 
 .donation-head {
-  background: #f8fafc;
+  background: var(--color-surface-hover);
   font-weight: 700;
-  color: #374151;
-  border-bottom: 1px solid #e5e7eb;
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .donation-row {
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .donation-row:last-child {
@@ -383,10 +383,10 @@
 
 .donation-table {
   width: 100%;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border);
   border-radius: 16px;
   overflow: hidden;
-  background: #fff;
+  background: var(--color-surface);
 }
 
 .donation-head,
@@ -399,14 +399,14 @@
 }
 
 .donation-head {
-  background: #f8fafc;
+  background: var(--color-surface-hover);
   font-weight: 700;
-  color: #374151;
-  border-bottom: 1px solid #e5e7eb;
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .donation-row {
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .donation-row:last-child {
@@ -455,10 +455,10 @@
 
 .donation-table {
   width: 100%;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border);
   border-radius: 16px;
   overflow: hidden;
-  background: #fff;
+  background: var(--color-surface);
 }
 
 .donation-head,
@@ -471,14 +471,14 @@
 }
 
 .donation-head {
-  background: #f8fafc;
+  background: var(--color-surface-hover);
   font-weight: 700;
-  color: #374151;
-  border-bottom: 1px solid #e5e7eb;
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .donation-row {
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .donation-row:last-child {

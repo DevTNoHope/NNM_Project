@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import NotFoundPage from "../../NotFound/NotFoundPage";
 import { useAuth } from "../../../context/AuthContext";
 import {
   getProjectById,
@@ -12,6 +13,7 @@ import Spinner from "../../../components/common/Spinner";
 import CampaignProgressStat from "../../../components/project/FounderDashboard/CampaignProgressStat";
 import RecentDonationsTable from "../../../components/project/FounderDashboard/RecentDonationsTable";
 import PostUpdateForm from "../../../components/project/FounderDashboard/PostUpdateForm";
+import { alertSuccess, alertError } from "../../../utils/alert";
 import TimelineHistory from "../../../components/project/FounderDashboard/TimelineHistory";
 import WithdrawalModal from "../../../components/project/FounderDashboard/WithdrawalModal";
 import withdrawApi from "../../../api/withdraw.api";
@@ -27,6 +29,7 @@ export default function FounderProjectDashboard() {
   const [updates, setUpdates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [notFound, setNotFound] = useState(false);
   const [withdrawals, setWithdrawals] = useState([]);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
@@ -49,8 +52,13 @@ export default function FounderProjectDashboard() {
         if (mounted) {
           const p = projRes.data?.data;
           // Security check: Only founder can view this dashboard
-          if (p.founder_id !== user?.id) {
-            navigate("/my-projects");
+          if (!p || p.founder_id !== user?.id) {
+            setNotFound(true);
+            return;
+          }
+          // Only allow managing PUBLISHED or APPROVED projects
+          if (!['PUBLISHED', 'APPROVED'].includes(p.status)) {
+            setNotFound(true);
             return;
           }
           setProject(p);
@@ -63,6 +71,11 @@ export default function FounderProjectDashboard() {
         }
       } catch (err) {
         if (mounted) {
+          // 403 (Forbidden) or 404 → show not found
+          if (err.response?.status === 403 || err.response?.status === 404) {
+            setNotFound(true);
+            return;
+          }
           setError(err.response?.data?.message || "Failed to load dashboard data.");
         }
       } finally {
@@ -95,9 +108,9 @@ export default function FounderProjectDashboard() {
       const updRes = await getProjectUpdates(id);
       setUpdates(updRes.data?.data || []);
       setNewUpdate({ title: "", content: "", imageFile: null, imagePreview: "" });
-      alert("Update posted successfully!");
+      alertSuccess('Posted!', 'Update posted successfully!');
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to post update.");
+      alertError('Error', err.response?.data?.message || 'Failed to post update.');
     } finally {
       setSubmittingUpdate(false);
     }
@@ -114,6 +127,7 @@ export default function FounderProjectDashboard() {
   };
 
   if (loading) return <Spinner center size="lg" />;
+  if (notFound) return <NotFoundPage />;
   if (error) return <div className="p-8 text-center text-red-600">{error}</div>;
   if (!project) return null;
 

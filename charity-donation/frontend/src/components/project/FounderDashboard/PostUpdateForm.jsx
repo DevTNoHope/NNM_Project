@@ -1,5 +1,6 @@
 import React from "react";
 import Button from "../../common/Button";
+import { alertWarning } from "../../../utils/alert";
 import "./PostUpdateForm.css";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import {
@@ -20,7 +21,7 @@ export default function PostUpdateForm({ newUpdate, setNewUpdate, onSubmit, subm
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert("Image must be less than 5MB");
+        alertWarning('File Too Large', 'Image must be less than 5MB');
         return;
       }
       setNewUpdate({

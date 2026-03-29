@@ -42,7 +42,7 @@
 }
 
 .hope-theme .admin-sidebar.collapsed .admin-user-card-bottom {
-  padding: 1.5rem 0;
+  padding: 0.75rem 0;
   justify-content: center;
 }
 
@@ -339,7 +339,7 @@
 /* Action Buttons for tables */
 .btn-action {
   padding: 6px 14px;
-  border-radius: 6px;
+  border-radius: 20px;
   font-weight: 600;
   font-size: 0.8rem;
   border: none;
@@ -348,6 +348,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-action:hover {
+  transform: translateY(-1px);
 }
 
 .btn-action.bg-success {
@@ -591,4 +596,52 @@
   width: 50px;
   height: 50px;
   object-fit: contain;
+}
+
+/* Sidebar bottom section */
+.sidebar-bottom {
+  margin-top: auto;
+  border-top: 1px solid #eee;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Sidebar toggle button */
+.sidebar-toggle-btn {
+  background: transparent;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  width: 100%;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #9CA3AF;
+  transition: all 0.2s ease;
+  font-size: 0.8rem;
+  font-family: inherit;
+}
+
+.sidebar-toggle-btn:hover {
+  background: #F3F4F6;
+  color: #374151;
+  border-color: #D1D5DB;
+}
+
+.hope-theme .admin-sidebar.collapsed .sidebar-bottom {
+  padding: 0.75rem 0.5rem;
+}
+
+.hope-theme .admin-sidebar.collapsed .sidebar-toggle-btn {
+  width: 36px;
+  margin: 0 auto;
+}
+
+.hope-theme .admin-sidebar.collapsed .admin-user-card-bottom {
+  padding: 0.75rem 0;
+  justify-content: center;
 }

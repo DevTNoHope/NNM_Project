@@ -36,10 +36,10 @@
 
 /* Table Styles */
 .user-projects-table-wrapper {
-  background: white;
+  background: var(--color-surface);
   border-radius: 1rem;
   border: 1px solid var(--color-border);
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+  box-shadow: var(--shadow-sm);
   overflow-x: auto;
 }
 
@@ -50,11 +50,11 @@
 }
 
 .user-projects-table th {
-  background-color: #f9fafb;
+  background-color: var(--color-surface-hover);
   padding: 1rem 1.25rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-text-light);
+  color: var(--color-text-secondary);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -70,7 +70,7 @@
 }
 
 .user-projects-table tbody tr:hover {
-  background-color: #f9fafb;
+  background-color: var(--color-surface-hover);
 }
 
 .action-buttons {
@@ -112,11 +112,11 @@
 
 /* Form Styles */
 .user-projects-form {
-  background: white;
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 1rem;
   padding: 2rem;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+  box-shadow: var(--shadow-sm);
 }
 
 .form-group {

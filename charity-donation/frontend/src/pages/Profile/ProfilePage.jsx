@@ -16,6 +16,7 @@ import {
   getUserBadgeProgress
 } from "../../api/userApi";
 import ProjectCard from "../../components/ProjectCard";
+import { alertSuccess, alertError, alertInfo, alertWarning } from "../../utils/alert";
 import "./ProfilePage.css";
 import { Link } from "react-router-dom";
 
@@ -113,10 +114,10 @@ export default function ProfilePage({ isMe = false }) {
       setSendingOtp(true);
       await sendVerificationOtp();
       setOtpOpen(true);
-      alert("Verification code sent to your email.");
+      alertInfo("OTP Sent", "Verification code sent to your email.");
     } catch (err) {
       console.error(err);
-      alert(err?.response?.data?.message || "Failed to send OTP");
+      alertError("Error", err?.response?.data?.message || "Failed to send OTP");
     } finally {
       setSendingOtp(false);
     }
@@ -128,10 +129,10 @@ export default function ProfilePage({ isMe = false }) {
       const [meRes, badgesRes] = await Promise.all([getMyProfile(), getMyBadges()]);
       setProfile(meRes.data);
       setBadgesData(badgesRes.data);
-      alert("Display badge updated!");
+      alertSuccess("Updated!", "Display badge updated!");
     } catch (err) {
       console.error(err);
-      alert("Failed to update badge");
+      alertError("Error", "Failed to update badge");
     }
   };
 
@@ -147,10 +148,10 @@ export default function ProfilePage({ isMe = false }) {
 
       setOtp("");
       setOtpOpen(false);
-      alert("Account verified successfully.");
+      alertSuccess("Verified!", "Account verified successfully.");
     } catch (err) {
       console.error(err);
-      alert(err?.response?.data?.message || "OTP verification failed");
+      alertError("Error", err?.response?.data?.message || "OTP verification failed");
     } finally {
       setVerifyingOtp(false);
     }
@@ -168,17 +169,17 @@ export default function ProfilePage({ isMe = false }) {
       }));
 
       setEditOpen(false);
-      alert("Profile updated successfully.");
+      alertSuccess("Updated!", "Profile updated successfully.");
     } catch (err) {
       console.error(err);
-      alert(err?.response?.data?.message || "Profile update failed");
+      alertError("Error", err?.response?.data?.message || "Profile update failed");
     }
   };
 
   const handleLinkWallet = async () => {
     try {
       if (!window.ethereum) {
-        alert("MetaMask wallet not found");
+        alertWarning("Not Found", "MetaMask wallet not found");
         return;
       }
 
@@ -195,7 +196,7 @@ export default function ProfilePage({ isMe = false }) {
       });
     } catch (err) {
       console.error(err);
-      alert("Failed to link wallet");
+      alertError("Error", "Failed to link wallet");
     }
   };
 
@@ -215,7 +216,7 @@ export default function ProfilePage({ isMe = false }) {
       setGoogleEmail("");
     } catch (err) {
       console.error(err);
-      alert("Failed to link email");
+      alertError("Error", "Failed to link email");
     }
   };
 
@@ -478,7 +479,7 @@ export default function ProfilePage({ isMe = false }) {
                              >
                                 <span className="dp-check-hz">✓</span>
                              </div>
-                             <div className="dp-marker-label-hz" style={{ marginTop: isCurrentBadge ? '24px' : '16px' }}>
+                             <div className="dp-marker-label-hz" style={{ top: isCurrentBadge ? '56px' : '48px' }}>
                                <div className="dp-marker-icon-small">
                                   {/* Small placeholder ribbon icon */}
                                   <svg width="24" height="24" viewBox="0 0 24 24" fill={b.color || '#10b981'} xmlns="http://www.w3.org/2000/svg">
@@ -737,12 +738,20 @@ function EditProfileModal({ profile, onClose, onSubmit }) {
 
           <div className="form-group">
             <label>Email</label>
-            <input value={profile?.email || ""} disabled />
+            <input 
+              value={profile?.email || ""} 
+              disabled 
+              style={{ backgroundColor: '#f3f4f6', cursor: 'not-allowed', color: '#6b7280', border: '1px solid #e5e7eb' }} 
+            />
           </div>
 
           <div className="form-group">
             <label>Wallet</label>
-            <input value={profile?.linked_wallet || ""} disabled />
+            <input 
+              value={profile?.linked_wallet || ""} 
+              disabled 
+              style={{ backgroundColor: '#f3f4f6', cursor: 'not-allowed', color: '#6b7280', border: '1px solid #e5e7eb' }} 
+            />
           </div>
 
           <div className="modal-actions">

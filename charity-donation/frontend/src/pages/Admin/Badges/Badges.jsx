@@ -2,6 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import { HexColorPicker } from "react-colorful";
 import { Table, Input, Button as AntDButton, Space } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
+import Button from "../../../components/common/Button";
+import { alertConfirm } from "../../../utils/alert";
 
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
@@ -124,20 +126,15 @@ const Badges = () => {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
-        <div className="text-right">
-          <button
-            className="btn-action bg-primary"
-            onClick={() => handleEdit(record)}
-            style={{ marginRight: '8px' }}
-          >
-            Edit
-          </button>
-          <button
-            className="btn-action bg-danger"
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+          <Button size="sm" variant="primary" onClick={() => handleEdit(record)}>Edit</Button>
+          <Button
+            size="sm"
             onClick={() => handleDelete(record.id)}
-          >
-            Delete
-          </button>
+            style={{ backgroundColor: '#ef4444', color: 'white', border: 'none' }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#dc2626'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#ef4444'}
+          >Delete</Button>
         </div>
       ),
     },
@@ -217,7 +214,13 @@ const Badges = () => {
 
   // ================= DELETE =================
   const handleDelete = async (id) => {
-    if (!confirm("Bạn có chắc muốn xóa badge này?")) return;
+    const confirmed = await alertConfirm({
+      title: 'Delete Badge',
+      text: 'Bạn có chắc muốn xóa badge này?',
+      confirmText: 'Yes, Delete',
+      isDanger: true,
+    });
+    if (!confirmed) return;
 
     try {
       const token = localStorage.getItem("accessToken");
@@ -274,9 +277,9 @@ const Badges = () => {
       {/* HEADER */}
       <div className="admin-card-header">
         <span>🏅 Badge Management</span>
-        <button className="btn-core btn-primary" onClick={openModal}>
+        <Button variant="primary" size="sm" onClick={openModal}>
           + Add Badge
-        </button>
+        </Button>
       </div>
 
       {/* BODY */}
@@ -374,6 +377,13 @@ const Badges = () => {
                 onChange={(e) =>
                   setForm({ ...form, min_points: e.target.value })
                 }
+                style={{
+                  padding: "10px",
+                  fontSize: "1.2rem",
+                  border: "2px solid #d9d2e0ff",
+                  borderRadius: "5px",
+                  width: "100%",
+                }}
               />
 
               <label>Color</label>
@@ -400,17 +410,18 @@ const Badges = () => {
             </div>
 
             <div className="modal-footer-modern">
-              <button className="btn-core btn-danger" onClick={closeModal}>
+              <Button variant="outline" size="sm" onClick={closeModal}>
                 Cancel
-              </button>
+              </Button>
 
-              <button
-                className="btn-core btn-primary"
+              <Button
+                variant="primary"
+                size="sm"
                 onClick={handleSubmit}
                 disabled={!!nameError}
               >
                 {editing ? "Update" : "Create"}
-              </button>
+              </Button>
             </div>
 
           </div>

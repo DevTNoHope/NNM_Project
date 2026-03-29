@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Table, Input, Button as AntDButton, Space, Modal, message, Tag } from "antd";
-import { SearchOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
+import { Table, Input, Button as AntDButton, Space, Tag, Modal } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import Button from "../../../components/common/Button";
+import { alertSuccess, alertError, alertWarning, alertConfirm } from "../../../utils/alert";
 import http from "../../../api/http";
 
 const AdminCategories = () => {
@@ -33,7 +35,7 @@ const AdminCategories = () => {
       }
     } catch (error) {
       console.error("Error fetching categories:", error);
-      message.error("Failed to fetch categories.");
+      alertError("Error", "Failed to fetch categories.");
     } finally {
       setLoading(false);
     }
@@ -55,28 +57,26 @@ const AdminCategories = () => {
     setModalOpen(true);
   };
 
-  const handleDelete = (id) => {
-    Modal.confirm({
-      title: "Are you sure you want to delete this category?",
-      content: "This action cannot be undone.",
-      okText: "Yes, Delete",
-      okType: "danger",
-      cancelText: "Cancel",
-      onOk: async () => {
-        try {
-          const res = await http.delete(`/categories/${id}`);
-          if (res.data.success) {
-            message.success("Category deleted successfully.");
-            fetchCategories();
-          } else {
-            message.error("Delete failed: " + res.data.message);
-          }
-        } catch (error) {
-          console.error(error);
-          message.error("Network error on delete.");
-        }
-      }
+  const handleDelete = async (id) => {
+    const confirmed = await alertConfirm({
+      title: "Are you sure?",
+      text: "This action cannot be undone.",
+      confirmText: "Yes, Delete",
+      isDanger: true,
     });
+    if (!confirmed) return;
+    try {
+      const res = await http.delete(`/categories/${id}`);
+      if (res.data.success) {
+        alertSuccess("Deleted!", "Category deleted successfully.");
+        fetchCategories();
+      } else {
+        alertError("Error", "Delete failed: " + res.data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      alertError("Error", "Network error on delete.");
+    }
   };
 
   const openProjectsModal = async (cat) => {
@@ -91,7 +91,7 @@ const AdminCategories = () => {
       }
     } catch (error) {
       console.error("Error fetching category projects:", error);
-      message.error("Failed to load projects.");
+      alertError("Error", "Failed to load projects.");
     } finally {
       setProjectsLoading(false);
     }
@@ -99,7 +99,7 @@ const AdminCategories = () => {
 
   const handleSubmit = async () => {
     if (!catName.trim()) {
-      message.warning("Category name cannot be empty!");
+      alertWarning("Warning", "Category name cannot be empty!");
       return;
     }
 
@@ -112,14 +112,14 @@ const AdminCategories = () => {
       }
 
       if (res.data.success) {
-        message.success(editingCat ? "Category updated." : "Category created.");
+        alertSuccess("Success!", editingCat ? "Category updated." : "Category created.");
         setModalOpen(false);
         fetchCategories();
       } else {
-        message.error("Error: " + res.data.message);
+        alertError("Error", res.data.message);
       }
     } catch (error) {
-      message.error("Server connection error.");
+      alertError("Error", "Server connection error.");
       console.error(error);
     }
   };
@@ -216,32 +216,17 @@ const AdminCategories = () => {
       key: "action",
       align: "right",
       render: (_, record) => (
-        <Space>
-          <AntDButton 
-            type="default" 
-            size="small" 
-            icon={<EyeOutlined />} 
-            onClick={() => openProjectsModal(record)}
-          >
-            Projects
-          </AntDButton>
-          <AntDButton 
-            type="primary" 
-            size="small" 
-            icon={<EditOutlined />} 
-            onClick={() => openEditModal(record)}
-          >
-            Edit
-          </AntDButton>
-          <AntDButton 
-            danger 
-            size="small" 
-            icon={<DeleteOutlined />} 
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+          <Button size="sm" variant="outline" onClick={() => openProjectsModal(record)}>Projects</Button>
+          <Button size="sm" variant="primary" onClick={() => openEditModal(record)}>Edit</Button>
+          <Button
+            size="sm"
             onClick={() => handleDelete(record.id)}
-          >
-            Delete
-          </AntDButton>
-        </Space>
+            style={{ backgroundColor: '#ef4444', color: 'white', border: 'none' }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#dc2626'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#ef4444'}
+          >Delete</Button>
+        </div>
       ),
     },
   ];
@@ -296,9 +281,9 @@ const AdminCategories = () => {
       <div className="admin-card">
         <div className="admin-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>Category Management</span>
-          <AntDButton type="primary" onClick={openCreateModal}>
+          <Button variant="primary" size="sm" onClick={openCreateModal}>
             + Add New
-          </AntDButton>
+          </Button>
         </div>
         <div className="admin-card-body p-0">
           <div style={{ padding: '1.5rem' }}>
