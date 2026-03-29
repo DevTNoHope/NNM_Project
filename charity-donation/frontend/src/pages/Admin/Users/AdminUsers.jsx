@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Table, Input, Button as AntDButton, Space, Modal, Tag, Card, Row, Col, Statistic, message } from "antd";
-import { SearchOutlined, HistoryOutlined, DownloadOutlined, UserOutlined, ClockCircleOutlined, DollarOutlined } from "@ant-design/icons";
+import { Table, Input, Button as AntDButton, Space, Modal, Tag, Card, Row, Col, Statistic } from "antd";
+import { SearchOutlined, HistoryOutlined, DownloadOutlined, ClockCircleOutlined, DollarOutlined } from "@ant-design/icons";
+import Button from "../../../components/common/Button";
+import { alertError } from "../../../utils/alert";
 import http from "../../../api/http";
 
 const AdminUsers = () => {
@@ -28,7 +30,7 @@ const AdminUsers = () => {
       }
     } catch (error) {
       console.error("Error fetching users:", error);
-      message.error("Failed to fetch users.");
+      alertError("Error", "Failed to fetch users.");
     } finally {
       setLoading(false);
     }
@@ -51,7 +53,7 @@ const AdminUsers = () => {
       }
     } catch (error) {
       console.error("Error fetching user history:", error);
-      message.error("Failed to fetch user history.");
+      alertError("Error", "Failed to fetch user history.");
     } finally {
       setHistoryLoading(false);
     }
@@ -182,14 +184,13 @@ const AdminUsers = () => {
       key: "action",
       align: "right",
       render: (_, record) => (
-        <AntDButton 
-          type="primary" 
-          size="small"
-          icon={<HistoryOutlined />}
+        <Button 
+          variant="outline"
+          size="sm"
           onClick={() => openHistoryModal(record)}
         >
           History
-        </AntDButton>
+        </Button>
       ),
     },
   ];

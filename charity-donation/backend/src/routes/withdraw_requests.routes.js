@@ -2,17 +2,18 @@ const express = require("express");
 const router = express.Router();
 const withdrawRequestsController = require("../controllers/withdraw_requests.controller");
 const authJwt = require("../middleware/authJwt");
+const requireRole = require("../middleware/requireRole");
 
-// Public/Verification routes (no auth required for verify via token)
+// Public (email verification link)
 router.get("/verify", withdrawRequestsController.verify);
 
-// Protected routes
-router.use(authJwt);
+// Founder & Admin
+router.get("/", authJwt, requireRole("FOUNDER", "ADMIN"), withdrawRequestsController.getAll);
+router.get("/balance", authJwt, requireRole("FOUNDER", "ADMIN"), withdrawRequestsController.getBalance);
+router.get("/:id", authJwt, requireRole("FOUNDER", "ADMIN"), withdrawRequestsController.getById);
 
-router.get("/", withdrawRequestsController.getAll);
-router.get("/balance", withdrawRequestsController.getBalance);
-router.post("/", withdrawRequestsController.create);
-router.post("/claim", withdrawRequestsController.submitClaimTxHash);
-router.get("/:id", withdrawRequestsController.getById);
+// Founder only
+router.post("/", authJwt, requireRole("FOUNDER"), withdrawRequestsController.create);
+router.post("/claim", authJwt, requireRole("FOUNDER"), withdrawRequestsController.submitClaimTxHash);
 
 module.exports = router;

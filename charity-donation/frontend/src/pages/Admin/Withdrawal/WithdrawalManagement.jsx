@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Table, Space, Tag, Input, Button as AntDButton, message, Modal } from 'antd';
-import { SearchOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { Table, Space, Tag, Input, Button as AntDButton } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
+import Button from '../../../components/common/Button';
+import { alertSuccess, alertError, alertConfirm } from '../../../utils/alert';
 import withdrawApi from '../../../api/withdraw.api';
 import Spinner from '../../../components/common/Spinner';
 import './WithdrawalManagement.css';
@@ -25,7 +27,7 @@ const WithdrawalManagement = () => {
       setRequests(all.filter(r => r.status === 'PENDING'));
     } catch (err) {
       setError('Failed to fetch withdrawal requests');
-      message.error("Failed to fetch withdrawal requests");
+      alertError('Error', 'Failed to fetch withdrawal requests');
     } finally {
       setLoading(false);
     }
@@ -35,47 +37,43 @@ const WithdrawalManagement = () => {
     fetchRequests();
   }, []);
 
-  const handleApprove = (request) => {
-    Modal.confirm({
-      title: "Approve Withdrawal Request",
-      content: `Are you sure you want to approve this request for $${Number(request.amount).toLocaleString()}?`,
-      okText: "Approve",
-      cancelText: "Cancel",
-      onOk: async () => {
-        setActionLoading(request.id);
-        try {
-          await withdrawApi.approveRequest({ withdrawRequestId: request.id });
-          message.success("Withdrawal approved successfully!");
-          fetchRequests();
-        } catch (err) {
-          message.error(err.response?.data?.message || "Error during approval");
-        } finally {
-          setActionLoading(null);
-        }
-      }
+  const handleApprove = async (request) => {
+    const confirmed = await alertConfirm({
+      title: 'Approve Withdrawal Request',
+      text: `Are you sure you want to approve this request for $${Number(request.amount).toLocaleString()}?`,
+      confirmText: 'Approve',
     });
+    if (!confirmed) return;
+    setActionLoading(request.id);
+    try {
+      await withdrawApi.approveRequest({ withdrawRequestId: request.id });
+      alertSuccess('Approved!', 'Withdrawal approved successfully!');
+      fetchRequests();
+    } catch (err) {
+      alertError('Error', err.response?.data?.message || 'Error during approval');
+    } finally {
+      setActionLoading(null);
+    }
   };
 
-  const handleReject = (request) => {
-    Modal.confirm({
-      title: "Reject Withdrawal Request",
-      content: "Are you sure you want to reject this request?",
-      okText: "Reject",
-      okType: "danger",
-      cancelText: "Cancel",
-      onOk: async () => {
-        setActionLoading(request.id);
-        try {
-          await withdrawApi.rejectRequest({ withdrawRequestId: request.id });
-          message.success("Request rejected!");
-          fetchRequests();
-        } catch (err) {
-          message.error(err.response?.data?.message || "Error during rejection");
-        } finally {
-          setActionLoading(null);
-        }
-      }
+  const handleReject = async (request) => {
+    const confirmed = await alertConfirm({
+      title: 'Reject Withdrawal Request',
+      text: 'Are you sure you want to reject this request?',
+      confirmText: 'Reject',
+      isDanger: true,
     });
+    if (!confirmed) return;
+    setActionLoading(request.id);
+    try {
+      await withdrawApi.rejectRequest({ withdrawRequestId: request.id });
+      alertSuccess('Rejected!', 'Request rejected!');
+      fetchRequests();
+    } catch (err) {
+      alertError('Error', err.response?.data?.message || 'Error during rejection');
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
@@ -209,26 +207,27 @@ const WithdrawalManagement = () => {
       key: "action",
       align: "right",
       render: (_, record) => (
-        <Space>
-          <AntDButton
-            type="primary"
-            size="small"
-            icon={<CheckCircleOutlined />}
+        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+          <Button
+            size="sm"
+            variant="primary"
             onClick={() => handleApprove(record)}
-            loading={actionLoading === record.id}
+            disabled={actionLoading === record.id}
+            style={{ backgroundColor: '#10B981', boxShadow: 'none' }}
           >
-            Approve
-          </AntDButton>
-          <AntDButton
-            danger
-            size="small"
-            icon={<CloseCircleOutlined />}
+            {actionLoading === record.id ? '...' : 'Approve'}
+          </Button>
+          <Button
+            size="sm"
             onClick={() => handleReject(record)}
-            loading={actionLoading === record.id}
+            disabled={actionLoading === record.id}
+            style={{ backgroundColor: '#ef4444', color: 'white', border: 'none' }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#dc2626'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#ef4444'}
           >
-            Reject
-          </AntDButton>
-        </Space>
+            {actionLoading === record.id ? '...' : 'Reject'}
+          </Button>
+        </div>
       ),
     },
   ];

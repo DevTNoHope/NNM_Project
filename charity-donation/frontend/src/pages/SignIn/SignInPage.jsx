@@ -7,6 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 import useWalletAuth from "../../hook/wallet/useWalletAuth";
 import { FcGoogle } from "react-icons/fc";
 import { CiWallet } from "react-icons/ci";
+import { alertError } from "../../utils/alert";
 import "./SignInPage.css";
 
 const SignInPage = () => {
@@ -67,7 +68,7 @@ const SignInPage = () => {
       navigate("/");
     } catch (error) {
       console.error("Google login failed:", error);
-      alert(error.message || "Google login failed");
+      alertError("Login Failed", error.message || "Google login failed");
     } finally {
       setGoogleLoading(false);
     }
@@ -79,7 +80,7 @@ const SignInPage = () => {
     ux_mode: "popup",
     onSuccess: handleGoogleSuccess,
     onError: () => {
-      alert("Google login failed");
+      alertError("Login Failed", "Google login failed");
     },
   });
 
@@ -89,7 +90,7 @@ const SignInPage = () => {
       navigate("/");
     } catch (error) {
       console.error("Wallet login failed:", error);
-      alert(error.message || "Wallet login failed");
+      alertError("Login Failed", error.message || "Wallet login failed");
     }
   };
 

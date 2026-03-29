@@ -7,6 +7,7 @@ import Spinner from "../../components/common/Spinner";
 import EmptyState from "../../components/common/EmptyState";
 import UserProjectsTable from "../../components/project/UserProjectsTable";
 import ProjectDetailsModal from "../../components/project/ProjectDetailsModal";
+import { alertSuccess, alertError, alertConfirm } from "../../utils/alert";
 import "./UserProjects.css";
 
 
@@ -37,23 +38,34 @@ export default function UserProjectsPage() {
   }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this draft?")) return;
+    const confirmed = await alertConfirm({
+      title: 'Delete Draft',
+      text: 'Are you sure you want to delete this draft?',
+      confirmText: 'Yes, Delete',
+      isDanger: true,
+    });
+    if (!confirmed) return;
     try {
       await deleteMyProject(id);
       fetchProjects();
     } catch (err) {
-      alert(err.response?.data?.message || "Delete failed.");
+      alertError('Error', err.response?.data?.message || 'Delete failed.');
     }
   };
 
   const handleSubmit = async (id) => {
-    if (!window.confirm("Submit this project for admin review? (You cannot edit it while pending)")) return;
+    const confirmed = await alertConfirm({
+      title: 'Submit Project',
+      text: 'Submit this project for admin review? (You cannot edit it while pending)',
+      confirmText: 'Submit',
+    });
+    if (!confirmed) return;
     try {
       await submitProjectForReview(id);
       fetchProjects();
-      alert("Project submitted successfully!");
+      alertSuccess('Submitted!', 'Project submitted successfully!');
     } catch (err) {
-      alert(err.response?.data?.message || "Submit failed.");
+      alertError('Error', err.response?.data?.message || 'Submit failed.');
     }
   };
 

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { Table, Input, Button as AntDButton, Space, Tag, Select } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import ProjectDetailModal from "../../../components/ProjectDetailModal/ProjectDetailModal";
+import Button from "../../../components/common/Button";
+import { alertError } from "../../../utils/alert";
 import http from "../../../api/http";
 import "./PendingProjects.css";
 
@@ -38,7 +40,7 @@ const PendingProjects = () => {
       const res = await http.get("/admin/projects");
       const data = res.data;
       if (data.success) {
-        setProjects(data.data);
+        setProjects(data.data.filter(p => p.status !== 'DRAFT'));
       }
     } catch (error) {
       console.error("Error fetching project list:", error);
@@ -68,10 +70,10 @@ const PendingProjects = () => {
         setModalOpen(false);
         fetchProjects();
       } else {
-        alert("Error occurred: " + data.message);
+        alertError("Error", data.message);
       }
     } catch (error) {
-      alert("Server connection error.");
+      alertError("Error", "Server connection error.");
       console.error(error);
     }
   };
@@ -170,14 +172,13 @@ const PendingProjects = () => {
       key: "action",
       align: "right",
       render: (_, record) => (
-        <AntDButton 
-          type="primary" 
-          shape="round" 
-          size="small"
+        <Button 
+          variant="outline"
+          size="sm"
           onClick={() => openDetailModal(record)}
         >
           Details
-        </AntDButton>
+        </Button>
       ),
     },
   ];

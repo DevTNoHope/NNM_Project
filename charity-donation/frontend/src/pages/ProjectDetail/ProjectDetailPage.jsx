@@ -16,6 +16,7 @@ import Button from "../../components/common/Button";
 import Spinner from "../../components/common/Spinner";
 import EmptyState from "../../components/common/EmptyState";
 import { runCelebration } from "../../utils/celebration";
+import NotFoundPage from "../NotFound/NotFoundPage";
 import "./ProjectDetailPage.css";
 
 const TABS = ["Overview", "Updates", "Donations"];
@@ -84,9 +85,15 @@ const ProjectDetailPage = () => {
           getDonationsByProjectId(slug),
         ]);
 
-        const currentProject = projectRes?.data?.data || null;
+        const rawProject = projectRes?.data?.data || null;
         const allProjects = allProjectsRes?.data?.data || [];
         const fetchedUpdates = updatesRes?.data?.data || [];
+
+        // Only allow viewing PUBLISHED or ARCHIVED projects
+        const currentProject =
+          rawProject && ["PUBLISHED", "ARCHIVED"].includes(rawProject.status)
+            ? rawProject
+            : null;
 
         if (currentProject) {
           currentProject.updates = fetchedUpdates;
@@ -201,13 +208,7 @@ const ProjectDetailPage = () => {
   if (loading) return <Spinner center size="lg" />;
 
   if (!mappedProject) {
-    return (
-      <EmptyState
-        title="Project not found"
-        action="Browse Projects"
-        actionPath="/projects"
-      />
-    );
+    return <NotFoundPage />;
   }
 
   const progress = calcProgress(mappedProject.raised, mappedProject.goal);

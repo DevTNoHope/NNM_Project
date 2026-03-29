@@ -25,12 +25,12 @@ async function getWithdrawRequestById(id) {
 async function getAvailableBalance(projectId, type) {
   // Map withdraw type → donation type
   // withdraw_requests.type: 'CRYPTO' | 'BANKING'
-  // donations.donation_type: 'CRYPTO' | 'VNPAY'
-  const donationType = type === 'BANKING' ? 'VNPAY' : 'CRYPTO';
+  // donations.donation_type: 'CRYPTO' | 'BANKING'
+  const donationType = type ;
 
   const totalDonations = await donationsModel.getSumByProjectAndType(projectId, donationType);
 
-  // BANKING (VNPay): APPROVED = admin đã chuyển tiền → final
+  // BANKING (BANKING): APPROVED = admin đã chuyển tiền → final
   // CRYPTO: APPROVED = admin duyệt (reserve) + CLAIMED = founder đã claim on-chain → final
   // Cả hai đều trừ PENDING + PENDING_EMAIL để lock balance tránh request vượt
   let statuses;

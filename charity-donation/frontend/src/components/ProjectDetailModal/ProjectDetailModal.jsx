@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import http from "../../api/http";
+import Button from "../common/Button";
+import { alertConfirm, alertError } from "../../utils/alert";
 
 const ProjectDetailModal = ({ project, onClose, onApprove, onReject, onVaultCreated }) => {
   const [note, setNote] = useState("");
@@ -23,7 +25,12 @@ const ProjectDetailModal = ({ project, onClose, onApprove, onReject, onVaultCrea
   const percent = goal > 0 ? Math.min(Math.round((donated / goal) * 100), 100) : 0;
 
   const handleCreateVault = async () => {
-    if (!window.confirm("Deploy vault on-chain and publish this project?")) return;
+    const confirmed = await alertConfirm({
+      title: 'Deploy Vault',
+      text: 'Deploy vault on-chain and publish this project?',
+      confirmText: 'Deploy',
+    });
+    if (!confirmed) return;
 
     setCreatingVault(true);
     try {
@@ -33,7 +40,7 @@ const ProjectDetailModal = ({ project, onClose, onApprove, onReject, onVaultCrea
         setVaultResult(res.data.data);
       }
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to create vault");
+      alertError("Error", err.response?.data?.message || "Failed to create vault");
     } finally {
       setCreatingVault(false);
     }
@@ -126,9 +133,11 @@ const ProjectDetailModal = ({ project, onClose, onApprove, onReject, onVaultCrea
 
           <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#374151', marginBottom: '8px' }}>Description:</div>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: '#4B5563', lineHeight: 1.6, background: '#F9FAFB', padding: '1rem', borderRadius: '8px', border: '1px solid #F3F4F6' }}>
-               {project.description || "No description provided."}
-            </p>
+            <div 
+              className="ck-content"
+              style={{ margin: 0, fontSize: '0.9rem', color: '#4B5563', lineHeight: 1.6, background: '#F9FAFB', padding: '1rem', borderRadius: '8px', border: '1px solid #F3F4F6' }}
+              dangerouslySetInnerHTML={{ __html: project.description || "No description provided." }}
+            />
           </div>
 
           {/* PENDING: Approve/Reject note */}
@@ -156,14 +165,15 @@ const ProjectDetailModal = ({ project, onClose, onApprove, onReject, onVaultCrea
               <p style={{ fontSize: '0.85rem', color: '#4B5563', marginBottom: '12px' }}>
                 This will upload project metadata to IPFS (Pinata) and deploy a new HopeFundVault contract on BSC Testnet via the Factory contract. The project will be set to PUBLISHED.
               </p>
-              <button
+              <Button
+                variant="primary"
+                size="sm"
                 onClick={handleCreateVault}
                 disabled={creatingVault}
-                className="btn-core btn-success"
-                style={{ minWidth: '180px', fontSize: '0.95rem', padding: '10px 24px' }}
+                style={{ minWidth: '180px', fontSize: '0.95rem', padding: '10px 24px', backgroundColor: '#10B981', boxShadow: 'none' }}
               >
                 {creatingVault ? "⏳ Deploying on-chain..." : "🚀 Create Vault"}
-              </button>
+              </Button>
             </div>
           )}
 
@@ -197,35 +207,36 @@ const ProjectDetailModal = ({ project, onClose, onApprove, onReject, onVaultCrea
                   <span style={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>{vaultResult.metaHash}</span>
                 </p>
               </div>
-              <button
+              <Button
+                variant="primary"
+                size="sm"
                 onClick={() => { if (onVaultCreated) onVaultCreated(); }}
-                className="btn-core btn-success"
-                style={{ marginTop: '12px' }}
+                style={{ marginTop: '12px', backgroundColor: '#10B981', boxShadow: 'none' }}
               >
                 Done
-              </button>
+              </Button>
             </div>
           )}
         </div>
 
         <div className="modal-footer-modern">
-          <button className="btn-core" style={{ background: 'transparent', color: '#6B7280', border: '1px solid #D1D5DB' }} onClick={onClose}>Close</button>
+          <Button variant="outline" size="sm" onClick={onClose}>Close</Button>
           
           {project.status === 'PENDING' && (
             <>
-              <button 
-                className="btn-core btn-danger"
-                style={{ background: '#FEE2E2', color: '#DC2626' }}
+              <Button
+                size="sm"
                 onClick={() => onReject(project.id, note)}
-              >
-                Reject
-              </button>
-              <button 
-                className="btn-core btn-success"
+                style={{ backgroundColor: '#ef4444', color: 'white', border: 'none' }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#dc2626'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#ef4444'}
+              >Reject</Button>
+              <Button
+                size="sm"
+                variant="primary"
                 onClick={() => onApprove(project.id, note)}
-              >
-                Approve
-              </button>
+                style={{ backgroundColor: '#10B981', boxShadow: 'none' }}
+              >Approve</Button>
             </>
           )}
         </div>
