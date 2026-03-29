@@ -1,359 +1,195 @@
-🎗 Charity Donation Platform
+<div align="center">
+  <img src="frontend/public/hopefund-logo.png" alt="HopeFund Logo" width="200" />
 
-Nền tảng quyên góp thiện nguyện sử dụng:
+# 🎗️ HopeFund — Charity Donation Platform
 
-Backend: Node.js + Express (MVC)
+**The Future of Transparent Giving: A Hybrid Web3 Charity Ecosystem**
 
-Frontend: React.js + Vite
+[![Node.js](https://img.shields.io/badge/Node.js-v18+-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-v19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-v7-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![Solidity](https://img.shields.io/badge/Solidity-Smart_Contracts-363636?style=flat-square&logo=solidity&logoColor=white)](https://soliditylang.org/)
 
-Database: MySQL
+  <p align="center">
+    <a href="#📖-introduction">Introduction</a> •
+    <a href="#🛠️-technology-stack">Tech Stack</a> •
+    <a href="#✨-features">Features</a> •
+    <a href="#🏗️-architecture">Architecture</a> •
+    <a href="#📂-project-structure">Structure</a> •
+    <a href="#⚙️-installation">Installation</a> •
+    <a href="#🚀-usage">Usage</a>
+  </p>
+</div>
 
-Auth: Google Login (OAuth2)
+---
 
-📁 Cấu trúc thư mục dự án
-charity-donation/
-│
-├── backend/ # Server API (Express + MySQL)
-├── frontend/ # Client (React + Vite)
-├── database/ # File schema SQL
-├── docs/ # Tài liệu, sơ đồ, API spec
-└── README.md
-🖥 Backend Structure (Node.js + Express - MVC)
-backend/
-src/
-config/ # Cấu hình hệ thống (DB, env)
-controllers/ # Xử lý request → gọi service → trả response
-middleware/ # Middleware (auth, error handler...)
-models/ # Làm việc trực tiếp với MySQL (query)
-routes/ # Định nghĩa API endpoint
-services/ # Business logic
-utils/ # Hàm hỗ trợ chung
-validators/ # Validate request data
-database/ # (optional) seed/migration
-app.js # Khởi tạo express app
-server.js # Entry point
-.env
-package.json
-📌 Ý nghĩa từng tầng (MVC chuẩn)
-1️⃣ Routes
+## 📖 Introduction
 
-Chỉ định URL và chuyển request vào controller.
+**HopeFund** is a revolutionary, transparent charity donation platform designed to bridge the gap between traditional fiat donations and the modern Web3 ecosystem. By leveraging both **Banking (VNPAY)** and **Blockchain (USDT on BSC Testnet)**, HopeFund provides a secure, auditable, and user-friendly experience for donors, founders, and administrators.
 
-Ví dụ:
+Every donation on HopeFund is either verified through a secure payment gateway or recorded indefinitely on the blockchain, ensuring that your contribution reaches those in need with **100% transparency**.
 
-GET /api/projects
-POST /api/projects
-2️⃣ Controller
+---
 
-Nhận request
+## 🛠️ Technology Stack
 
-Gọi service
+| Layer | Technologies |
+|-------|-------------|
+| **Frontend** | React 19, Vite 7, React Router, Wagmi, Viem, Axios |
+| **Backend** | Node.js, Express 5, Socket.IO, JWT, Nodemailer |
+| **Database** | MySQL 8.0 |
+| **Blockchain** | Solidity, BSC Testnet, WalletConnect |
+| **Storage** | Cloudinary (Images), Pinata (IPFS Meta) |
+| **Payment** | Banking (VNPAY), Crypto (USDT BEP-20) |
 
-Trả response
+---
 
-Không viết logic phức tạp ở đây
+## ✨ Features
 
-3️⃣ Service
+### 🔐 1. Identity & Security
+- **Dual Login**: Authentication via Google OAuth2 or MetaMask Wallet.
+- **Robust Auth**: JWT-based session management with Access/Refresh token rotation.
+- **Verification**: OTP-based email verification to ensure real users.
+- **Protective Layer**: Backend rate-limiting to prevent brute-force and spam attacks.
 
-Xử lý logic nghiệp vụ
+### 💰 2. Hybrid Donation Gateway
+- **Banking**: Integrated with VNPAY for familiar, high-speed fiat donations.
+- **Crypto**: Direct USDT contributions to on-chain project vaults.
+- **Auditing**: Every crypto donation is linkable to the BSC Explorer.
 
-Tính toán
+### 🏦 3. Smart Vault Technology
+- **Isolation**: Each project has its own dedicated on-chain **Vault**.
+- **Governance**: Multi-stage withdrawal flow (Request → Email Verify → Admin Approval → On-chain Claim).
+- **Security**: Cryptographic signatures for secure, off-chain admin approval.
 
-Gọi model
+### 👤 4. User Experience & Gamification
+- **Badge System**: Earn status based on donation volume (Supporter → Philanthropist).
+- **Social Proof**: Public user profiles with donation history and earned badges.
+- **Real-time**: Live notifications for project approvals and activities via Socket.IO.
 
-4️⃣ Model
+### 🛠️ 5. Administrative Control
+- **Insights**: Full dashboard with analytics on donations, users, and project performance.
+- **Lifecycle**: Complete management of project proposals from draft to vault deployment.
+- **Moderation**: Centralized system for category and badge configuration.
 
-Viết query MySQL
+---
 
-Chỉ làm việc với DB
+## 🏗️ Architecture
 
-5️⃣ Middleware
+```mermaid
+graph TD
+    A[User/Founder Client - React] <-->|Socket.io/REST| B[Core Backend - Node.js/Express]
+    B <-->|ORM/Query| C[(Database - MySQL)]
+    A <-->|Wagmi/Viem| D[Blockchain - BSC Testnet]
+    B <-->|Viem/Private Key| D
+    B <-->|Cloudinary SDK| E[Cloud Storage - Images]
+    B <-->|Pinata SDK| F[IPFS Gateway - Metadata]
+    B <-->|SMTP| G[Email Service - OTP/Notifs]
+    A <-->|VNPAY SDK| H[VNPAY Gateway - Banking]
+```
 
-Xác thực JWT
+---
 
-Phân quyền role
+## 📂 Project Structure
 
-Xử lý lỗi chung
+### Backend (Node.js - MVC Pattern)
+```
+backend/src/
+├── config/             # DB, Mail, Cloudinary & Blockchain config
+├── controllers/        # Request handling logic (Auth, Projects, Donations...)
+├── middleware/         # Auth (JWT), Roles, RateLimit, Uploads
+├── models/             # Database queries (MySQL)
+├── routes/             # API endpoint definitions
+├── services/           # Business logic & 3rd-party integrations
+└── utils/              # Help functions (JWT signer, constants)
+```
 
-🌐 Frontend Structure (React + Vite)
-frontend/
-src/
-api/ # Axios config + gọi API
-components/ # Component tái sử dụng
-layouts/ # Layout chung (Navbar, Footer)
-pages/ # Mỗi trang 1 folder
-routes/ # Cấu hình React Router
-utils/ # Helper functions
-App.jsx
-main.jsx
-📌 Nguyên tắc tổ chức FE
+### Frontend (React - Component Architecture)
+```
+frontend/src/
+├── api/                # Axios instances & API modules
+├── components/         # Reusable UI (Navbar, Cards, Modals, Forms)
+├── context/            # Global State (Authentication)
+├── hooks/              # Custom hooks (Web3 hooks, Sockets, Logic)
+├── layouts/            # Page layouts (Main, Admin Dash)
+├── pages/              # Domain components (Home, Profile, Projects)
+└── routes/             # Client-side routing logic
+```
 
-pages/ = mỗi trang 1 thư mục
+### Smart Contracts (Hardhat)
+```
+contract/
+├── contracts/          # Solidity source code
+├── scripts/            # Deployment & Maintenance scripts
+└── test/               # Smart contract unit tests
+```
 
-components/ = dùng lại nhiều nơi
+---
 
-api/ = không gọi axios trực tiếp trong component
+## ⚙️ Installation
 
-Không viết logic API trong UI component
+### 1. Database Setup
+```bash
+# 1. Create a database in MySQL
+CREATE DATABASE charity_db;
 
-🗄 Database
+# 2. Import initial schema
+mysql -u root -p charity_db < database/schema.sql
 
-File schema nằm tại:
+# 3. Apply migrations (found in database/migrations.sql)
+# These are manual logs of changes made during development.
+```
 
-database/schema.sql
+### 2. Backend Config
+```bash
+cd backend && npm install
 
-Chạy lệnh sau trong MySQL:
-
-CREATE DATABASE charity_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-Sau đó import file schema.
-
-⚙ Hướng dẫn cài đặt dự án
-1️⃣ Clone project
-git clone <repo-url>
-cd charity-donation
-2️⃣ Cài đặt Backend
-cd backend
-npm install
-
-Tạo file .env:
-
-PORT=5000
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=
-DB_NAME=charity_db
-
-Chạy server:
+# Create .env with the following core sections:
+# - DB Config (HOST, USER, PASS, NAME)
+# - JWT Secrets (ACCESS, REFRESH)
+# - Google API (CLIENT_ID)
+# - Blockchain Config (ADMIN_PRIVATE_KEY, FACTORY_ADDRESS)
+# - VNPAY & Cloudinary credentials
 
 npm run dev
+```
 
-Backend sẽ chạy tại:
+### 3. Frontend Config
+```bash
+cd frontend && npm install
 
-http://localhost:5000
-3️⃣ Cài đặt Frontend
-cd frontend
-npm install
+# Create .env with:
+# - VITE_API_BASE_URL
+# - VITE_SOCKET_URL
+# - VITE_WALLETCONNECT_PROJECT_ID
+# - VITE_BSC_EXPLORER_URL
+
 npm run dev
+```
 
-Frontend sẽ chạy tại:
+---
 
-http://localhost:5173
-🧑‍💻 Quy tắc làm việc nhóm
-🌿 Git Flow
+## 🔒 API Documentation (Core Endpoints)
 
-Branch chính:
+Sensitive endpoints are protected with rate limiting. For the full list of all API endpoints and their specifications, please refer to the **[Full API Documentation](docs/API_DOCUMENTATION.md)**.
 
-main # production
-dev # branch phát triển chung
-feature/\* # branch tính năng
+| Method | Endpoint | Description | Limit |
+|:---:|:---|:---|:---:|
+| POST | `/api/auth/login` | Google OAuth / Email login | 10/15m |
+| POST | `/api/auth/wallet/login` | Sign-in via MetaMask | 10/15m |
+| POST | `/api/donations/projects/:id/donate` | Create Banking/Crypto donation | 30/15m |
+| POST | `/api/users/send-verification-otp` | Trigger verification email | 3/15m |
+| POST | `/api/projects` | Submit new project proposal | 10/15m |
 
-Ví dụ:
+---
 
-feature/auth
-feature/projects
-feature/donations
-📝 Quy ước đặt tên
-📌 Backend file naming
-projects.routes.js
-projects.controller.js
-projects.service.js
-projects.model.js
-📌 API endpoint naming
-Method Endpoint
-GET /api/projects
-GET /api/projects/:id
-POST /api/projects
-POST /api/projects/:id/donate
-📌 Database naming
+## 📄 License & Notes
 
-Table: snake_case
+- **License**: Educational purpose only.
+- **Database History**: All manual table changes and updates are tracked in [database/migrations.sql](database/migrations.sql).
 
-Column: snake_case
-
-FK: user_id, project_id
-
-Timestamp: created_at, updated_at
-
-📌 Biến trong JS
-
-camelCase cho biến và function
-
-PascalCase cho Component React
-
-🔐 Quy tắc viết code Backend
-
-✔ Controller không viết query
-✔ Model không xử lý business logic
-✔ Service không trả response trực tiếp
-✔ Middleware không viết logic nghiệp vụ
-
-🎨 Quy tắc viết code Frontend
-
-✔ Không gọi axios trực tiếp trong component
-✔ Tách component lớn thành component nhỏ
-✔ Có loading state
-✔ Có error handling
-
-📦 Package sử dụng
-Backend
-
-express
-
-mysql2
-
-dotenv
-
-cors
-
-(dev)
-
-nodemon
-
-Frontend
-
-react-router-dom
-
-axios
-
-🚀 Quy trình phát triển tính năng
-
-Ví dụ thêm feature “Donations”:
-
-Tạo file:
-
-donations.routes.js
-
-donations.controller.js
-
-donations.service.js
-
-donations.model.js
-
-Tạo API
-
-Test bằng Postman
-
-Tạo page hoặc component FE
-
-Kết nối API
-
-Tạo Pull Request
-
-🧪 Kiểm tra trước khi push
-
-Không console.log thừa
-
-Không commit file .env
-
-Code format sạch
-
-Test endpoint bằng Postman
-
-📌 Mục tiêu kiến trúc
-
-Đơn giản
-
-Dễ mở rộng
-
-Theo chuẩn MVC
-
-Không phức tạp hóa
-
-Dễ bảo trì
-
-📞 Tài khoản demo (sẽ cập nhật sau)
-
-Admin:
-
-Founder:
-
-User:
-
--- 11/3 (Hari)
-Chỉnh db
-USE charity_db;
-ALTER TABLE users
-MODIFY google_sub VARCHAR(255) NULL;
-
-USE charity_db;
-ALTER TABLE users
-MODIFY email VARCHAR(255) NULL;
-
--- 12/3(Hai)
-USE charity_db;
-ALTER TABLE users
-ADD COLUMN is_verified TINYINT(1) DEFAULT 0;
-
-ALTER TABLE users
-ADD CONSTRAINT unique_wallet UNIQUE (linked_wallet);
-
---22/3
-use charity_db;
-
--- 1. Cập nhật ENUM cho status để bao gồm PENDING_EMAIL và đặt làm mặc địn
-ALTER TABLE withdraw_requests 
-MODIFY COLUMN status ENUM('PENDING_EMAIL', 'PENDING', 'APPROVED', 'REJECTED', 'CLAIMED') 
-DEFAULT 'PENDING_EMAIL';
--- 2. Thêm cột phân loại rút tiền (Crypto/Banking)
-ALTER TABLE withdraw_requests 
-ADD COLUMN type ENUM('CRYPTO', 'BANKING') NOT NULL DEFAULT 'CRYPTO';
--- 3. Thêm các cột thông tin ngân hàng
-ALTER TABLE withdraw_requests 
-ADD COLUMN bank_name VARCHAR(255) NULL,
-ADD COLUMN account_number VARCHAR(100) NULL,
-ADD COLUMN account_name VARCHAR(255) NULL;
--- 4. Thêm cột token xác thực email
-ALTER TABLE withdraw_requests 
-ADD COLUMN verification_token VARCHAR(255) NULL;
-
-ALTER TABLE withdraw_approvals ADD COLUMN deadline BIGINT AFTER nonce;
-
--- 22/3 (Phase 3: IPFS + Vault)
-ALTER TABLE projects ADD COLUMN ipfs_cid VARCHAR(255) NULL;
-ALTER TABLE projects ADD COLUMN meta_hash VARCHAR(255) NULL;
-
-
---23/2 Dat (Thêm 2 bảng mới)
-use charity_db;
-
-CREATE TABLE badges (
-    id BIGINT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL,
-    slug VARCHAR(120) NOT NULL,
-    description VARCHAR(255) DEFAULT NULL,
-    min_points DECIMAL(18,2) NOT NULL,
-    icon_url VARCHAR(500) DEFAULT NULL,
-    color VARCHAR(50) DEFAULT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    UNIQUE KEY unique_badge_name (name),
-    UNIQUE KEY unique_badge_slug (slug)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE user_badges (
-    id BIGINT NOT NULL AUTO_INCREMENT,
-    user_id BIGINT NOT NULL,
-    badge_id BIGINT NOT NULL,
-    earned_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    is_selected TINYINT(1) DEFAULT 0,
-    PRIMARY KEY (id),
-    UNIQUE KEY unique_user_badge (user_id, badge_id),
-    KEY idx_user_badges_user (user_id),
-    KEY idx_user_badges_badge (badge_id),
-    CONSTRAINT fk_user_badges_user
-        FOREIGN KEY (user_id) REFERENCES users(id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_user_badges_badge
-        FOREIGN KEY (badge_id) REFERENCES badges(id)
-        ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-INSERT INTO badges (name, slug, description, min_points, color)
-VALUES
-('Supporter', 'supporter', 'Reached 100 donation points', 100, '#4CAF50'),
-('Contributor', 'contributor', 'Reached 500 donation points', 500, '#2196F3'),
-('Benefactor', 'benefactor', 'Reached 1000 donation points', 1000, '#9C27B0'),
-('Philanthropist', 'philanthropist', 'Reached 5000 donation points', 5000, '#FF5722');
+<div align="center">
+  <br />
+  <p><strong>Built with ❤️ by the HopeFund Team</strong></p>
+</div>
