@@ -81,3 +81,16 @@
   font-style: italic;
   font-size: 0.875rem;
 }
+
+.status-badge-archived {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #991b1b;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  letter-spacing: 0.025em;
+}
