@@ -9,7 +9,20 @@ const errorHandler = require("./middleware/errorHandler");
 const app = express();
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: function (origin, callback) {
+        const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+        const allowedOrigins = [
+            clientUrl,
+            "http://localhost:5173",
+            "http://localhost:4173",
+        ];
+        // Allow Vercel preview deployments (*.vercel.app)
+        if (!origin || allowedOrigins.includes(origin) || /\.vercel\.app$/.test(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     credentials: true
 }));
 app.use(express.json());
