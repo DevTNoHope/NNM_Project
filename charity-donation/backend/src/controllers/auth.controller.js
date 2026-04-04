@@ -2,10 +2,12 @@ const authService = require("../services/auth.service");
 const response = require("../utils/response");
 const ApiError = require("../utils/apiError");
 
+const isProduction = process.env.NODE_ENV === "production" || process.env.RENDER === "true";
+
 const getCookieOptions = () => ({
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax",
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
   maxAge: 7 * 24 * 60 * 60 * 1000,
 });
 
