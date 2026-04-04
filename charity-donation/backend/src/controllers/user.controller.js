@@ -62,9 +62,12 @@ const sendVerificationOtp = async (req, res, next) => {
       return next(new ApiError(401, "Unauthorized"));
     }
 
+    console.log("[OTP] Sending OTP for user:", req.user.id);
     const data = await usersService.sendVerificationOtp(req.user.id);
+    console.log("[OTP] Sent successfully");
     return response.ok(res, data, "Send verification OTP successfully");
   } catch (err) {
+    console.error("[OTP] Error:", err.message, err.code, err.stack);
     return next(err);
   }
 };
