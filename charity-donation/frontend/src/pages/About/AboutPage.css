@@ -16,7 +16,7 @@
   font-size: var(--text-xl);
   color: rgba(255, 255, 255, 0.85);
 }
-
+/*The hero title is large and bold*/
 .about-intro {
   padding: var(--space-16) 0;
 }
