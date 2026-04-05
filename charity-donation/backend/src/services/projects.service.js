@@ -1,6 +1,7 @@
 const ApiError = require("../utils/apiError");
 const projectsModel = require("../models/projects.model");
 const donationsModel = require("../models/donations.model");
+const usersModel = require("../models/users.model");
 
 const EDITABLE_STATUSES = ["DRAFT", "REJECTED"];
 
@@ -38,6 +39,18 @@ async function getProjectById(id) {
 }
 
 async function createProject(userId, payload) {
+  // Check user eligibility: must verify email & link wallet
+  const user = await usersModel.findById(userId);
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+  if (!user.is_verified) {
+    throw new ApiError(403, "You must verify your email before creating a project");
+  }
+  if (!user.linked_wallet) {
+    throw new ApiError(403, "You must link a wallet before creating a project");
+  }
+
   validateProjectPayload(payload);
 
   const { categoryId, title, description, goalAmount, coverImageUrl } = payload;

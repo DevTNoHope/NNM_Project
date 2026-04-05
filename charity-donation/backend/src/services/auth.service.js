@@ -29,6 +29,7 @@ const sanitizeUser = (user) => ({
   role: user.role,
   linked_wallet: user.linked_wallet || null,
   google_sub: user.google_sub || null,
+  is_verified: Boolean(user.is_verified),
 });
 
 const loginWithWallet = async ({ address, message, signature }) => {
