@@ -41,6 +41,9 @@ export const deleteMyProject = (projectId) =>
 export const submitProjectForReview = (projectId) =>
   http.post(`/projects/${projectId}/submit`);
 
+export const stopProject = (projectId) =>
+  http.patch(`/projects/${projectId}/stop`);
+
 /**
  * =========================
  * DONATION APIs

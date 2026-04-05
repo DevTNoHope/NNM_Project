@@ -23,6 +23,7 @@ router.get("/me", authJwt, requireRole("USER", "FOUNDER"), projectsController.ge
 router.put("/:id", authJwt, requireRole("USER", "FOUNDER"), upload.single("coverImage"), projectsController.updateMyProject);
 router.delete("/:id", authJwt, requireRole("USER", "FOUNDER"), projectsController.deleteMyProject);
 router.post("/:id/submit", createRateLimit({ limit: 10 }), authJwt, requireRole("USER", "FOUNDER"), projectsController.submitProject);
+router.patch("/:id/stop", authJwt, requireRole("FOUNDER"), projectsController.stopProject);
 
 // Founder only
 router.get("/founder/me", authJwt, requireRole("FOUNDER"), projectsController.getFounderProjects);

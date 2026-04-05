@@ -186,6 +186,10 @@ async function createDonation(payload) {
     throw new ApiError(404, "Project not found");
   }
 
+  if (project.status !== "PUBLISHED") {
+    throw new ApiError(400, "This project is no longer accepting donations");
+  }
+
   if (normalizedDonationType === "CRYPTO") {
     if (!project.vault_address) {
       throw new ApiError(400, "Project does not have vault address");

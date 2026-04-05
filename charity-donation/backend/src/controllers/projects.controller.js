@@ -114,6 +114,17 @@ async function submitProject(req, res, next) {
   }
 }
 
+async function stopProject(req, res, next) {
+  try {
+    const userId = req.user.id;
+    const projectId = Number(req.params.id);
+    const data = await projectsService.stopProject(userId, projectId);
+    return ok(res, data);
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function getFounderProjects(req, res, next) {
   try {
     const userId = req.user.id;
@@ -154,6 +165,7 @@ module.exports = {
   updateMyProject,
   deleteMyProject,
   submitProject,
+  stopProject,
   getFounderProjects,
   getDonationsByProjectId,
 };

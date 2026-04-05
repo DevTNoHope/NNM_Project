@@ -6,14 +6,15 @@ import {
   getProjectById,
   getProjectDonations,
   getProjectUpdates,
-  createProjectUpdate
+  createProjectUpdate,
+  stopProject
 } from "@/api/projectApi";
 import Button from "@/components/common/Button";
 import Spinner from "@/components/common/Spinner";
 import CampaignProgressStat from "@/components/project/FounderDashboard/CampaignProgressStat";
 import RecentDonationsTable from "@/components/project/FounderDashboard/RecentDonationsTable";
 import PostUpdateForm from "@/components/project/FounderDashboard/PostUpdateForm";
-import { alertSuccess, alertError } from "@/utils/alert";
+import { alertSuccess, alertError, alertConfirm } from "@/utils/alert";
 import TimelineHistory from "@/components/project/FounderDashboard/TimelineHistory";
 import WithdrawalModal from "@/components/project/FounderDashboard/WithdrawalModal";
 import withdrawApi from "@/api/withdraw.api";
@@ -33,6 +34,7 @@ export default function FounderProjectDashboard() {
   const [notFound, setNotFound] = useState(false);
   const [withdrawals, setWithdrawals] = useState([]);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [stoppingCampaign, setStoppingCampaign] = useState(false);
 
   const [newUpdate, setNewUpdate] = useState({ title: "", content: "", imageFile: null, imagePreview: "" });
   const [submittingUpdate, setSubmittingUpdate] = useState(false);
@@ -57,8 +59,8 @@ export default function FounderProjectDashboard() {
             setNotFound(true);
             return;
           }
-          // Only allow managing PUBLISHED or APPROVED projects
-          if (!['PUBLISHED', 'APPROVED'].includes(p.status)) {
+          // Only allow managing PUBLISHED, APPROVED, or ARCHIVED projects
+          if (!['PUBLISHED', 'APPROVED', 'ARCHIVED'].includes(p.status)) {
             setNotFound(true);
             return;
           }
@@ -127,6 +129,27 @@ export default function FounderProjectDashboard() {
     }
   };
 
+  const handleStopCampaign = async () => {
+    const confirmed = await alertConfirm({
+      title: "Stop Campaign?",
+      text: "This will archive the project and stop accepting new donations. This action cannot be undone.",
+      confirmText: "Yes, stop campaign",
+      isDanger: true,
+    });
+    if (!confirmed) return;
+
+    setStoppingCampaign(true);
+    try {
+      await stopProject(project.id);
+      setProject(prev => ({ ...prev, status: "ARCHIVED" }));
+      alertSuccess("Campaign stopped!", "Your project has been archived.");
+    } catch (err) {
+      alertError("Error", err.response?.data?.message || "Failed to stop campaign.");
+    } finally {
+      setStoppingCampaign(false);
+    }
+  };
+
   if (loading) return <Spinner center size="lg" />;
   if (notFound) return <NotFoundPage />;
   if (error) return <div className="p-8 text-center text-red-600">{error}</div>;
@@ -151,6 +174,15 @@ export default function FounderProjectDashboard() {
           <Button variant="primary" onClick={() => navigate(`/projects/${project.id}`)}>
             View Public Page
           </Button>
+          {project.status === "PUBLISHED" && (
+            <Button
+              variant="danger"
+              onClick={handleStopCampaign}
+              disabled={stoppingCampaign}
+            >
+              {stoppingCampaign ? "Stopping..." : "Stop Campaign"}
+            </Button>
+          )}
         </div>
       </div>
 

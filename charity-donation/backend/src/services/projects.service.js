@@ -175,6 +175,38 @@ async function submitProject(userId, projectId) {
   };
 }
 
+async function stopProject(userId, projectId) {
+  if (!Number.isFinite(projectId)) {
+    throw new ApiError(400, "Invalid project id");
+  }
+
+  const project = await projectsModel.findById(projectId);
+  if (!project) {
+    throw new ApiError(404, "Project not found");
+  }
+
+  if (project.founder_id !== userId) {
+    throw new ApiError(
+      403,
+      "You do not have permission to stop this project",
+    );
+  }
+
+  if (project.status !== "PUBLISHED") {
+    throw new ApiError(
+      400,
+      "Only projects in PUBLISHED status can be stopped",
+    );
+  }
+
+  await projectsModel.updateStatus(projectId, "ARCHIVED");
+
+  return {
+    message: "Campaign stopped successfully. The project is now archived.",
+    status: "ARCHIVED",
+  };
+}
+
 async function getFounderProjects(userId) {
   return projectsModel.findFounderProjects(userId);
 }
@@ -220,6 +252,7 @@ module.exports = {
   updateMyProject,
   deleteMyProject,
   submitProject,
+  stopProject,
   getFounderProjects,
   getDonationsByProjectId,
 };
