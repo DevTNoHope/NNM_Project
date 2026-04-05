@@ -11,6 +11,7 @@
   margin-bottom: var(--space-4);
 }
 
+/* The hero title is large and bold, using a display font to create a memorable first impression. The white color contrasts sharply with the background for maximum readability. */
 .about-hero__sub {
   font-size: var(--text-xl);
   color: rgba(255, 255, 255, 0.85);
