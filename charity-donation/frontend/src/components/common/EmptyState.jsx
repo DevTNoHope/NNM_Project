@@ -2,7 +2,7 @@ import './EmptyState.css';
 import Button from './Button';
 import { Link } from 'react-router-dom';
 
-const EmptyState = ({ title = 'Nothing here yet', description, action, actionPath }) => (
+const EmptyState = ({ title = 'Nothing here yet', description, action, actionPath, onAction }) => (
   <div className="empty-state">
     <div className="empty-state__icon">🔍</div>
     <h3 className="empty-state__title">{title}</h3>
@@ -10,6 +10,9 @@ const EmptyState = ({ title = 'Nothing here yet', description, action, actionPat
     {action && actionPath && (
       <Button as={Link} to={actionPath} variant="primary" size="md">{action}</Button>
     )}
+    {action && onAction && !actionPath && (
+      <Button variant="primary" size="md" onClick={onAction}>{action}</Button>
+    )}
   </div>
 );
-export default EmptyState;
+export default EmptyState;
