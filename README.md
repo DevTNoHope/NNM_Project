@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="frontend/public/hopefund-logo.png" alt="HopeFund Logo" width="200" />
+  <img src="charity-donation/frontend/public/hopefund-logo.png" width="200" />
 
 # 🎗️ HopeFund — Charity Donation Platform
 
