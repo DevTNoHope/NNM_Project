@@ -1,0 +1,24 @@
+/* ═══════════════════════════════════════
+   FEATURE CARDS — 3 columns desktop
+═══════════════════════════════════════ */
+
+.feature-section {
+  width: 100%;
+  padding: var(--space-4) 0 var(--space-16);
+}
+
+.feature-section__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);   /* 3 cols, explicit desktop */
+  gap: var(--space-6);
+}
+
+/* ── Tablet: 2 cols ── */
+@media (max-width: 1199px) {
+  .feature-section__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Mobile: 1 col ── */
+@media (max-width: 767px) {
+  .feature-section__grid { grid-template-columns: 1fr; }
+}

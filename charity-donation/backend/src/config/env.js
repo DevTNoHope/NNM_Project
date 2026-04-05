@@ -16,7 +16,19 @@ const env = {
     refreshSecret: process.env.JWT_REFRESH_SECRET,
     accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "1h",
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "7d"
-  }
+  },
+
+  google: {
+    clientId: process.env.GOOGLE_CLIENT_ID
+  },
+
+vnpay: {
+  tmnCode: process.env.VNPAY_TMN_CODE,
+  hashSecret: process.env.VNPAY_HASH_SECRET,
+  url: process.env.VNPAY_URL,
+  returnUrl: process.env.VNPAY_RETURN_URL
+}
+
 };
 
 module.exports = env;

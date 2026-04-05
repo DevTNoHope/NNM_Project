@@ -1,0 +1,40 @@
+/* ═══════════════════════════════════════
+   PARTNERS — horizontal logo row
+═══════════════════════════════════════ */
+
+.partners-section {
+  width: 100%;
+  padding: var(--space-12) 0;
+  border-top:    1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.partners-section__title {
+  text-align: center;
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  margin-bottom: var(--space-8);
+}
+
+.partners-section__logos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-2) var(--space-8);
+}
+
+.partner-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+.partner-logo:hover { background: var(--color-surface-hover); color: var(--color-text); }
+.partner-logo__icon { font-size: 2rem; line-height: 1; }
+.partner-logo__name { font-weight: 700; font-size: var(--text-lg); }

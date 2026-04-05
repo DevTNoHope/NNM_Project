@@ -1,35 +1,52 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { createContext, useState, useEffect } from "react";
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./routes";
+import { getStoredTheme, applyTheme } from "./utils/theme";
+import { AuthProvider } from "./context/AuthContext";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "./styles/global.css";
+
+import { ConfigProvider, theme as antdTheme } from "antd";
+
+export const ThemeContext = createContext({
+  theme: "light",
+  toggleTheme: () => { },
+});
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [theme, setTheme] = useState(getStoredTheme);
+
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((t) => (t === "light" ? "dark" : "light"));
+  };
+
+  const isDark = theme === "dark";
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <ConfigProvider
+      theme={{
+        algorithm: isDark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+        token: {
+          colorPrimary: '#4F46E5', // Matches HopeFund primary color
+          fontFamily: 'var(--font-body)',
+        }
+      }}
+    >
+      <ThemeContext.Provider value={{ theme, toggleTheme }}>
+        <AuthProvider>
+          <BrowserRouter>
+            <AppRoutes />
+            <ToastContainer position="top-right" autoClose={3000} />
+          </BrowserRouter>
+        </AuthProvider>
+      </ThemeContext.Provider>
+    </ConfigProvider>
+  );
 }
 
-export default App
+export default App;

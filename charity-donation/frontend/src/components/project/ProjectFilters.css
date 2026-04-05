@@ -1,0 +1,22 @@
+.project-filters { display: flex; flex-direction: column; gap: var(--space-4); margin-bottom: var(--space-8); }
+.project-filters__row { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-end; }
+.project-filters__group { display: flex; flex-direction: column; gap: var(--space-2); }
+.project-filters__label { font-size: var(--text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); }
+.project-filters__pills { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+.project-filters__select {
+  padding: var(--space-2) var(--space-4);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  cursor: pointer; min-width: 160px;
+  font-family: var(--font-body);
+}
+.project-filters__select:focus { outline: none; border-color: var(--color-primary); }
+
+.project-filters__meta { display: flex; align-items: center; justify-content: space-between; }
+.project-filters__count { font-size: var(--text-sm); color: var(--color-text-muted); }
+.project-filters__clear { font-size: var(--text-sm); color: var(--color-danger); background: none; border: none; cursor: pointer; font-weight: 500; }
+.project-filters__clear:hover { text-decoration: underline; }

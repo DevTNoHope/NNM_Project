@@ -1,6 +1,8 @@
+const http = require("http");
 const app = require("./app");
 const env = require("./config/env");
 const pool = require("./config/db");
+const { initSocket } = require("./utils/socket");
 
 function start() {
   // test DB connection once before listen
@@ -13,7 +15,10 @@ function start() {
     console.log("✅ Database connected");
     conn.release();
 
-    app.listen(env.port, "0.0.0.0", () => {
+    const server = http.createServer(app);
+    initSocket(server);
+
+    server.listen(env.port, "0.0.0.0", () => {
       console.log(`🚀 Server running on http://localhost:${env.port}`);
     });
   });

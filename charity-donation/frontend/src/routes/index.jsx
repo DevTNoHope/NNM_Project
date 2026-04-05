@@ -1,0 +1,78 @@
+import { Routes, Route, Navigate } from "react-router-dom";
+import MainLayout from "@/layouts/MainLayout";
+import HomePage from "@/pages/Home/HomePage";
+import ProjectsPage from "@/pages/Projects/ProjectsPage";
+import ProjectDetailPage from "@/pages/ProjectDetail/ProjectDetailPage";
+import AboutPage from "@/pages/About/AboutPage";
+import FAQPage from "@/pages/FAQ/FAQPage";
+import CommunityPage from "@/pages/Community/CommunityPage";
+import BlogPage from "@/pages/Blog/BlogPage";
+import NotFoundPage from "@/pages/NotFound/NotFoundPage";
+import SignInPage from "@/pages/SignIn/SignInPage";
+import ProtectedRoute from "./ProtectedRoute";
+import ProfilePage from "@/pages/Profile/ProfilePage";
+import UserProjectsPage from "@/pages/UserProjects/UserProjectsPage";
+import UserProjectFormPage from "@/pages/UserProjects/UserProjectFormPage";
+import FounderProjectDashboard from "@/pages/Founder/Projects/FounderProjectDashboard";
+
+// Admin Imports
+import AdminLayout from "@/layouts/AdminLayout/AdminLayout";
+import AdminDashboard from "@/pages/Admin/Dashboard/AdminDashboard";
+import PendingProjects from "@/pages/Admin/Projects/PendingProjects";
+import AdminCategories from "@/pages/Admin/Categories/AdminCategories";
+import AdminUsers from "@/pages/Admin/Users/AdminUsers";
+import WithdrawalManagement from "@/pages/Admin/Withdrawal/WithdrawalManagement";
+import WithdrawalVerification from "@/pages/Founder/Withdrawal/WithdrawalVerification";
+import ClaimWithdrawal from "@/pages/Founder/Withdrawal/ClaimWithdrawal";
+import AdminRoute from "./AdminRoute";
+import Badges from "@/pages/Admin/Badges/Badges";//Thêm
+const AppRoutes = () => (
+  <Routes>
+    {/* Admin Routes */}
+    <Route path="/admin" element={<AdminRoute />}>
+      <Route element={<AdminLayout />}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="dashboard" element={<Navigate to="/admin" replace />} />
+        <Route path="projects/pending" element={<PendingProjects />} />
+        <Route path="categories" element={<AdminCategories />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="badges" element={<Badges />} />
+        <Route path="withdrawals" element={<WithdrawalManagement />} />
+      </Route>
+    </Route>
+
+    {/* Public Routes */}
+    <Route path="/signin" element={<SignInPage />} />
+    <Route path="/verify-withdrawal" element={<WithdrawalVerification />} />
+    <Route path="/claim-withdrawal" element={<ClaimWithdrawal />} />
+    <Route element={<MainLayout />}>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/projects" element={<ProjectsPage />} />
+      <Route path="/projects/:slug" element={<ProjectDetailPage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/faq" element={<FAQPage />} />
+      <Route path="/community" element={<CommunityPage />} />
+      <Route path="/blog" element={<BlogPage />} />
+      <Route path="/blog/:slug" element={<BlogPage />} />
+      <Route element={<ProtectedRoute />}>
+        {/* profile của mình */}
+        <Route path="/profile" element={<ProfilePage isMe={true} />} />
+        {/* profile của người khác */}
+        <Route path="/profile/:userId" element={<ProfilePage isMe={false} />} />
+
+        {/* User Projects (Drafts) */}
+        <Route path="/my-projects" element={<UserProjectsPage />} />
+        <Route path="/my-projects/create" element={<UserProjectFormPage />} />
+        <Route path="/my-projects/:id/edit" element={<UserProjectFormPage />} />
+
+        {/* Founder */}
+        <Route
+          path="/founder/projects/:id"
+          element={<FounderProjectDashboard />}
+        />
+      </Route>
+      <Route path="*" element={<NotFoundPage />} />
+    </Route>
+  </Routes>
+);
+export default AppRoutes;

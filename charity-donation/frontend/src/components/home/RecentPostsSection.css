@@ -1,0 +1,98 @@
+/* ═══════════════════════════════════════
+   RECENT POSTS — 3 columns
+═══════════════════════════════════════ */
+
+.recent-posts {
+  width: 100%;
+  padding: var(--space-16) 0;
+}
+
+.recent-posts__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-8);
+}
+.recent-posts__title { font-size: var(--text-3xl); font-weight: 800; }
+.recent-posts__link  {
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+.recent-posts__link:hover { text-decoration: underline; }
+
+.recent-posts__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+}
+
+
+/* ── Top Donations Marquee ── */
+.top-donations__marquee {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  padding: 10px 0;
+}
+
+.top-donations__track {
+  display: flex;
+  gap: 20px;
+  width: max-content;
+  animation: marquee-scroll 40s linear infinite;
+}
+
+.top-donations__track:hover {
+  animation-play-state: paused;
+}
+
+.donation-item {
+  flex: 0 0 300px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.donation-item:hover {
+  transform: translateY(-5px);
+  border-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.donation-item__amount {
+  font-weight: 600;
+  color: var(--color-primary);
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+
+.donation-item__user {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+
+.donation-item__project {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── Tablet ── */
+@media (max-width: 1199px) {
+  .recent-posts__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Mobile ── */
+@media (max-width: 767px) {
+  .recent-posts__grid { grid-template-columns: 1fr; }
+  .top-donations__track { animation-duration: 25s; }
+}

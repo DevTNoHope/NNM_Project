@@ -1,0 +1,52 @@
+# ============================================
+# HopeFund - Docker Compose (Local Development)
+# ============================================
+# Usage: docker-compose up --build
+
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hopefund-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - hopefund-network
+
+  db:
+    image: mysql:8.0
+    container_name: hopefund-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root123}
+      MYSQL_DATABASE: ${DB_NAME:-hopefund}
+      MYSQL_USER: ${DB_USER:-hopefund_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-hopefund_pass}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hopefund-network
+
+volumes:
+  mysql_data:
+
+networks:
+  hopefund-network:
+    driver: bridge
