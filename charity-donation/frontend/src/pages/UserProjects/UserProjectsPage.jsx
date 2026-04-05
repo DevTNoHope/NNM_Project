@@ -20,6 +20,27 @@ export default function UserProjectsPage() {
   const [error, setError] = useState("");
   const [selectedProject, setSelectedProject] = useState(null);
 
+  const checkEligibility = () => {
+    const issues = [];
+    if (!user?.is_verified) issues.push("• Verify your email");
+    if (!user?.linked_wallet) issues.push("• Link a wallet to your account");
+
+    if (issues.length > 0) {
+      alertError(
+        "Cannot Create Project",
+        `Please complete the following before creating a project:\n${issues.join("\n")}`
+      );
+      return false;
+    }
+    return true;
+  };
+
+  const handleCreateClick = () => {
+    if (checkEligibility()) {
+      navigate("/my-projects/create");
+    }
+  };
+
   const fetchProjects = async () => {
     try {
       setLoading(true);
@@ -80,7 +101,7 @@ export default function UserProjectsPage() {
             Manage your fundraising campaigns.
           </p>
         </div>
-        <Button variant="primary" onClick={() => navigate("/my-projects/create")}>
+        <Button variant="primary" onClick={handleCreateClick}>
           + Create Project
         </Button>
       </div>
@@ -92,7 +113,7 @@ export default function UserProjectsPage() {
           title="No projects found"
           description="You haven't created any campaigns yet. Let's get started!"
           action="Create a Project"
-          actionPath="/my-projects/create"
+          onAction={handleCreateClick}
         />
       ) : (
         <UserProjectsTable 

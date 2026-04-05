@@ -2,16 +2,35 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProjectById, createProjectDraft, updateMyProject } from "@/api/projectApi";
 import { getCategories } from "@/api/categoryApi";
+import { useAuth } from "@/context/AuthContext";
 import Button from "@/components/common/Button";
 import Spinner from "@/components/common/Spinner";
 import UserProjectForm from "@/components/project/UserProjectForm";
-import { alertSuccess } from "@/utils/alert";
+import { alertSuccess, alertError } from "@/utils/alert";
 import "./UserProjects.css";
 
 export default function UserProjectFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const isEditing = Boolean(id);
+
+  // Block create (not edit) if user hasn't verified email or linked wallet
+  useEffect(() => {
+    if (isEditing) return;
+
+    const issues = [];
+    if (!user?.is_verified) issues.push("• Verify your email");
+    if (!user?.linked_wallet) issues.push("• Link a wallet to your account");
+
+    if (issues.length > 0) {
+      alertError(
+        "Cannot Create Project",
+        `Please complete the following before creating a project:\n${issues.join("\n")}`
+      );
+      navigate("/my-projects", { replace: true });
+    }
+  }, [user, isEditing, navigate]);
 
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
