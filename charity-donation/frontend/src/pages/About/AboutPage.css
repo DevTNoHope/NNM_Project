@@ -3,7 +3,7 @@
   padding: var(--space-20) 0;
   text-align: center;
 }
-
+/* The hero section has a vibrant gradient background and ample padding to create a strong visual impact. The text is centered to draw attention to the key message. */
 .about-hero__title {
   font-size: var(--text-5xl);
   font-weight: 800;
